@@ -1,3 +1,4 @@
+#include "sys/wait.h"
 #include "time.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -9,7 +10,7 @@
 
 #define MAX_ARGUMENTS_SIZE 100
 
-const char *builtin_commands[] = { "cd", "history" };
+const char *builtin_commands[] = { "cd" };
 // the first sizeof() returns the number of bytes that the array holds. builtin_commands is an array of pointers.
 // In a 64-bit system, each pointer is 8 bytes long, meaning we get a total of 16 bytes, divided by the size of one pointer
 // (16 / 8) and we have the number of elements
@@ -18,53 +19,80 @@ int number_of_builtin_commands = sizeof(builtin_commands) / sizeof(builtin_comma
 bool is_builtin_command(char command[]) {
     for (size_t i = 0; i < number_of_builtin_commands; i++) {
         if (strcmp(command, builtin_commands[i]) == 0) {
-            return true; // Command is found in the list of built-ins
+            return true;
         }
     }
-    return false; // Command not found in the list of built-ins
+    return false;
 }
 
-int execute_command(char *input) {
-    // Create a new child process (e.g. fork) that runs the code from here on
-    pid_t pid = fork();
+int run_builtin_command(char *command[]) {
+    if (strcmp("cd", command[0]) == 0) {
+        char* path = command[1];
+        // If no path provided, use $HOME
+        if (path == NULL) {
+            path = getenv("HOME");
+            if (path == NULL) {
+                fprintf(stderr, "cd: HOME environment variable is not set\n");
+                return -1;
+            }
+        }
+        chdir(path);
+    }
 
-    char *token = strtok(input, " ");
-    // The first token is the command
-    char *command = strdup(token);
+    return 0;
+}
+
+// If the command is not a builtin, we run it as a child process
+int run_child_process(char *args[]) {
+    pid_t pid = fork(); // Create a new child process (e.g. fork) that runs the code from here on
 
     if (pid < 0) {
-        // Fork failed
         perror("Fork failed");
         return -1;
     }
 
-    // If the current caller is the child process (pid 0), execute the command and exit
+    // child process (pid 0), execute the command and exit
     if (pid == 0) {
-        if (is_builtin_command(command)) {
-
-        }
-
-        char *args[MAX_ARGUMENTS_SIZE];
-        // For whatever reason, execvp wants the first argument to be the command
-        args[0] = command;
-
-        // Fill args with the rest of the input
-        int i = 1;
-        while ((token = strtok(NULL, " ")) != NULL && i < MAX_ARGUMENTS_SIZE - 1) {
-            args[i++] = token;
-        }
-        // null-terminate the arguments array
-        args[i] = NULL;
-
         // Execute the command
-        execvp(command, args);
+        execvp(args[0], args);
         exit(0);
-    } else {
-        // In case of it being the parent process, wait for child to finish
-        wait(NULL);
     }
 
-    return 1;
+    int status;
+    // parent process (pid > 0), wait for child to finish
+    if (waitpid(pid, &status, 0) == -1) {
+        perror("waitpid() failed");
+        return -1;
+    }
+
+    return WEXITSTATUS(status);
+}
+
+int execute_command(char *input) {
+    char *token = strtok(input, " ");
+    char *args[MAX_ARGUMENTS_SIZE];
+    args[0] = strdup(token);
+
+    // Fill args with the rest of the input
+    int i = 1;
+    while ((token = strtok(NULL, " ")) != NULL && i < MAX_ARGUMENTS_SIZE - 1) {
+        args[i++] = token;
+    }
+    // null-terminate the arguments array
+    args[i] = NULL;
+
+    if (is_builtin_command(args[0])) {
+        run_builtin_command(args);
+        return 0;
+    }
+
+    int process_exit_status = run_child_process(args);
+
+    if (process_exit_status != 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int main() {
@@ -79,9 +107,13 @@ int main() {
             continue;
         }
 
-        // Remove newline from input by assigning null terminator at the first occurance of "\n"
+        // Find position of newline, assign with null terminator
         input[strcspn(input, "\n")] = '\0';
 
-        execute_command(input);
+        int exit_code = execute_command(input);
+
+        if (exit_code != 0) {
+            printf("\n-- command failed --\n");
+        }
     }
 }

@@ -4,6 +4,7 @@ pkgs.mkShell {
   nativeBuildInputs = [
     # builder tools
     pkgs.cmake
+    pkgs.make
 
     # XXX: the order of include matters
     pkgs.clang-tools
