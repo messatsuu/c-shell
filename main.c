@@ -1,6 +1,5 @@
 #include "sys/wait.h"
 #include "time.h"
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,12 +8,13 @@
 #include <stdbool.h>
 
 #define MAX_ARGUMENTS_SIZE 100
+#define INITIAL_BUFSIZE 20
 
-const char *builtin_commands[] = { "cd" };
-// the first sizeof() returns the number of bytes that the array holds. builtin_commands is an array of pointers.
-// In a 64-bit system, each pointer is 8 bytes long, meaning we get a total of 16 bytes, divided by the size of one pointer
-// (16 / 8) and we have the number of elements
+const char *builtin_commands[] = { "cd", "history", "exit", "last_exit_code" };
+// bytes in pointer array divided by nr of bites of a single pointer is the number of pointers
 int number_of_builtin_commands = sizeof(builtin_commands) / sizeof(builtin_commands[0]);
+
+int last_exit_code;
 
 bool is_builtin_command(char command[]) {
     for (size_t i = 0; i < number_of_builtin_commands; i++) {
@@ -33,10 +33,23 @@ int run_builtin_command(char *command[]) {
             path = getenv("HOME");
             if (path == NULL) {
                 fprintf(stderr, "cd: HOME environment variable is not set\n");
-                return -1;
+                return 1;
             }
         }
-        chdir(path);
+        if (chdir(path) != 0) {
+            perror("error");
+            return 1;
+        }
+    }
+
+    // exit
+    if (strcmp("exit", command[0]) == 0) {
+        exit(0);
+    }
+
+    // last_exit_code
+    if (strcmp("last_exit_code", command[0]) == 0) {
+        printf("last exit code: %d", last_exit_code);
     }
 
     return 0;
@@ -44,18 +57,21 @@ int run_builtin_command(char *command[]) {
 
 // If the command is not a builtin, we run it as a child process
 int run_child_process(char *args[]) {
-    pid_t pid = fork(); // Create a new child process (e.g. fork) that runs the code from here on
+    // Create a new child process (e.g. fork) that runs the code from here on.
+    // PIDs: -1 = fork failed, 0 = child process, >0 = parent process (actual PID)
+    pid_t pid = fork();
 
     if (pid < 0) {
         perror("Fork failed");
         return -1;
     }
 
-    // child process (pid 0), execute the command and exit
     if (pid == 0) {
-        // Execute the command
-        execvp(args[0], args);
-        exit(0);
+        // Child process
+        if (execvp(args[0], args) == -1) {
+            perror("error");
+        }
+        exit(EXIT_FAILURE);
     }
 
     int status;
@@ -73,47 +89,64 @@ int execute_command(char *input) {
     char *args[MAX_ARGUMENTS_SIZE];
     args[0] = strdup(token);
 
-    // Fill args with the rest of the input
+    // Fill args with the rest of the input and null-terminate it
     int i = 1;
     while ((token = strtok(NULL, " ")) != NULL && i < MAX_ARGUMENTS_SIZE - 1) {
         args[i++] = token;
     }
-    // null-terminate the arguments array
     args[i] = NULL;
 
     if (is_builtin_command(args[0])) {
-        run_builtin_command(args);
-        return 0;
+        return run_builtin_command(args);
     }
 
-    int process_exit_status = run_child_process(args);
+    return run_child_process(args);
+}
 
-    if (process_exit_status != 0) {
-        return -1;
+char *read_input() {
+    size_t buffer_size = INITIAL_BUFSIZE;
+    char *buffer = malloc(buffer_size);
+    if (!buffer) {
+        fprintf(stderr, "Allocation error\n");
+        exit(EXIT_FAILURE);
     }
 
-    return 0;
+    char *buffer_pointer = buffer;
+    size_t length = 0;
+
+    // If fgets gets called a second time (e.g. when buffer size is not sufficient, it reads the rest of the input into the buffer)
+    while (fgets(buffer_pointer, buffer_size - length, stdin)) {
+        length += strlen(buffer_pointer);
+        if (buffer[length - 1] == '\n') { // Complete line read
+            buffer[length - 1] = '\0';
+            return buffer;
+        }
+
+        // Buffer full, add 100 more bytes
+        buffer_size += 100;
+        buffer = realloc(buffer, buffer_size);
+        if (!buffer) {
+            fprintf(stderr, "Allocation error\n");
+            exit(EXIT_FAILURE);
+        }
+        buffer_pointer = buffer + length;
+    }
+
+    // Handle EOF or error
+    if (ferror(stdin)) {
+        fprintf(stderr, "Error reading input\n");
+        free(buffer);
+        return NULL;
+    }
+
+    return buffer;
 }
 
 int main() {
-    char input[100];
-
     while (1) {
         printf("$ ");
 
-        // Handle Error when reading input from stdin
-        if (fgets(input, sizeof(input), stdin) == NULL && ferror(stdin)) {
-            printf("\nAn error occured reading input");
-            continue;
-        }
-
-        // Find position of newline, assign with null terminator
-        input[strcspn(input, "\n")] = '\0';
-
-        int exit_code = execute_command(input);
-
-        if (exit_code != 0) {
-            printf("\n-- command failed --\n");
-        }
+        char *input = read_input();
+        last_exit_code = execute_command(input);
     }
 }
