@@ -66,6 +66,7 @@ int execute_command(char *input) {
         last_exit_code = run_child_process(args);
     }
 
+    // strdup() allocates memory that needs to be freed
     free(args[0]);
     return last_exit_code;
 }

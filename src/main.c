@@ -13,6 +13,6 @@ void handle_sigint(int signal) {
 
 int main() {
     signal(SIGINT, handle_sigint);
-    create_shell();
+    create_prompt();
     return 0;
 }

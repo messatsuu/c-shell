@@ -10,7 +10,7 @@
 
 // flush terminal input and print PS1
 void reset_shell() {
-    tcflush(STDIN_FILENO, TCIFLUSH); // Clear stdin buffer
+    tcflush(STDIN_FILENO, TCIFLUSH);
 
     printf("\n$ ");
     fflush(stdout);
@@ -29,12 +29,13 @@ char *read_input() {
 
     while (fgets(buffer_pointer, buffer_size - length, stdin)) {
         length += strlen(buffer_pointer);
-        if (buffer[length - 1] == '\n') { // Complete line read
+        // remove newline
+        if (buffer[length - 1] == '\n') {
             buffer[length - 1] = '\0';
             return buffer;
         }
 
-        // Buffer full, expand
+        // Buffer full, add 100 bytes
         buffer_size += 100;
         buffer = realloc(buffer, buffer_size);
         if (!buffer) {
@@ -58,7 +59,7 @@ char *read_input() {
     return buffer;
 }
 
-void create_shell() {
+void create_prompt() {
     while (1) {
         printf("$ ");
         char *input = read_input();

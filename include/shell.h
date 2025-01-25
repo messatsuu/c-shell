@@ -8,6 +8,6 @@ void reset_shell();
 char *read_input();
 
 // Main shell loop
-void create_shell();
+void create_prompt();
 
 #endif
