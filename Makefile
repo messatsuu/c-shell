@@ -1,28 +1,33 @@
 CC = clang
 DEBUG_CFLAGS = -g -O0
 EXECUTABLE_PATH = ./bin/main
-SRC_FILES = main.c
+
+SRC_DIR = ./src
+INC_DIR = ./include
+
+SRC_FILES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/process.c
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # PHONY are commands that are not files
 .PHONY: build run debug debug-test build-run
 
 build:
-	$(CC) $(SRC_FILES) -o $(EXECUTABLE_PATH)
+	$(CC) $(SRC_FILES) -o $(EXECUTABLE_PATH) -isystem $(INC_DIR)
 
 run:
 	$(EXECUTABLE_PATH)
 
-build-run: build run
-
 debug:
 	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH)
-	lldb $(EXECUTABLE_PATH)
+	gdb $(EXECUTABLE_PATH)
 
 debug-test:
 	$(CC) $(DEBUG_CFLAGS) test.c -o $(EXECUTABLE_PATH)
-	lldb $(EXECUTABLE_PATH)
+	gdb $(EXECUTABLE_PATH)
 
 r: run
 b: build
-br: build-run
+b: build
+br: build run
+bd: build debug
+bdt: debug-test
