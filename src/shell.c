@@ -8,6 +8,8 @@
 
 #define INITIAL_BUFSIZE 20
 
+extern int last_exit_code;
+
 // flush terminal input and print PS1
 void reset_shell() {
     tcflush(STDIN_FILENO, TCIFLUSH);
@@ -59,9 +61,55 @@ char *read_input() {
     return buffer;
 }
 
+void create_ps1() {
+    char *ps1 = getenv("PS1");
+
+    if (ps1 == NULL) {
+        printf("$ ");
+        return;
+    }
+
+    size_t index = 0;
+    char output[100];
+
+    // Example input: \n\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\]
+    // Example output: \033[1;32m[nix-shell:\w]$\033[0m
+    for (const char *p = ps1; *p != '\0'; p++) {
+        if (*p != '\\') {
+            output[index++] = *p;
+            continue;
+        }
+
+        // If the current character is '\', handle the next char
+        p++;
+
+        if (*p == '[' || *p == ']' || *p == 'n') {
+            // Skip newlines and bash escape sequences (']' & '[')
+            continue;
+        } else if (*p == 'e') {
+            output[index++] = '\033';
+        } else {
+            // TODO: fix expanding codes to env vars (e.g. u => $USER);
+            // char *user = getenv("USER");
+            // if (user == NULL) {
+            //     continue;
+            // }
+            // int user_length = strlen(user);
+            // strncat(output, user, user_length);
+            // index += user_length;
+
+            // Unknown, add it to output with the previous '\'
+            output[index++] = '\\';
+            output[index++] = *p;
+        }
+    }
+    output[index++] = '\0';
+    printf("%s", output);
+}
+
 void create_prompt() {
     while (1) {
-        printf("$ ");
+        create_ps1();
         char *input = read_input();
         execute_command(input);
         free(input);

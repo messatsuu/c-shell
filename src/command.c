@@ -41,6 +41,7 @@ int run_builtin_command(char *command[]) {
     } else if (strcmp("last_exit_code", command[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     }
+    // TODO: implement `export`
     return 0;
 }
 

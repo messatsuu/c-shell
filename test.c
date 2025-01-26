@@ -1,5 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    printf("A");
+    printf("ring a bell");
+    printf("\a");
 }

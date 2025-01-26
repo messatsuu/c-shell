@@ -21,8 +21,13 @@ debug:
 	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH)
 	gdb $(EXECUTABLE_PATH)
 
+build-test:
+	$(CC) $(DEBUG_CFLAGS) test.c -o ./bin/test
+
+run-test:
+	./bin/test
+
 debug-test:
-	$(CC) $(DEBUG_CFLAGS) test.c -o $(EXECUTABLE_PATH)
 	gdb $(EXECUTABLE_PATH)
 
 r: run
@@ -30,4 +35,6 @@ b: build
 b: build
 br: build run
 bd: build debug
+
+bt: build-test run-test
 bdt: debug-test
