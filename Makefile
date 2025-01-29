@@ -19,7 +19,7 @@ run:
 
 debug:
 	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH)
-	gdb $(EXECUTABLE_PATH)
+	gdb -tui $(EXECUTABLE_PATH)
 
 build-test:
 	$(CC) $(DEBUG_CFLAGS) test.c -o ./bin/test

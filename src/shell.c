@@ -10,14 +10,6 @@
 
 extern int last_exit_code;
 
-// flush terminal input and print PS1
-void reset_shell() {
-    tcflush(STDIN_FILENO, TCIFLUSH);
-
-    printf("\n$ ");
-    fflush(stdout);
-}
-
 char *read_input() {
     size_t buffer_size = INITIAL_BUFSIZE;
     char *buffer = malloc(buffer_size);
@@ -65,8 +57,7 @@ void create_ps1() {
     char *ps1 = getenv("PS1");
 
     if (ps1 == NULL) {
-        printf("$ ");
-        return;
+        ps1 = "\e[0;34m\\u@\\h \\w> \e[m";
     }
 
     size_t index = 0;
@@ -86,26 +77,54 @@ void create_ps1() {
         if (*p == '[' || *p == ']' || *p == 'n') {
             // Skip newlines and bash escape sequences (']' & '[')
             continue;
-        } else if (*p == 'e') {
+        } else if (*p == 'e' || strncmp(p, "033", 3) == 0) {
             output[index++] = '\033';
+            if (*p == '0') {  // Skip "033"
+                p += 2;
+            }
         } else {
-            // TODO: fix expanding codes to env vars (e.g. u => $USER);
-            // char *user = getenv("USER");
-            // if (user == NULL) {
-            //     continue;
-            // }
-            // int user_length = strlen(user);
-            // strncat(output, user, user_length);
-            // index += user_length;
-
-            // Unknown, add it to output with the previous '\'
-            output[index++] = '\\';
-            output[index++] = *p;
+            // TODO: handle cases where env is not set, also refactor this...
+            switch (*p) {
+                case 'u': {
+                    const char *user = getenv("USER");
+                    strncpy(&output[index], user, strlen(user));
+                    index += strlen(user);
+                    break;
+                }
+                case 'w': {
+                    const char *current_directory = getenv("PWD");
+                    strncpy(&output[index], current_directory, strlen(current_directory));
+                    index += strlen(current_directory);
+                    break;
+                }
+                case 'h': {
+                    char hostname[256];
+                    gethostname(hostname, sizeof(hostname));
+                    strncpy(&output[index], hostname, strlen(hostname));
+                    index += strlen(hostname);
+                    break;
+                }
+                default:
+                    // Unknown sequence, keep it as is
+                    // output[index++] = '\\';
+                    output[index++] = *p;
+                    continue;
+            }
         }
     }
     output[index++] = '\0';
     printf("%s", output);
 }
+
+// flush terminal input and print PS1
+void reset_shell() {
+    tcflush(STDIN_FILENO, TCIFLUSH);
+
+    printf("\n");
+    create_ps1();
+    fflush(stdout);
+}
+
 
 void create_prompt() {
     while (1) {
