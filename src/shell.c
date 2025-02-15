@@ -26,6 +26,7 @@ char *read_input() {
         // remove newline
         if (buffer[length - 1] == '\n') {
             buffer[length - 1] = '\0';
+            // newline determines end of input, return
             return buffer;
         }
 
@@ -56,16 +57,19 @@ char *read_input() {
 void create_ps1() {
     char *ps1 = getenv("PS1");
 
+    // If PS1 is not set, we use a default prompt
     if (ps1 == NULL) {
-        ps1 = "\e[0;34m\\u@\\h \\w> \e[m";
+        ps1 = "\e[0;34mnic-shell \\u@\\h> \e[m";
     }
 
     size_t index = 0;
-    char output[100];
+    // Make sure that `output` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
+    char output[100] = "";
 
     // Example input: \n\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\]
     // Example output: \033[1;32m[nix-shell:\w]$\033[0m
     for (const char *p = ps1; *p != '\0'; p++) {
+        // if the character isn't a '\', simply add it to ouput
         if (*p != '\\') {
             output[index++] = *p;
             continue;
@@ -74,43 +78,43 @@ void create_ps1() {
         // If the current character is '\', handle the next char
         p++;
 
+        // Skip bash escape sequences ('\]' & '\[') and newlines ('\n')
         if (*p == '[' || *p == ']' || *p == 'n') {
-            // Skip newlines and bash escape sequences (']' & '[')
             continue;
         } else if (*p == 'e' || strncmp(p, "033", 3) == 0) {
             output[index++] = '\033';
             if (*p == '0') {  // Skip "033"
                 p += 2;
             }
-        } else {
-            // TODO: handle cases where env is not set, also refactor this...
-            switch (*p) {
-                case 'u': {
-                    const char *user = getenv("USER");
-                    strncpy(&output[index], user, strlen(user));
-                    index += strlen(user);
-                    break;
-                }
-                case 'w': {
-                    const char *current_directory = getenv("PWD");
-                    strncpy(&output[index], current_directory, strlen(current_directory));
-                    index += strlen(current_directory);
-                    break;
-                }
-                case 'h': {
-                    char hostname[256];
-                    gethostname(hostname, sizeof(hostname));
-                    strncpy(&output[index], hostname, strlen(hostname));
-                    index += strlen(hostname);
-                    break;
-                }
-                default:
-                    // Unknown sequence, keep it as is
-                    // output[index++] = '\\';
-                    output[index++] = *p;
-                    continue;
-            }
+            continue;
         }
+        char special_field[256] = "";
+
+        // Get the env variable and copy its contents to `special_field` (overrides existing contents with strncpy);
+        switch (*p) {
+            case 'u': {
+                char *user = getenv("USER");
+                strncpy(special_field, user, sizeof(special_field));
+                break;
+            }
+            case 'w': {
+                char *pwd = getenv("PWD");
+                strncpy(special_field, pwd, sizeof(special_field));
+                break;
+            }
+            case 'h': {
+                gethostname(special_field, sizeof(special_field));
+                break;
+            }
+            default:
+                // Unknown sequence, keep it as is
+                output[index++] = *p;
+                continue;
+        }
+
+        // Concat the contents of `special_field` to output and move index forward
+        strncat(output, special_field, strlen(special_field));
+        index += strlen(special_field);
     }
     output[index++] = '\0';
     printf("%s", output);
