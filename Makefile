@@ -5,7 +5,7 @@ EXECUTABLE_PATH = ./bin/main
 SRC_DIR = ./src
 INC_DIR = ./include
 
-SRC_FILES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/process.c
+SRC_FILES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/process.c $(SRC_DIR)/history.c
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # PHONY are commands that are not files

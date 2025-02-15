@@ -1,5 +1,6 @@
 #include "../include/shell.h"
 #include "../include/command.h"
+#include "../include/history.h"
 #include "unistd.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -139,6 +140,8 @@ void create_prompt() {
     while (1) {
         create_ps1();
         char *input = read_input();
+        append_to_history(input);
+
         execute_command(input);
         free(input);
     }

@@ -1,5 +1,6 @@
 #include "../include/command.h"
 #include "../include/process.h"
+#include "../include/history.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +39,8 @@ int run_builtin_command(char *command[]) {
         }
     } else if (strcmp("exit", command[0]) == 0) {
         exit(0);
+    } else if (strcmp("history", command[0]) == 0) {
+        print_history();
     } else if (strcmp("last_exit_code", command[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     }
