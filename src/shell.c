@@ -13,6 +13,7 @@ extern int last_exit_code;
 char *read_input() {
     size_t buffer_size = INITIAL_BUFSIZE;
     char *buffer = malloc(buffer_size);
+
     if (!buffer) {
         fprintf(stderr, "Allocation error\n");
         exit(EXIT_FAILURE);
@@ -21,22 +22,26 @@ char *read_input() {
     char *buffer_pointer = buffer;
     size_t length = 0;
 
+    // read (current size of buffer - current length of input) into buffer
     while (fgets(buffer_pointer, buffer_size - length, stdin)) {
         length += strlen(buffer_pointer);
-        // remove newline
+
         if (buffer[length - 1] == '\n') {
             buffer[length - 1] = '\0';
             // newline determines end of input, return
             return buffer;
         }
 
-        // Buffer full, add 100 bytes
+        // If no newline was found at the end of the string means that the string
+        // hasn't ended yet and buffer is full, expand buffer
         buffer_size += 100;
         buffer = realloc(buffer, buffer_size);
         if (!buffer) {
             fprintf(stderr, "Allocation error\n");
             exit(EXIT_FAILURE);
         }
+
+        // set pointer to end of buffer, so next chunk read appends to end
         buffer_pointer = buffer + length;
     }
 
