@@ -60,6 +60,16 @@ char *read_input() {
     return buffer;
 }
 
+void set_env_field(char *special_field, size_t special_field_size, char *env_var) {
+    char *env = getenv(env_var);
+    if (env == NULL) {
+        return;
+    }
+
+    strncpy(special_field, env, special_field_size);
+}
+
+
 void create_ps1() {
     char *ps1 = getenv("PS1");
 
@@ -81,7 +91,7 @@ void create_ps1() {
             continue;
         }
 
-        // If the current character is '\', handle the next char
+        // If the current character is '\', handle the char after it
         p++;
 
         // Skip bash escape sequences ('\]' & '\[') and newlines ('\n')
@@ -99,13 +109,11 @@ void create_ps1() {
         // Get the env variable and copy its contents to `special_field` (overrides existing contents with strncpy);
         switch (*p) {
             case 'u': {
-                char *user = getenv("USER");
-                strncpy(special_field, user, sizeof(special_field));
+                set_env_field(special_field, sizeof(special_field), "USER");
                 break;
             }
             case 'w': {
-                char *pwd = getenv("PWD");
-                strncpy(special_field, pwd, sizeof(special_field));
+                set_env_field(special_field, sizeof(special_field), "PWD");
                 break;
             }
             case 'h': {
@@ -122,6 +130,8 @@ void create_ps1() {
         strncat(output, special_field, strlen(special_field));
         index += strlen(special_field);
     }
+
+    // null-terminate
     output[index++] = '\0';
     printf("%s", output);
 }
@@ -140,9 +150,10 @@ void create_prompt() {
     while (1) {
         create_ps1();
         char *input = read_input();
-        append_to_history(input);
+        char *original_input = strdup(input);
 
         execute_command(input);
         free(input);
+        free(original_input);
     }
 }

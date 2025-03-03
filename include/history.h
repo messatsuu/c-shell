@@ -3,5 +3,6 @@
 
 void append_to_history(const char *command);
 void print_history();
+void execute_command_from_history(int index);
 
 #endif

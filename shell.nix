@@ -18,6 +18,9 @@ pkgs.mkShell {
   buildInputs = [
     # stdlib for C++
     pkgs.libcxx
+
+    # Dependencies
+    # pkgs.ncurses
   ];
 
   # Optional compiler flags

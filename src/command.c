@@ -20,6 +20,7 @@ bool is_builtin_command(const char *command) {
             return true;
         }
     }
+
     return false;
 }
 
@@ -49,8 +50,11 @@ int run_builtin_command(char *command[]) {
 }
 
 int execute_command(char *input) {
+    char *original_input = strdup(input);
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
+    // If the first character of the input is a '!' we know that it is trying to call a command from the history
+    bool is_history_command = *input == '!';
 
     if (token == NULL) {
         return 0;
@@ -64,14 +68,22 @@ int execute_command(char *input) {
     }
     args[i] = NULL;
 
-    if (is_builtin_command(args[0])) {
+    if (is_history_command) {
+        // convert the characters after the '!' to an integer, pass it to function
+        execute_command_from_history(atoi(input + 1));
+    } else if (is_builtin_command(args[0])) {
         last_exit_code = run_builtin_command(args);
     } else {
         last_exit_code = run_child_process(args);
     }
 
+    if (last_exit_code == 0 && !is_history_command) {
+        append_to_history(original_input);
+    }
+
     // strdup() allocates memory that needs to be freed
     free(args[0]);
+    free(original_input);
     return last_exit_code;
 }
 
