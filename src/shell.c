@@ -150,10 +150,8 @@ void create_prompt() {
     while (1) {
         create_ps1();
         char *input = read_input();
-        char *original_input = strdup(input);
 
         execute_command(input);
         free(input);
-        free(original_input);
     }
 }
