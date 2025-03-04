@@ -1,18 +1,21 @@
 #include "../include/shell.h"
 #include "../include/command.h"
-#include "../include/history.h"
 #include "unistd.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 
 #define INITIAL_BUFSIZE 20
+#define BUF_EXPANSION_SIZE 100
+#define MAX_CONVERTED_BUFSIZE 10024
+#define MAX_ENV_VAR_NAVE_BUFSIZE 128
 
 extern int last_exit_code;
 
 char *read_input() {
-    size_t buffer_size = INITIAL_BUFSIZE;
+    unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = malloc(buffer_size);
 
     if (!buffer) {
@@ -21,7 +24,7 @@ char *read_input() {
     }
 
     char *buffer_pointer = buffer;
-    size_t length = 0;
+    unsigned int length = 0;
 
     // read (current size of buffer - current length of input) into buffer
     while (fgets(buffer_pointer, buffer_size - length, stdin)) {
@@ -34,9 +37,10 @@ char *read_input() {
         }
 
         // If no newline was found at the end of the string means that the string
-        // hasn't ended yet and buffer is full, expand buffer
-        buffer_size += 100;
+        // hasn't ended yet and buffer is full, expand buffer by `BUF_EXPANSION_SIZE` bytes
+        buffer_size += BUF_EXPANSION_SIZE;
         buffer = realloc(buffer, buffer_size);
+
         if (!buffer) {
             fprintf(stderr, "Allocation error\n");
             exit(EXIT_FAILURE);
@@ -48,13 +52,64 @@ char *read_input() {
 
     if (feof(stdin)) {
         free(buffer);
-        exit(0);
+        exit(EXIT_FAILURE);
     }
 
     if (ferror(stdin)) {
         fprintf(stderr, "Error reading input\n");
         free(buffer);
         return NULL;
+    }
+
+    return buffer;
+}
+
+char *convert_input(char *input) {
+    unsigned int buffer_size = INITIAL_BUFSIZE;
+    char *buffer = malloc(buffer_size);
+
+    size_t index = 0;
+
+    for (const char *pointer = input; *pointer != '\0';) {
+        // If the input is not a '$', just add it to the output
+        if (*pointer != '$') {
+            buffer[index++] = *pointer;
+            pointer++;
+            continue;
+        }
+
+        // If the character starts with a '$', we expect an env var
+        pointer++;
+
+        char env_var_name[MAX_ENV_VAR_NAVE_BUFSIZE] = "";
+        size_t var_index = 0;
+
+        while (isalnum(*pointer) || *pointer == '_') {
+            env_var_name[var_index] = *pointer;
+
+            var_index++;
+            pointer++;
+        }
+
+        char *env_var_value = getenv(env_var_name);
+        if (env_var_value == NULL) {
+            continue;
+        }
+        unsigned long env_var_length = strlen(env_var_value);
+
+        // If the current value + the value we want to put into the buffer is bigger than its size, reallocate memory for it
+        if (strlen(buffer) + env_var_length + 1 > buffer_size) {
+            buffer_size += env_var_length + 1;
+            buffer = realloc(buffer, buffer_size);
+
+            if (!buffer) {
+                fprintf(stderr, "Allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        strncat(buffer, env_var_value, strlen(env_var_value));
+        index += strlen(env_var_value);
     }
 
     return buffer;
@@ -84,30 +139,32 @@ void create_ps1() {
 
     // Example input: \n\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\]
     // Example output: \033[1;32m[nix-shell:\w]$\033[0m
-    for (const char *p = ps1; *p != '\0'; p++) {
+    for (const char *pointer = ps1; *pointer != '\0'; pointer++) {
         // if the character isn't a '\', simply add it to ouput
-        if (*p != '\\') {
-            output[index++] = *p;
+        if (*pointer != '\\') {
+            output[index++] = *pointer;
             continue;
         }
 
         // If the current character is '\', handle the char after it
-        p++;
+        pointer++;
 
         // Skip bash escape sequences ('\]' & '\[') and newlines ('\n')
-        if (*p == '[' || *p == ']' || *p == 'n') {
+        if (*pointer == '[' || *pointer == ']' || *pointer == 'n') {
             continue;
-        } else if (*p == 'e' || strncmp(p, "033", 3) == 0) {
+        }
+
+        if (*pointer == 'e' || strncmp(pointer, "033", 3) == 0) {
             output[index++] = '\033';
-            if (*p == '0') {  // Skip "033"
-                p += 2;
+            if (*pointer == '0') {  // Skip "033"
+                pointer += 2;
             }
             continue;
         }
         char special_field[256] = "";
 
         // Get the env variable and copy its contents to `special_field` (overrides existing contents with strncpy);
-        switch (*p) {
+        switch (*pointer) {
             case 'u': {
                 set_env_field(special_field, sizeof(special_field), "USER");
                 break;
@@ -122,7 +179,7 @@ void create_ps1() {
             }
             default:
                 // Unknown sequence, keep it as is
-                output[index++] = *p;
+                output[index++] = *pointer;
                 continue;
         }
 
@@ -145,11 +202,11 @@ void reset_shell() {
     fflush(stdout);
 }
 
-
 void create_prompt() {
     while (1) {
         create_ps1();
         char *input = read_input();
+        input = convert_input(input);
 
         execute_command(input);
         free(input);

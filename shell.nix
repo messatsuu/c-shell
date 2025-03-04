@@ -5,12 +5,15 @@ pkgs.mkShell {
     # builder tools
     pkgs.cmake
     # Currently not using lldb, since it does not support intel assembly syntax
-    # pkgs.lldb
+    pkgs.lldb
     pkgs.gdb
 
     # XXX: the order of include matters
     pkgs.clang-tools
     pkgs.clang # for clangd support
+
+    # For generating compile_commands.json
+    pkgs.bear
 
     pkgs.gtest
   ];

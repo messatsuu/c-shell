@@ -18,8 +18,7 @@ run:
 	$(EXECUTABLE_PATH)
 
 debug:
-	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH)
-	gdb $(EXECUTABLE_PATH)
+	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH) -isystem $(INC_DIR)
 
 build-test:
 	$(CC) $(DEBUG_CFLAGS) test.c -o ./bin/test
@@ -34,7 +33,7 @@ r: run
 b: build
 b: build
 br: build run
-bd: build debug
+bd: debug
 
 brt: build-test run-test
 bdt: debug-test

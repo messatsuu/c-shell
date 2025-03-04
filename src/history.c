@@ -10,6 +10,7 @@
 // Declare a global variable to store history
 char **history_array = NULL;
 int history_size = 0;
+int current_travel_index = 0;
 
 void append_to_history(const char *command) {
     // On first call, we initialize the history-array
@@ -31,7 +32,7 @@ void append_to_history(const char *command) {
         }
     }
 
-    // TODO: usting strdup instead of strndup could potentially be unsafe (DoS attack)
+    // TODO: using strdup instead of strndup could potentially be unsafe (DoS attack)
     history_array[history_size] = strdup(command);
     if (!history_array[history_size]) {
         fprintf(stderr, "Memory allocation error\n");
@@ -41,9 +42,9 @@ void append_to_history(const char *command) {
     history_size++;
 }
 
-int execute_command_from_history(const unsigned int index) {
-    if (index >= history_size) {
-        printf("History index %i out of range", index);
+int execute_command_from_history(const unsigned long index) {
+    if (index > history_size || index == 0) {
+        printf("History index %lu out of range", index);
         return 1;
     }
 
