@@ -13,7 +13,10 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - name: Run tests in nix-shell
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up NixOS Docker container
               run: |
                   docker pull nixos/nix
-                  docker run -v $(pwd):/workspace nixos/nix /bin/sh -c "echo 'workspace:'; ls /workspace ; cd /workspace && nix-shell --run 'make brt'"
+                  docker run -v $PWD:/workspace nixos/nix /bin/sh -c "echo 'workspace:'; ls /workspace; cd /workspace && nix-shell --run 'make brt'"
