@@ -24,6 +24,8 @@ pkgs.mkShell {
 
     # Dependencies
     # pkgs.ncurses
+    # Unit testing
+    pkgs.cmocka
   ];
 
   # Optional compiler flags

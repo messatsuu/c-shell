@@ -22,7 +22,7 @@ debug:
 	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_PATH) -isystem $(INC_DIR)
 
 build-test:
-	$(CC) $(DEBUG_CFLAGS) test.c -o ./bin/test
+	$(CC) tests/test_ps1.c  $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/process.c $(SRC_DIR)/history.c $(SRC_DIR)/utility.c -lcmocka -o ./bin/test
 
 run-test:
 	./bin/test
