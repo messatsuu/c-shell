@@ -1,5 +1,8 @@
+#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
+
 #include "../include/shell.h"
 #include "../include/command.h"
+#include "../include/utility.h"
 #include "unistd.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -16,15 +19,14 @@ extern int last_exit_code;
 
 char *read_input() {
     unsigned int buffer_size = INITIAL_BUFSIZE;
-    char *buffer = malloc(buffer_size);
+    unsigned int length = 0;
 
+    char *buffer = malloc(buffer_size);
     if (!buffer) {
-        fprintf(stderr, "Allocation error\n");
-        exit(EXIT_FAILURE);
+        log_error_with_exit("Buffer Allocation Error");
     }
 
     char *buffer_pointer = buffer;
-    unsigned int length = 0;
 
     // read (current size of buffer - current length of input) into buffer
     while (fgets(buffer_pointer, buffer_size - length, stdin)) {
@@ -42,8 +44,9 @@ char *read_input() {
         buffer = realloc(buffer, buffer_size);
 
         if (!buffer) {
-            fprintf(stderr, "Allocation error\n");
-            exit(EXIT_FAILURE);
+            log_error("Input Buffer Allocation Error");
+            free(buffer);
+            return NULL;
         }
 
         // set pointer to end of buffer, so next chunk read appends to end
@@ -56,7 +59,7 @@ char *read_input() {
     }
 
     if (ferror(stdin)) {
-        fprintf(stderr, "Error reading input\n");
+        log_error("Error reading input");
         free(buffer);
         return NULL;
     }
@@ -64,7 +67,7 @@ char *read_input() {
     return buffer;
 }
 
-char *convert_input(char *input) {
+char *convert_input(const char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = malloc(buffer_size);
 
@@ -103,8 +106,8 @@ char *convert_input(char *input) {
             buffer = realloc(buffer, buffer_size);
 
             if (!buffer) {
-                fprintf(stderr, "Allocation error\n");
-                exit(EXIT_FAILURE);
+                log_error("Input buffer Allocation Error");
+                return NULL;
             }
         }
 

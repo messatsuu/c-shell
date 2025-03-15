@@ -1,7 +1,8 @@
+#include "../include/shell.h"
+#include <signal.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <wait.h>
-#include <stdbool.h>
-#include "../include/shell.h"
 
 #define MAX_ARGUMENTS_SIZE 100
 #define INITIAL_BUFSIZE 20

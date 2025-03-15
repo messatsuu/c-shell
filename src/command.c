@@ -1,10 +1,11 @@
-#include "../include/command.h"
-#include "../include/process.h"
+#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
+
 #include "../include/history.h"
-#include <string.h>
+#include "../include/process.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 
 #define MAX_ARGUMENTS_SIZE 100
@@ -51,6 +52,7 @@ int run_builtin_command(char *command[]) {
     } else if (strcmp("last_exit_code", command[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     }
+
     // TODO: implement `export`
     return 0;
 }
