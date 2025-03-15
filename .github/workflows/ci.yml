@@ -13,10 +13,25 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+            -   name: Checkout code
+                uses: actions/checkout@v2
 
-            - name: Set up NixOS Docker container
-              run: |
-                  docker pull nixos/nix
-                  docker run -v $PWD:/workspace nixos/nix /bin/sh -c "cd /workspace && nix-shell --run 'make brt'"
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+
+            -   name: Cache Docker layers
+                uses: actions/cache@v4
+                with:
+                    path: /tmp/.buildx-cache
+                    key: ${{ runner.os }}-buildx-${{ github.sha }}
+                    restore-keys: |
+                        ${{ runner.os }}-buildx-
+
+            -   name: Pull and Tag NixOS Image
+                run: |
+                    docker pull nixos/nix
+                    docker tag nixos/nix nixos/nix:cached
+
+            -   name: Run tests with nix-shell
+                run: |
+                    docker run -v $PWD:/workspace -w /workspace nixos/nix /bin/sh -c "nix-shell --run 'make brt'"
