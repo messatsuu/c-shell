@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+FILE *stdout_mock = NULL;
+
 void redirect_stdin() {
     const char *test_input = "echo this is a test";
     FILE *memstream = fmemopen((void *)test_input, strlen(test_input), "r");
@@ -28,7 +30,7 @@ FILE *mock_stdout() {
     return temp_file;
 }
 
-void put_stdout_to_buffer(FILE *output, char* buffer, size_t length) {
+void read_stdout_to_buffer(FILE *output, char* buffer, size_t length) {
     // Rewind the temporary file and read its contents to `buffer`
     rewind(output);
     char* result = fgets(buffer, length, output);
@@ -43,9 +45,8 @@ ssize_t gethostname(char *name, size_t len) {
     return 0;
 }
 
-static void test_shell(void **state) {
+static void test_ps1_output(void **state) {
     // Setup
-    FILE *stdout_mock = mock_stdout();
     setenv("USER", "test-user", 1);
     setenv("PWD", "c-shell-implementation", 1);
     setenv("PS1", "[\\u@\\w on \\h] $", 1);
@@ -55,24 +56,23 @@ static void test_shell(void **state) {
 
     // Assert
     char buffer[100];
-    put_stdout_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    read_stdout_to_buffer(stdout_mock, buffer, sizeof(buffer));
     assert_string_equal(buffer, "[test-user@c-shell-implementation on test-host] $");
 }
 
 // Setup and teardown (if needed for setup/cleanup before/after tests)
 static int setup(void **state) {
-    (void) state;
-    return 0;  // success
+    stdout_mock = mock_stdout();
+    return 0;
 }
 
 static int teardown(void **state) {
-    (void) state;
-    return 0;  // success
+    return 0;
 }
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_shell),
+        cmocka_unit_test(test_ps1_output),
     };
 
     return cmocka_run_group_tests(tests, setup, teardown);
