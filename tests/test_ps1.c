@@ -31,7 +31,10 @@ FILE *mock_stdout() {
 void put_stdout_to_buffer(FILE *output, char* buffer, size_t length) {
     // Rewind the temporary file and read its contents to `buffer`
     rewind(output);
-    fgets(buffer, length, output);
+    char* result = fgets(buffer, length, output);
+    if (!result) {
+        perror("Error while reading stdout into buffer");
+    }
 }
 
 // Mock implementation of `gethostname`

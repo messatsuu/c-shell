@@ -19,4 +19,4 @@ jobs:
             - name: Set up NixOS Docker container
               run: |
                   docker pull nixos/nix
-                  docker run -v $PWD:/workspace nixos/nix /bin/sh -c "echo 'workspace:'; ls /workspace; cd /workspace && nix-shell --run 'make brt'"
+                  docker run -v $PWD:/workspace nixos/nix /bin/sh -c "cd /workspace && nix-shell --run 'make brt'"
