@@ -16,4 +16,4 @@ jobs:
             - name: Run tests in nix-shell
               run: |
                   docker pull nixos/nix
-                  docker run -v $(pwd):/workspace nixos/nix /bin/bash -c "cd /workspace && nix-shell --run 'make brt'"
+                  docker run -v $(pwd):/workspace nixos/nix /bin/sh -c "cd /workspace && nix-shell --run 'make brt'"
