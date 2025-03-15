@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE *stdout_mock = NULL;
-
 void redirect_stdin() {
     const char *test_input = "echo this is a test";
     FILE *memstream = fmemopen((void *)test_input, strlen(test_input), "r");
@@ -47,6 +45,7 @@ ssize_t gethostname(char *name, size_t len) {
 
 static void test_ps1_output(void **state) {
     // Setup
+    FILE *stdout_mock = mock_stdout();
     setenv("USER", "test-user", 1);
     setenv("PWD", "c-shell-implementation", 1);
     setenv("PS1", "[\\u@\\w on \\h] $", 1);
@@ -62,7 +61,6 @@ static void test_ps1_output(void **state) {
 
 // Setup and teardown (if needed for setup/cleanup before/after tests)
 static int setup(void **state) {
-    stdout_mock = mock_stdout();
     return 0;
 }
 
