@@ -22,7 +22,7 @@ int run_child_process(char *args[]) {
 
     int status;
     if (waitpid(pid, &status, 0) == -1) {
-        perror("waitpid() failed");
+        perror("Waiting for child process failed");
         return -1;
     }
 

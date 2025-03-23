@@ -78,7 +78,7 @@ int execute_command(char *input) {
 
     if (is_history_command) {
         // convert the characters after the '!' to an unsigned long (by decimals), pass it to function
-        execute_command_from_history(strtoul(input + 1, NULL, 10));
+        last_exit_code = execute_command_from_history(strtoul(input + 1, NULL, 10));
     } else if (is_builtin_command(args[0])) {
         last_exit_code = run_builtin_command(args);
     } else {

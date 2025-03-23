@@ -13,7 +13,7 @@
 #define INITIAL_BUFSIZE 20
 #define BUF_EXPANSION_SIZE 100
 #define MAX_CONVERTED_BUFSIZE 10024
-#define MAX_ENV_VAR_NAVE_BUFSIZE 128
+#define MAX_ENV_VAR_NAME_BUFSIZE 128
 
 extern int last_exit_code;
 
@@ -74,6 +74,19 @@ char *convert_input(const char *input) {
     size_t index = 0;
 
     for (const char *pointer = input; *pointer != '\0';) {
+        // If the buffer is full, reallocate memory
+        if (strlen(buffer) > buffer_size) {
+            buffer_size += BUF_EXPANSION_SIZE;
+            char *temp = realloc(buffer, buffer_size);
+
+            if (!buffer) {
+                log_error("Input buffer Reallocation Error");
+                return NULL;
+            }
+
+            buffer = temp;
+        }
+
         // If the input is not a '$', just add it to the output
         if (*pointer != '$') {
             buffer[index++] = *pointer;
@@ -84,16 +97,17 @@ char *convert_input(const char *input) {
         // If the character starts with a '$', we expect an env var
         pointer++;
 
-        char env_var_name[MAX_ENV_VAR_NAVE_BUFSIZE] = "";
-        size_t var_index = 0;
-
+        // Read the name of the env-var into a new buffer
+        char env_var_name[MAX_ENV_VAR_NAME_BUFSIZE] = "";
+        size_t env_var_index = 0;
         while (isalnum(*pointer) || *pointer == '_') {
-            env_var_name[var_index] = *pointer;
+            env_var_name[env_var_index] = *pointer;
 
-            var_index++;
+            env_var_index++;
             pointer++;
         }
 
+        // Get the value of the env-var
         char *env_var_value = getenv(env_var_name);
         if (env_var_value == NULL) {
             continue;
@@ -111,7 +125,8 @@ char *convert_input(const char *input) {
             }
         }
 
-        strncat(buffer, env_var_value, strlen(env_var_value));
+        // Add the value of the env-var to the buffer
+        strncat(buffer, env_var_value, env_var_length + 1);
         index += strlen(env_var_value);
     }
 
@@ -196,6 +211,14 @@ void create_ps1() {
     printf("%s", output);
 }
 
+void execute_input() {
+    char *input = read_input();
+    input = convert_input(input);
+
+    execute_command(input);
+    free(input);
+}
+
 // flush terminal input and print PS1
 void reset_shell() {
     tcflush(STDIN_FILENO, TCIFLUSH);
@@ -206,12 +229,6 @@ void reset_shell() {
 }
 
 void create_prompt() {
-    while (1) {
-        create_ps1();
-        char *input = read_input();
-        input = convert_input(input);
-
-        execute_command(input);
-        free(input);
-    }
+    create_ps1();
+    execute_input();
 }

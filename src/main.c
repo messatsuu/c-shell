@@ -15,6 +15,9 @@ void handle_sigint(int signal) {
 int main() {
     signal(SIGINT, handle_sigint);
 
-    create_prompt();
+    while (1) {
+        create_prompt();
+    }
+
     return 0;
 }
