@@ -70,6 +70,8 @@ char *read_input() {
 char *convert_input(const char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = malloc(buffer_size);
+    // Fill buffer with 0s to avoid garbage values in output
+    memset(buffer, 0, buffer_size);
 
     size_t index = 0;
 
@@ -130,6 +132,7 @@ char *convert_input(const char *input) {
         index += strlen(env_var_value);
     }
 
+    buffer[index] = '\0';
     return buffer;
 }
 

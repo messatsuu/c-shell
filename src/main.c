@@ -1,6 +1,7 @@
 #include "../include/shell.h"
 #include <signal.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <wait.h>
 

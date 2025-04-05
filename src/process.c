@@ -20,7 +20,7 @@ int run_child_process(char *args[]) {
         }
     }
 
-    int status;
+    int status = 0;
     if (waitpid(pid, &status, 0) == -1) {
         perror("Waiting for child process failed");
         return -1;
