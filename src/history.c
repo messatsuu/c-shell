@@ -30,6 +30,19 @@ void init_history(int initial_capacity) {
     }
 }
 
+void cleanup_history() {
+    if (history == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < history->count; i++) {
+        free(history->entries[i]);
+    }
+
+    free(history->entries);
+    free(history);
+}
+
 void append_to_history(const char *command) {
     // On first call, we initialize the history-struct
     if (history == NULL) {
@@ -52,8 +65,8 @@ void append_to_history(const char *command) {
 }
 
 int execute_command_from_history(const unsigned long index) {
-    if (index > history->count || index == 0) {
-        printf("History index %lu out of range", index);
+    if (history == NULL || index > history->count || index == 0) {
+        printf("History index %lu out of range\n", index);
         return 1;
     }
 
@@ -63,7 +76,11 @@ int execute_command_from_history(const unsigned long index) {
     char *command_from_history = history->entries[history_index];
 
     // we need to Duplicate the string, since making operations on it would change it in the history
-    return execute_command(strdup(command_from_history));
+    char* command = strdup(command_from_history);
+    int exit_code = execute_command(command);
+
+    free(command);
+    return exit_code;
 }
 
 void print_history() {

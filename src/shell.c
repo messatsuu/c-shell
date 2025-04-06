@@ -77,11 +77,11 @@ char *convert_input(const char *input) {
 
     for (const char *pointer = input; *pointer != '\0';) {
         // If the buffer is full, reallocate memory
-        if (strlen(buffer) > buffer_size) {
+        if (index >= buffer_size -1) {
             buffer_size += BUF_EXPANSION_SIZE;
             char *temp = realloc(buffer, buffer_size);
 
-            if (!buffer) {
+            if (!temp) {
                 log_error("Input buffer Reallocation Error");
                 return NULL;
             }
@@ -119,7 +119,7 @@ char *convert_input(const char *input) {
         // If the current value + the value we want to put into the buffer is bigger than its size, reallocate memory for it
         if (strlen(buffer) + env_var_length + 1 > buffer_size) {
             buffer_size += env_var_length + 1;
-            buffer = realloc(buffer, buffer_size);
+            buffer = reallocate(buffer, buffer_size);
 
             if (!buffer) {
                 log_error("Input buffer Allocation Error");
@@ -132,7 +132,14 @@ char *convert_input(const char *input) {
         index += strlen(env_var_value);
     }
 
-    buffer[index] = '\0';
+    if (index < buffer_size) {
+        buffer[index] = '\0';
+    } else {
+        log_error("Buffer overflow detected when terminating string.");
+        free(buffer);
+        return NULL;
+    }
+
     return buffer;
 }
 
@@ -216,8 +223,6 @@ void create_ps1() {
 
 void execute_input() {
     char *input = read_input();
-    input = convert_input(input);
-
     execute_command(input);
     free(input);
 }

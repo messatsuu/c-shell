@@ -9,5 +9,7 @@ void log_error(const char *message);
 void log_error_with_exit(const char *message);
 // Wrapper around realloc that exits with a message to stderr when realloc fails
 void *reallocate(void *pointer, size_t size);
+// Simple function that calls all other cleanup functions
+void cleanup();
 
 #endif

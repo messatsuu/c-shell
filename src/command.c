@@ -2,6 +2,7 @@
 
 #include "../include/history.h"
 #include "../include/process.h"
+#include "../include/shell.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include <unistd.h>
 
 #define MAX_ARGUMENTS_SIZE 100
+#define DEFER_FREE(ptr) __attribute__((cleanup(free))) typeof(ptr) ptr
 
 const char *builtin_commands[] = {"cd", "history", "exit", "last_exit_code"};
 // bytes in pointer array divided by nr of bites of a single pointer is the number of pointers
@@ -45,7 +47,17 @@ int run_builtin_command(char *command[]) {
             perror("Error changing directory");
             return 1;
         }
+
+        // Update $PWD to the current directory
+        char cwd[1000];
+        if (getcwd(cwd, sizeof(cwd)) == NULL) {
+            perror("getcwd");
+            return 1;
+        }
+
+        setenv("PWD", cwd, 1);
     } else if (strcmp("exit", command[0]) == 0) {
+        // TODO: when exiting here, memory from execute_command() does not get freed
         exit(0);
     } else if (strcmp("history", command[0]) == 0) {
         print_history();
@@ -59,12 +71,17 @@ int run_builtin_command(char *command[]) {
 
 int execute_command(char *input) {
     char *original_input = strdup(input);
+    input = convert_input(input);
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
     // If the first character of the input is a '!' we know that it is trying to call a command from the history
     bool is_history_command = *input == '!';
 
     if (token == NULL) {
+        // free dynamically allocated memory
+        free(original_input);
+        free(input);
+
         return 0;
     }
 
@@ -89,9 +106,10 @@ int execute_command(char *input) {
         append_to_history(original_input);
     }
 
-    // strdup() allocates memory that needs to be freed
     free(args[0]);
     free(original_input);
+    free(input);
+
     return last_exit_code;
 }
 

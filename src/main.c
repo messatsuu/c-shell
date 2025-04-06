@@ -1,7 +1,8 @@
 #include "../include/shell.h"
+#include "../include/utility.h"
 #include <signal.h>
 #include <stdbool.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <wait.h>
 
@@ -15,6 +16,7 @@ void handle_sigint(int signal) {
 
 int main() {
     signal(SIGINT, handle_sigint);
+    atexit(cleanup);
 
     while (1) {
         create_prompt();

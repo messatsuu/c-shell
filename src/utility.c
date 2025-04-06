@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/history.h"
 
 void log_error(const char *message) {
     if (fprintf(stderr, "%s\n", message) < 0) {
@@ -19,4 +20,8 @@ void *reallocate(void *pointer, size_t size) {
     }
 
     return reallocation_result;
+}
+
+void cleanup() {
+    cleanup_history();
 }
