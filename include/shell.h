@@ -6,12 +6,6 @@
 // Reset terminal input buffer (used in SIGINT handling)
 void reset_shell();
 
-// Reads input from the user
-char *read_input();
-
-// Convert env-vars to their value
-char *convert_input(const char *input);
-
 // Main shell loop
 void create_prompt();
 

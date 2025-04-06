@@ -2,7 +2,7 @@
 
 #include "../include/history.h"
 #include "../include/process.h"
-#include "../include/shell.h"
+#include "../include/input.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,13 +65,18 @@ int run_builtin_command(char *command[]) {
         printf("Last exit code: %d\n", last_exit_code);
     }
 
-    // TODO: implement `export`
     return 0;
 }
 
 int execute_command(char *input) {
     char *original_input = strdup(input);
     input = convert_input(input);
+
+    if (input == NULL) {
+        free(original_input);
+        free(input);
+    }
+
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
     // If the first character of the input is a '!' we know that it is trying to call a command from the history
@@ -85,8 +90,7 @@ int execute_command(char *input) {
         return 0;
     }
 
-    args[0] = strdup(token);
-
+    args[0] = token;
     int i = 1;
     while ((token = strtok(NULL, " ")) != NULL && i < MAX_ARGUMENTS_SIZE - 1) {
         args[i++] = token;
@@ -106,7 +110,6 @@ int execute_command(char *input) {
         append_to_history(original_input);
     }
 
-    free(args[0]);
     free(original_input);
     free(input);
 
