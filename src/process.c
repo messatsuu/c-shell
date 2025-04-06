@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+// TODO: Find a way to run a command that covers the following points:
+// - The command should be capturable (pipe, FILE* redirect, etc.) for unit-testing
+// - The command should be able to run tui-commands (nvim, less) without providing a pty
 int run_child_process(char *args[]) {
     pid_t pid = fork();
 

@@ -8,8 +8,8 @@ extern int run_suite_test_command();
 int main(void) {
     unsigned int result = 0;
 
-    // result |= run_suite_test_ps1();
-    result |= run_suite_test_command();
+    result |= run_suite_test_ps1();
+    // result |= run_suite_test_command();
 
     return 0;
 }
