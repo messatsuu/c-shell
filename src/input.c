@@ -1,4 +1,5 @@
-#include "../include/shell.h"
+#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
+
 #include "../include/utility.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -6,9 +7,20 @@
 #include <string.h>
 #include <termios.h>
 
+#define INITIAL_COMMAND_CAPACITY 1
 #define INITIAL_BUFSIZE 20
 #define BUF_EXPANSION_SIZE 100
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
+
+// Separators
+#define SEQUENTIAL_SEPARATOR = 0
+#define AND_SEPARATOR = 1
+#define OR_SEPARATOR = 2
+
+typedef struct {
+    char *command;
+    char separator[3];
+} Command;
 
 // Convert an env variable from input to its value and concatenate into `buffer`
 // Return -1 on error, 0 on success
@@ -145,4 +157,51 @@ char *read_input() {
     }
 
     return buffer;
+}
+
+void convert_input_to_commands(char *input, int *count, Command **commands) {
+    int command_capacity = INITIAL_COMMAND_CAPACITY;
+
+    if (*commands == NULL) {
+        *commands = malloc(command_capacity * sizeof(Command));
+    }
+
+    for (const char *pointer = input; *pointer != '\0';) {
+        if (*count >= command_capacity) {
+            command_capacity += INITIAL_COMMAND_CAPACITY;
+            *commands = reallocate(*commands, command_capacity * sizeof(Command));
+        }
+
+        const char *sep = strstr(pointer, "&&");
+        const char *sep2 = strstr(pointer, "||");
+        const char *sep3 = strchr(pointer, ';');
+
+        // Find the nearest separator
+        const char *nearest = NULL;
+        const char *selected = NULL;
+        const char *separators[] = {sep, sep2, sep3};
+        const char *names[] = {"&&", "||", ";"};
+
+        for (int j = 0; j < 3; j++) {
+            if (separators[j] && (!nearest || separators[j] < nearest)) {
+                nearest = separators[j];
+                selected = names[j];
+            }
+        }
+
+        if (!nearest) {
+            // No more separators, grab the rest
+            (*commands)[*count].command = strdup(pointer);
+            (*commands)[*count].separator[0] = '\0';  // No separator after the last command
+            *count = *count + 1;
+            break;
+        }
+
+        // Add new Command to array of structs and copy command & separator to it
+        (*commands)[*count].command = strndup(pointer, nearest - pointer);
+        strncpy((*commands)[*count].separator, selected, strlen(selected));
+        *count = *count + 1;
+
+        pointer = nearest + strlen(selected);
+    }
 }

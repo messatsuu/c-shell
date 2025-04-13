@@ -69,17 +69,16 @@ int run_builtin_command(char *command[]) {
 }
 
 int execute_command(char *input) {
+    // If there's a starting whitespace, remove it
+    if (*input == ' ') {
+        input++;
+    }
+
     char *original_input = strdup(input);
     input = convert_input(input);
 
-    if (input == NULL) {
-        free(original_input);
-        free(input);
-    }
-
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
-    // If the first character of the input is a '!' we know that it is trying to call a command from the history
     bool is_history_command = *input == '!';
 
     if (token == NULL) {
