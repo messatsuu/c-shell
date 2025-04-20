@@ -197,7 +197,7 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
             break;
         }
 
-        // Add new Command to array of structs and copy command & separator to it
+        // TODO: Does this need to be dynamically allocated?
         (*commands)[*count].command = strndup(pointer, nearest - pointer);
         strncpy((*commands)[*count].separator, selected, strlen(selected));
         *count = *count + 1;

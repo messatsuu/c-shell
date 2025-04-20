@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 // Prints a message to stderr
-void log_error(const char *message);
+void log_error(const char *format, ...);
 // Prints a message to stderr and exits
 void log_error_with_exit(const char *message);
 // Wrapper around realloc that exits with a message to stderr when realloc fails

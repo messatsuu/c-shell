@@ -16,6 +16,7 @@ pkgs.mkShell {
     pkgs.bear
 
     pkgs.gtest
+    pkgs.valgrind
   ];
 
   buildInputs = [

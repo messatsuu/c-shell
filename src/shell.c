@@ -119,6 +119,7 @@ void execute_input() {
         if (should_run) {
             execute_command(command.command);
         }
+        free(command.command);
     }
 
     free(commands);

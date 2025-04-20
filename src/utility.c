@@ -1,11 +1,17 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/history.h"
 
-void log_error(const char *message) {
-    if (fprintf(stderr, "%s\n", message) < 0) {
+void log_error(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    if (vfprintf(stderr, format, args) < 0) {
         perror("Error writing to stderr");
     }
+
+    va_end(args);
 }
 
 void log_error_with_exit(const char *message) {

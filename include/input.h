@@ -13,6 +13,6 @@ char *convert_input(const char *input);
 char *read_input();
 
 // Convert a string to an array of Command structs
-Command *convert_input_to_commands(char *input, int *count, Command **commands);
+void *convert_input_to_commands(char *input, int *count, Command **commands);
 
 #endif
