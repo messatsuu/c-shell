@@ -25,9 +25,7 @@ static void test_ps1_output(void **state) {
     create_ps1();
 
     // Assert
-    char buffer[100];
-    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
-    assert_string_equal(buffer, "[test-user@/usr/bin/c-shell-implementation on test-host] $");
+    assert_string_equal(prompt, "[test-user@/usr/bin/c-shell-implementation on test-host] $");
 }
 
 static int setup(void **state) {
