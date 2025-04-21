@@ -2,7 +2,7 @@
 
 #include "../include/history.h"
 #include "../include/process.h"
-#include "../include/input.h"
+#include "../include/parser.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,11 +69,6 @@ int run_builtin_command(char *command[]) {
 }
 
 int execute_command(char *input) {
-    // If there's a starting whitespace, remove it
-    if (*input == ' ') {
-        input++;
-    }
-
     char *original_input = strdup(input);
     input = convert_input(input);
 

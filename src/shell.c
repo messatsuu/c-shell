@@ -3,6 +3,7 @@
 #include "../include/shell.h"
 #include "../include/command.h"
 #include "../include/input.h"
+#include "../include/parser.h"
 #include "../include/prompt.h"
 #include "unistd.h"
 #include <stdio.h>
