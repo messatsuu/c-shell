@@ -5,9 +5,9 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 ## TODOs ordered by priority
 
 ### Input and Line Editing
-- [ ] Raw character-by-character input handling
-- [ ] Cursor movement (left/right arrows)
-- [ ] Backspace/delete support
+- [x] Raw character-by-character input handling
+- [x] Cursor movement (left/right arrows)
+- [x] Backspace/delete support
 - [ ] Insert/overwrite modes (optional)
 - [ ] Word movement (Ctrl+Left / Ctrl+Right)
 - [ ] Clear line (Ctrl+L)
@@ -25,8 +25,8 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 
 ### Keybindings
 - [ ] Emacs-like bindings (Ctrl-A, Ctrl-E, Ctrl-K, Ctrl-U, Ctrl-W, etc.)
-- [ ] Ctrl-D to exit shell
-- [ ] Ctrl-C to cancel input line
+- [x] Ctrl-D to exit shell
+- [x] Ctrl-C to cancel input line
 - [ ] Optional Vi-mode keybindings
 
 ### Auto-completion
@@ -36,14 +36,14 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 - [ ] Custom completers (e.g. environment vars, functions)
 
 ### Terminal & Display
-- [ ] Disable canonical mode & echo using `termios`
+- [x] Disable canonical mode & echo using `termios`
 - [ ] Interpret escape sequences (arrow keys, Home/End, etc.)
 - [ ] Track and move cursor within terminal
 - [ ] Redraw prompt and input efficiently
 - [ ] Handle terminal resizing (`SIGWINCH`)
 
 ###  Signal Handling
-- [ ] Properly handle `SIGINT` (Ctrl-C)
+- [x] Properly handle `SIGINT` (Ctrl-C)
 - [ ] Handle `SIGTSTP` (Ctrl-Z) and backgrounding
 - [ ] Restore terminal state on crash or exit
 
