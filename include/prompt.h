@@ -1,7 +1,9 @@
 #ifndef PROMPT_H
 #define PROMPT_H
 
+extern char prompt[100];
+
 // create the PS1 Prompt
-void create_ps1();
+char *create_ps1();
 
 #endif

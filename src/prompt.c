@@ -7,9 +7,12 @@
 #include <string.h>
 #include <termios.h>
 
+// Make sure that `prompt` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
+char prompt[100] = "";
 
-void create_ps1() {
+char *create_ps1() {
     char *ps1 = getenv("PS1");
+    memset(prompt, 0, 100);
 
     // If PS1 is not set, we use a default prompt
     if (ps1 == NULL) {
@@ -17,15 +20,13 @@ void create_ps1() {
     }
 
     size_t index = 0;
-    // Make sure that `output` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
-    char output[100] = "";
 
     // Example input: \n\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\]
     // Example output: \033[1;32m[nix-shell:\w]$\033[0m
     for (const char *pointer = ps1; *pointer != '\0'; pointer++) {
         // if the character isn't a '\', simply add it to ouput
         if (*pointer != '\\') {
-            output[index++] = *pointer;
+            prompt[index++] = *pointer;
             continue;
         }
 
@@ -38,7 +39,7 @@ void create_ps1() {
         }
 
         if (*pointer == 'e' || strncmp(pointer, "033", 3) == 0) {
-            output[index++] = '\033';
+            prompt[index++] = '\033';
             if (*pointer == '0') {  // Skip "033"
                 pointer += 2;
             }
@@ -62,17 +63,17 @@ void create_ps1() {
             }
             default:
                 // Unknown sequence, keep it as is
-                output[index++] = *pointer;
+                prompt[index++] = *pointer;
                 continue;
         }
 
-        // Concat the contents of `special_field` to output and move index forward
-        strncat(output, special_field, strlen(special_field));
+        // Concat the contents of `special_field` to prompt and move index forward
+        strncat(prompt, special_field, strlen(special_field));
         index += strlen(special_field);
     }
 
     // null-terminate
-    output[index++] = '\0';
-    printf("%s", output);
+    prompt[index++] = '\0';
+    return prompt;
 }
 

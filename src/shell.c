@@ -5,7 +5,6 @@
 #include "../include/input.h"
 #include "../include/parser.h"
 #include "../include/prompt.h"
-#include "unistd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,14 +24,22 @@ void set_env_field(char *special_field, size_t special_field_size, char *env_var
     strncpy(special_field, env, special_field_size);
 }
 
-
 void execute_input() {
     int count = 0;
     // Commands gets dynamically allocated in `convert_input_to_commands()`
     Command *commands = NULL;
     bool should_run = true;
 
-    char *input = read_input();
+    create_ps1();
+    printf("%s", prompt);
+
+    char *input = read_input_prompt();
+
+    if (input == NULL) {
+        free(commands);
+        exit(0);
+    }
+
     convert_input_to_commands(input, &count, &commands);
 
     for (size_t i = 0; i < count; i++) {
@@ -62,14 +69,11 @@ void execute_input() {
 
 // flush terminal input and print PS1
 void reset_shell() {
-    tcflush(STDIN_FILENO, TCIFLUSH);
-
     printf("\n");
-    create_ps1();
     fflush(stdout);
+    sigint_received = 1;
 }
 
 void create_prompt() {
-    create_ps1();
     execute_input();
 }
