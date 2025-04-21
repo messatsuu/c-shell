@@ -33,6 +33,18 @@ void *reallocate(void *pointer, size_t size,  bool exit) {
     return reallocation_result;
 }
 
+void *allocate(size_t size, bool exit) {
+    void *allocation_result = malloc(size);
+    if (!allocation_result) {
+        if (exit) {
+            log_error_with_exit("Allocation Error");
+        }
+        return NULL;
+    }
+
+    return allocation_result;
+}
+
 void cleanup() {
     cleanup_history();
 }
