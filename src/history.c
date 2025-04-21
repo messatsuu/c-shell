@@ -52,7 +52,7 @@ void append_to_history(const char *command) {
     // If we reach the max capacity, reallocate the the entries buffer
     if (history->count >= history->capacity) {
         history->capacity += HISTORY_BUFFER_SIZE;
-        history->entries = reallocate(history->entries, (history->capacity) * sizeof(char*));
+        history->entries = reallocate(history->entries, (history->capacity) * sizeof(char*), true);
     }
 
     // TODO: instead of using strdup, make sure that the original command is not

@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../include/history.h"
 
 void log_error(const char *format, ...) {
@@ -19,10 +20,14 @@ void log_error_with_exit(const char *message) {
     exit(EXIT_FAILURE);
 }
 
-void *reallocate(void *pointer, size_t size) {
+void *reallocate(void *pointer, size_t size,  bool exit) {
     void *reallocation_result = realloc(pointer, size);
     if (!reallocation_result) {
-        log_error_with_exit("Reallocation Error");
+        free(pointer);
+        if (exit) {
+            log_error_with_exit("Reallocation Error");
+        }
+        return NULL;
     }
 
     return reallocation_result;

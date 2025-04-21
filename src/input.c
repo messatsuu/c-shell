@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
+#include <stdbool.h>
 
 #define INITIAL_COMMAND_CAPACITY 1
 #define INITIAL_BUFSIZE 20
@@ -22,7 +23,7 @@ typedef struct {
     char separator[3];
 } Command;
 
-// Convert an env variable from input to its value and concatenate into `buffer`
+// Convert an env variable from input to its value and concatenate into `buffer`.
 // Return -1 on error, 0 on success
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // If the character starts with a '$', we expect an env var
@@ -48,10 +49,9 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
     // If the current value + the value we want to put into the buffer is bigger than its size, reallocate memory for it
     if (strlen(*buffer) + env_var_length + 1 > *buffer_size) {
         *buffer_size += env_var_length + 1;
-        *buffer = reallocate(*buffer, *buffer_size);
+        *buffer = reallocate(*buffer, *buffer_size, false);
 
         if (!*buffer) {
-            log_error("Input buffer Allocation Error");
             return -1;
         }
     }
@@ -133,11 +133,8 @@ char *read_input() {
         // If no newline was found at the end of the string means that the string
         // hasn't ended yet and buffer is full, expand buffer by `BUF_EXPANSION_SIZE` bytes
         buffer_size += BUF_EXPANSION_SIZE;
-        buffer = realloc(buffer, buffer_size);
-
+        buffer = reallocate(buffer, buffer_size, false);
         if (!buffer) {
-            log_error("Input Buffer Allocation Error");
-            free(buffer);
             return NULL;
         }
 
@@ -169,7 +166,7 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
     for (const char *pointer = input; *pointer != '\0';) {
         if (*count >= command_capacity) {
             command_capacity += INITIAL_COMMAND_CAPACITY;
-            *commands = reallocate(*commands, command_capacity * sizeof(Command));
+            *commands = reallocate(*commands, command_capacity * sizeof(Command), true);
         }
 
         const char *sep = strstr(pointer, "&&");
@@ -196,10 +193,9 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
             *count = *count + 1;
             break;
         }
-
-        // TODO: Does this need to be dynamically allocated?
+        // TODO: Do both arguments need to be dynamically allocated?
         (*commands)[*count].command = strndup(pointer, nearest - pointer);
-        strncpy((*commands)[*count].separator, selected, strlen(selected));
+        strncpy((*commands)[*count].separator, selected, sizeof((*commands)[*count].separator));
         *count = *count + 1;
 
         pointer = nearest + strlen(selected);

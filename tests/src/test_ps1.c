@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/utility.h"
+#include "../include/prompt.h"
 
 // Mock implementation of `gethostname`
 ssize_t gethostname(char *name, size_t len) {
