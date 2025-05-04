@@ -12,12 +12,14 @@
 
 typedef struct {
     char **entries; // Array of strings (dynamically allocated)
-    int count;      // Number of current entries
-    int capacity;   // Number of entries until reallocation is needed
+    unsigned int count;      // Number of current entries
+    unsigned int capacity;   // Number of entries until reallocation is needed
 } History;
 
 // Declare a global variable to store history
 History *history = NULL;
+
+int history_index = 0;
 
 void init_history(int initial_capacity) {
     history = malloc(sizeof(History));
@@ -44,9 +46,12 @@ void cleanup_history() {
 }
 
 void append_to_history(const char *command) {
-    // On first call, we initialize the history-struct
     if (history == NULL) {
+        // On first call, we initialize the history-struct
         init_history(HISTORY_BUFFER_SIZE);
+    } else if (strcmp(history->entries[history->count - 1], command) == 0) {
+        // Do not append to history if the previous entry is the same as the current one
+        return;
     }
 
     // If we reach the max capacity, reallocate the the entries buffer
@@ -81,6 +86,10 @@ int execute_command_from_history(const unsigned long index) {
 
     free(command);
     return exit_code;
+}
+
+char *get_entry_from_history(const unsigned int index) {
+    return history->entries[index];
 }
 
 void print_history() {

@@ -3,15 +3,22 @@
 
 typedef struct {
     char **entries; // Array of strings (dynamically allocated)
-    int count;      // Number of current entries
-    int capacity;   // Number of entries until reallocation is needed
+    unsigned int count;      // Number of current entries
+    unsigned int capacity;   // Number of entries until reallocation is needed
 } History;
 
+extern int history_index;
+
 void init_history(int initial_capacity);
+
 void cleanup_history();
 
 void append_to_history(const char *command);
-void print_history();
+
 int execute_command_from_history(unsigned long index);
+
+char *get_entry_from_history(const unsigned int index);
+
+void print_history();
 
 #endif

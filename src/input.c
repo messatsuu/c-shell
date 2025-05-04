@@ -2,6 +2,7 @@
 #define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 
 #include "../include/utility.h"
+#include "../include/history.h"
 #include "../include/prompt.h"
 #include "../include/terminal.h"
 #include <stdbool.h>
@@ -21,6 +22,7 @@
 #define OR_SEPARATOR = 2
 
 volatile sig_atomic_t sigint_received = 0;
+extern History *history;
 
 void redraw_line(char *buffer, unsigned int len, unsigned int cursor_position) {
     printf("\r");                 // go to beginning of line
@@ -35,10 +37,38 @@ void redraw_line(char *buffer, unsigned int len, unsigned int cursor_position) {
     fflush(stdout);
 }
 
+void set_history_entry_to_buffer(
+    unsigned int incrementValue,
+    unsigned int *currentHistoryIndex,
+    unsigned int *length,
+    char *buffer,
+    unsigned int buffer_size,
+    unsigned int *cursor
+) {
+    if (history == NULL) {
+        return;
+    }
+    
+    // Convert history's count to a signed int to avoid wrapping issues
+    int newHistoryIndex = (int)history->count - (int)(*currentHistoryIndex + incrementValue);
+    // If the new history index is out of bounds, return
+    if (newHistoryIndex < 0 || newHistoryIndex >= history->count) {
+        return;
+    }
+
+    *currentHistoryIndex = *currentHistoryIndex + incrementValue;
+
+    strncpy(buffer, history->entries[newHistoryIndex], buffer_size);
+    *length = strlen(buffer);
+    *cursor = *length;
+    redraw_line(buffer, *length, *cursor);
+}
+
 char *read_input_prompt() {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     unsigned int length = 0;
     unsigned int cursor = 0;
+    unsigned int currentHistoryIndex = 0;
 
     char *buffer = allocate(buffer_size, true);
     memset(buffer, 0, buffer_size);
@@ -46,7 +76,7 @@ char *read_input_prompt() {
     enable_raw_mode();
 
     while (1) {
-        int c = getchar();
+        int currentChar = getchar();
 
         // If SIG_INT is captured, clear the buffer and redraw
         if (sigint_received) {
@@ -58,12 +88,12 @@ char *read_input_prompt() {
             continue;
         }
 
-        if (c == 4) { // Ctrl+C, Ctrl+D
+        if (currentChar == 4) { // Ctrl+C, Ctrl+D
             free(buffer);
             return NULL;
         }
 
-        if (c == 10) { // Enter
+        if (currentChar == 10) { // Enter
             buffer[length] = '\0';
             break;
         }
@@ -76,19 +106,25 @@ char *read_input_prompt() {
             }
         }
 
-        if (cursor > 0 && (c == 127 || c == 8)) { // Backspace
+        if (cursor > 0 && (currentChar == 127 || currentChar == 8)) { // Backspace
             memmove(&buffer[cursor - 1], &buffer[cursor], length - cursor);
             cursor--;
             length--;
             buffer[length] = '\0';
             redraw_line(buffer, length, cursor);
-        } else if (c == 27 && getchar() == '[') { // Escape sequence
+        } else if (currentChar == 27) { // Escape sequence
+            int nextChar = getchar();
+            if (nextChar != '[' && nextChar != ';') {
+                continue;
+            }
+
+            // TODO: implement CTRL-modifier (move by words)
             switch (getchar()) {
-                case 'D': // left
-                    if (cursor > 0) {
-                        cursor--;
-                        move_cursor_left();
-                    }
+                case 'A': // up
+                    set_history_entry_to_buffer(+1, &currentHistoryIndex, &length, buffer, buffer_size, &cursor);
+                    break;
+                case 'B': // down
+                    set_history_entry_to_buffer(-1, &currentHistoryIndex, &length, buffer, buffer_size, &cursor);
                     break;
                 case 'C': // right
                     if (cursor < length) {
@@ -96,10 +132,16 @@ char *read_input_prompt() {
                         move_cursor_right();
                     }
                     break;
+                case 'D': // left
+                    if (cursor > 0) {
+                        cursor--;
+                        move_cursor_left();
+                    }
+                    break;
             }
-        } else if (c >= 32 && c <= 126) { // Printable characters
+        } else if (currentChar >= 32 && currentChar <= 126) { // Printable characters
             memmove(&buffer[cursor + 1], &buffer[cursor], length - cursor);
-            buffer[cursor] = (char)c;
+            buffer[cursor] = (char)currentChar;
             cursor++;
             length++;
             redraw_line(buffer, length, cursor);
