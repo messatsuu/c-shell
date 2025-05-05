@@ -1,2 +1,2 @@
-Checks: '*'
+Checks: '*,-llvmlibc-restrict-system-libc-headers'
 FormatStyle: 'file'
