@@ -180,6 +180,12 @@ char *read_input_prompt() {
                     }
                     break;
             }
+        } else if (currentChar == 1) { // SOH (Start of Header), Ctrl+a
+            move_cursor_to_start(&inputBuffer);
+            redraw_line(&inputBuffer);
+        } else if (currentChar == 5) { // ENQ (Enquiry), Ctrl+e
+            move_cursor_to_end(&inputBuffer);
+            redraw_line(&inputBuffer);
         } else if (currentChar >= 32 && currentChar <= 126) { // Printable characters
             memmove(&inputBuffer.buffer[inputBuffer.cursor_position + 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
             inputBuffer.buffer[inputBuffer.cursor_position] = (char)currentChar;

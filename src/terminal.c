@@ -51,6 +51,14 @@ void move_cursor_right_word(InputBuffer *inputBuffer) {
     fflush(stdout);
 }
 
+void move_cursor_to_start(InputBuffer *inputBuffer) {
+    inputBuffer->cursor_position = 0;
+}
+
+void move_cursor_to_end(InputBuffer *inputBuffer) {
+    inputBuffer->cursor_position = inputBuffer->length;
+}
+
 void disable_raw_mode() {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
