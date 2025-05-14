@@ -1,15 +1,15 @@
 #define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 
 #include "../include/history.h"
-#include "../include/process.h"
 #include "../include/parser.h"
+#include "../include/process.h"
+#include "../include/utility.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_ARGUMENTS_SIZE 100
 #define DEFER_FREE(ptr) __attribute__((cleanup(free))) typeof(ptr) ptr
 
 const char *builtin_commands[] = {"cd", "history", "exit", "last_exit_code"};

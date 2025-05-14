@@ -1,4 +1,6 @@
+#include "../include/history.h"
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -45,8 +47,8 @@ void *allocate(size_t size, bool exit) {
     return allocation_result;
 }
 
-void *callocate(unsigned int number_of_bypes, size_t size, bool exit) {
-    void *callocation_result = calloc(number_of_bypes, size);
+void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
+    void *callocation_result = calloc(number_of_bytes, size);
     if (!callocation_result) {
         if (exit) {
             log_error_with_exit("Zero-Value Allocation Error");

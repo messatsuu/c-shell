@@ -9,8 +9,6 @@
 #include <termios.h>
 
 #define INITIAL_COMMAND_CAPACITY 1
-#define INITIAL_BUFSIZE 20
-#define BUF_EXPANSION_SIZE 100
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
 
 typedef struct {
@@ -110,7 +108,7 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 
 char *convert_input(char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
-    char *buffer = malloc(buffer_size);
+    char *buffer = callocate(buffer_size, 1, true);
     // Fill buffer with 0s to avoid garbage values in output
     memset(buffer, 0, buffer_size);
 

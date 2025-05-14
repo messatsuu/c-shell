@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// Default Variables used across the platform
+#define INITIAL_BUFSIZE 20
+#define INITIAL_BUFSIZE_BIG 1024
+#define BUF_EXPANSION_SIZE 100
+#define MAX_ARGUMENTS_SIZE 100
+
 // Prints a message to stderr
 void log_error(const char *format, ...);
 
@@ -17,7 +23,7 @@ void *reallocate(void *pointer, size_t size,  bool exit);
 void *allocate(size_t size, bool exit);
 
 // Wrapper around calloc that exits with a message to stderr when calloc fails
-void *callocate(unsigned int number_of_bypes, size_t size, bool exit);
+void *callocate(unsigned int number_of_bytes, size_t size, bool exit);
 
 // Simple function that calls all other cleanup functions
 void cleanup();

@@ -2,9 +2,9 @@
 
 #include "../include/utility.h"
 #include "../include/history.h"
+#include "../include/input.h"
 #include "../include/prompt.h"
 #include "../include/terminal.h"
-#include "../include/input.h"
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -13,8 +13,6 @@
 #include <termios.h>
 
 #define INITIAL_COMMAND_CAPACITY 1
-#define INITIAL_BUFSIZE 20
-#define BUF_EXPANSION_SIZE 100
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
 
 // Separators

@@ -22,8 +22,8 @@ History *history = NULL;
 int history_index = 0;
 
 void init_history(int initial_capacity) {
-    history = malloc(sizeof(History));
-    history->entries = malloc(initial_capacity * sizeof(char *));
+    history = allocate(sizeof(History), true);
+    history->entries = allocate(initial_capacity * sizeof(char *), true);
     history->count = 0;
     history->capacity = initial_capacity;
 

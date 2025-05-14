@@ -10,9 +10,6 @@
 #include <string.h>
 #include <termios.h>
 
-#define INITIAL_BUFSIZE 20
-#define BUF_EXPANSION_SIZE 100
-
 extern int last_exit_code;
 
 void set_env_field(char *special_field, size_t special_field_size, char *env_var) {
