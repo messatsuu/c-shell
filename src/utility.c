@@ -3,8 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "../include/history.h"
+#include <stdnoreturn.h>
 
 void log_error(const char *format, ...) {
     va_list args;
@@ -17,7 +16,7 @@ void log_error(const char *format, ...) {
     va_end(args);
 }
 
-void log_error_with_exit(const char *message) {
+noreturn void log_error_with_exit(const char *message) {
     log_error(message);
     exit(EXIT_FAILURE);
 }
