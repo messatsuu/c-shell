@@ -45,6 +45,18 @@ void *allocate(size_t size, bool exit) {
     return allocation_result;
 }
 
+void *callocate(unsigned int number_of_bypes, size_t size, bool exit) {
+    void *callocation_result = calloc(number_of_bypes, size);
+    if (!callocation_result) {
+        if (exit) {
+            log_error_with_exit("Zero-Value Allocation Error");
+        }
+        return NULL;
+    }
+
+    return callocation_result;
+}
+
 void cleanup() {
     cleanup_history();
 }

@@ -13,8 +13,11 @@ void log_error_with_exit(const char *message);
 // Wrapper around realloc that exits with a message to stderr when realloc fails
 void *reallocate(void *pointer, size_t size,  bool exit);
 
-// Wrapper around malloc that exits with a message to stderr when realloc fails
+// Wrapper around malloc that exits with a message to stderr when malloc fails
 void *allocate(size_t size, bool exit);
+
+// Wrapper around calloc that exits with a message to stderr when calloc fails
+void *callocate(unsigned int number_of_bypes, size_t size, bool exit);
 
 // Simple function that calls all other cleanup functions
 void cleanup();

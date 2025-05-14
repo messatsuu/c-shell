@@ -4,6 +4,7 @@
 #include "../include/history.h"
 #include "../include/prompt.h"
 #include "../include/terminal.h"
+#include "../include/input.h"
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -24,17 +25,8 @@
 volatile sig_atomic_t sigint_received = 0;
 extern History *history;
 
-typedef struct {
-    char *buffer;
-    char *buffer_backup;
-    unsigned int length;
-    unsigned int cursor_position;
-    unsigned int historyIndex;
-    unsigned int buffer_size;
-} InputBuffer;
-
 void init_input_buffer(InputBuffer *inputBuffer) {
-    inputBuffer->buffer = allocate(INITIAL_BUFSIZE, true);
+    inputBuffer->buffer = callocate(INITIAL_BUFSIZE, 1, true);
     inputBuffer->buffer_backup = allocate(INITIAL_BUFSIZE, true);
     inputBuffer->length = 0;
     inputBuffer->cursor_position = 0;
@@ -53,6 +45,9 @@ void cleanup_input_buffer(InputBuffer *inputBuffer) {
 }
 
 void redraw_line(InputBuffer *inputBuffer) {
+    // Null-terminate buffer for printf
+    inputBuffer->buffer[inputBuffer->length] = '\0';
+
     printf("\r");                 // go to beginning of line
     printf("%s%s", prompt, inputBuffer->buffer);       // reprint input
     printf("\x1b[K");             // clear from cursor to end
@@ -128,7 +123,7 @@ char *read_input_prompt() {
             break;
         }
 
-        if (inputBuffer.length >= inputBuffer.buffer_size) {
+        if (inputBuffer.length + 1 >= inputBuffer.buffer_size) {
             inputBuffer.buffer_size += BUF_EXPANSION_SIZE;
             inputBuffer.buffer = reallocate(inputBuffer.buffer, inputBuffer.buffer_size, false);
             inputBuffer.buffer_backup = reallocate(inputBuffer.buffer_backup, inputBuffer.buffer_size, false);
@@ -150,8 +145,9 @@ char *read_input_prompt() {
                 continue;
             }
 
-            // TODO: implement CTRL-modifier (move by words)
-            switch (getchar()) {
+            nextChar = getchar();
+
+            switch (nextChar) {
                 case 'A': // up
                     set_history_entry_to_buffer(+1, &inputBuffer);
                     break;
@@ -168,6 +164,21 @@ char *read_input_prompt() {
                     if (inputBuffer.cursor_position > 0) {
                         inputBuffer.cursor_position--;
                         move_cursor_left();
+                    }
+                    break;
+                case '1':
+                    nextChar = getchar();
+                    if (nextChar != ';' || getchar() != '5') {
+                        continue;
+                    }
+                    nextChar = getchar();
+                    switch (nextChar) {
+                        case 'C': // ctrl+right
+                            move_cursor_right_word(&inputBuffer);
+                            break;
+                        case 'D': // ctrl+left
+                            move_cursor_left_word(&inputBuffer);
+                            break;
                     }
                     break;
             }
