@@ -23,8 +23,23 @@ void setup_signal_handlers() {
     }
 }
 
+// General function to do things before the shell is started
+void initialize_shell() {
+    char path[INITIAL_BUFSIZE_BIG];
+
+    signed long length = readlink("/proc/self/exe", path, INITIAL_BUFSIZE_BIG);
+    if (length == -1) {
+        log_error_with_exit("Could not read executable name");
+    }
+
+    path[length] = '\0';
+    // set the SHELL env-var to the path of the current executable
+    setenv("SHELL", path, true);
+}
+
 int main() {
     setup_signal_handlers();
+    initialize_shell();
     atexit(cleanup);
 
     while (1) {
