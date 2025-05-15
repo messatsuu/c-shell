@@ -25,13 +25,11 @@ extern History *history;
 
 void init_input_buffer(InputBuffer *inputBuffer) {
     inputBuffer->buffer = callocate(INITIAL_BUFSIZE, 1, true);
-    inputBuffer->buffer_backup = allocate(INITIAL_BUFSIZE, true);
+    inputBuffer->buffer_backup = callocate(INITIAL_BUFSIZE, 1, true);
     inputBuffer->length = 0;
     inputBuffer->cursor_position = 0;
     inputBuffer->history_index = 0;
     inputBuffer->buffer_size = INITIAL_BUFSIZE;
-    memset(inputBuffer->buffer, 0, INITIAL_BUFSIZE);
-    memset(inputBuffer->buffer_backup, 0, INITIAL_BUFSIZE);
 }
 
 int reallocate_input_buffer(InputBuffer *inputBuffer, unsigned int buffer_expansion_size) {

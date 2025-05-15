@@ -10,8 +10,8 @@ EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 SRC_DIR = ./src
 INC_DIR = ./include
 
-SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES = $(SRC_FILES:.c=.o)
+SRC_FILES := $(shell find $(SRC_DIR) -name '*.c')
+OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 
 INC_TEST_DIR = ./tests/include
 SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES))

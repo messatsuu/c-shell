@@ -1,4 +1,3 @@
-#include "../include/input.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,8 +5,16 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <terminal.h>
 
 static struct termios orig_termios;
+
+void print_under_input(const char *message) {
+    printf("\r");           // Go to start of current line
+    printf("\x1b[2K");      // Clear entire line
+    printf("%s\n", message);
+    fflush(stdout);
+}
 
 void move_cursor_left() {
     printf("\x1b[D");
