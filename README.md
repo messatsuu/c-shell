@@ -9,7 +9,7 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 - [x] Cursor movement (left/right arrows)
 - [x] Backspace/delete support
 - [ ] Insert/overwrite modes (optional)
-- [ ] Word movement (Ctrl+Left / Ctrl+Right)
+- [x] Word movement (Ctrl+Left / Ctrl+Right)
 - [ ] Clear line (Ctrl+L)
 - [ ] Home/End key support
 
@@ -20,11 +20,11 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 - [x] Input history storage (in-memory)
 - [ ] Traverse history (up/down arrows)
 - [ ] Edit historical entries
-- [ ] Prevent duplicate entries (optional)
+- [x] Prevent duplicate entries (optional)
 - [ ] Persistent history file (optional)
 
 ### Keybindings
-- [ ] Emacs-like bindings (Ctrl-A, Ctrl-E, Ctrl-K, Ctrl-U, Ctrl-W, etc.)
+- [x] Emacs-like bindings (Ctrl-A, Ctrl-E, Ctrl-K, Ctrl-U, Ctrl-W, etc.)
 - [x] Ctrl-D to exit shell
 - [x] Ctrl-C to cancel input line
 - [ ] Optional Vi-mode keybindings

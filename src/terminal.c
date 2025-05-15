@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -57,6 +58,23 @@ void move_cursor_to_start(InputBuffer *inputBuffer) {
 
 void move_cursor_to_end(InputBuffer *inputBuffer) {
     inputBuffer->cursor_position = inputBuffer->length;
+}
+
+void delete_cursor_left_word(InputBuffer *inputBuffer) {
+    unsigned int initial_cursor_position = inputBuffer->cursor_position;
+
+    for (const char *pointer = &inputBuffer->buffer[inputBuffer->cursor_position]; inputBuffer->cursor_position != 0; pointer--) {
+        // Only break if the first character is not already a space
+        if (*pointer == ' ' && inputBuffer->cursor_position != initial_cursor_position) {
+            break;
+        }
+
+        inputBuffer->cursor_position--;
+    }
+
+    memmove(&inputBuffer->buffer[inputBuffer->cursor_position], &inputBuffer->buffer[initial_cursor_position], inputBuffer->length - initial_cursor_position);
+    inputBuffer->length -= initial_cursor_position - inputBuffer->cursor_position;
+    inputBuffer->buffer[inputBuffer->length] = '\0';
 }
 
 void disable_raw_mode() {

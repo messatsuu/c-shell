@@ -34,6 +34,18 @@ void init_input_buffer(InputBuffer *inputBuffer) {
     memset(inputBuffer->buffer_backup, 0, INITIAL_BUFSIZE);
 }
 
+int reallocate_input_buffer(InputBuffer *inputBuffer, unsigned int buffer_expansion_size) {
+    inputBuffer->buffer_size += buffer_expansion_size;
+    inputBuffer->buffer = reallocate(inputBuffer->buffer, inputBuffer->buffer_size, false);
+    inputBuffer->buffer_backup = reallocate(inputBuffer->buffer_backup, inputBuffer->buffer_size, false);
+
+    if (!inputBuffer->buffer || !inputBuffer->buffer_backup) {
+        return -1;
+    }
+
+    return 0;
+}
+
 void cleanup_input_buffer(InputBuffer *inputBuffer) {
     if (inputBuffer == NULL) {
         return;
@@ -82,7 +94,11 @@ void set_history_entry_to_buffer(
     if (newHistoryIndex == history->count) {
         strncpy(inputBuffer->buffer, inputBuffer->buffer_backup, inputBuffer->buffer_size);
     } else {
-        // Otherwise we copy the history entry to the buffer
+        // Otherwise we copy the history entry to the buffer and reallocate if needed
+        int history_entry_length = strlen(history->entries[newHistoryIndex]);
+        if (history_entry_length + 1 >= inputBuffer->buffer_size) {
+            reallocate_input_buffer(inputBuffer, history_entry_length);
+        }
         strncpy(inputBuffer->buffer, history->entries[newHistoryIndex], inputBuffer->buffer_size);
     }
 
@@ -122,11 +138,7 @@ char *read_input_prompt() {
         }
 
         if (inputBuffer.length + 1 >= inputBuffer.buffer_size) {
-            inputBuffer.buffer_size += BUF_EXPANSION_SIZE;
-            inputBuffer.buffer = reallocate(inputBuffer.buffer, inputBuffer.buffer_size, false);
-            inputBuffer.buffer_backup = reallocate(inputBuffer.buffer_backup, inputBuffer.buffer_size, false);
-
-            if (!inputBuffer.buffer || !inputBuffer.buffer_backup) {
+            if (reallocate_input_buffer(&inputBuffer, BUF_EXPANSION_SIZE) == -1) {
                 return NULL;
             }
         }
@@ -136,7 +148,6 @@ char *read_input_prompt() {
             inputBuffer.cursor_position--;
             inputBuffer.length--;
             inputBuffer.buffer[inputBuffer.length] = '\0';
-            redraw_line(&inputBuffer);
         } else if (currentChar == 27) { // Escape sequence
             int nextChar = getchar();
             if (nextChar != '[' && nextChar != ';') {
@@ -182,17 +193,21 @@ char *read_input_prompt() {
             }
         } else if (currentChar == 1) { // SOH (Start of Header), Ctrl+a
             move_cursor_to_start(&inputBuffer);
-            redraw_line(&inputBuffer);
         } else if (currentChar == 5) { // ENQ (Enquiry), Ctrl+e
             move_cursor_to_end(&inputBuffer);
-            redraw_line(&inputBuffer);
+        } else if (currentChar == 12) { // FF (Form Feed), Ctrl+l
+            // Print as newlines depedening on screen height
+            printf("\e[1;1H\e[2J");
+        } else if (currentChar == 23) { // EOT (End of Transmission), Ctrl+w
+            delete_cursor_left_word(&inputBuffer);
         } else if (currentChar >= 32 && currentChar <= 126) { // Printable characters
             memmove(&inputBuffer.buffer[inputBuffer.cursor_position + 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
             inputBuffer.buffer[inputBuffer.cursor_position] = (char)currentChar;
             inputBuffer.cursor_position++;
             inputBuffer.length++;
-            redraw_line(&inputBuffer);
         }
+
+        redraw_line(&inputBuffer);
     }
 
     disable_raw_mode();

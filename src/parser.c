@@ -141,13 +141,12 @@ char *convert_input(char *input) {
         pointer++;
     }
 
-    if (index < buffer_size) {
-        buffer[index] = '\0';
-    } else {
+    if (index >= buffer_size) {
         log_error("Buffer overflow detected when terminating input string.");
         free(buffer);
         return NULL;
     }
 
+    buffer[index] = '\0';
     return buffer;
 }
