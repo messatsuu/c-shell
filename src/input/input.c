@@ -108,6 +108,23 @@ void set_history_entry_to_buffer(
     redraw_line(inputBuffer);
 }
 
+void insert_into_buffer_at_cursor_position(InputBuffer *inputBuffer, char *string, unsigned int string_length) {
+    // Reallocate if needed
+    if (inputBuffer->length + string_length + 1 >= inputBuffer->buffer_size) {
+        if (reallocate_input_buffer(inputBuffer, BUF_EXPANSION_SIZE) == -1) {
+            return;
+        }
+    }
+
+    // Create space for the new string (Move string over `string_length` bytes)
+    memmove(&inputBuffer->buffer[inputBuffer->cursor_position + string_length], &inputBuffer->buffer[inputBuffer->cursor_position], inputBuffer->length - inputBuffer->cursor_position);
+    // Move the string into the new space
+    memmove(&inputBuffer->buffer[inputBuffer->cursor_position], string, string_length);
+
+    inputBuffer->length += string_length;
+    inputBuffer->cursor_position += string_length;
+}
+
 char *read_input_prompt() {
     InputBuffer inputBuffer;
     init_input_buffer(&inputBuffer);
@@ -201,12 +218,11 @@ char *read_input_prompt() {
         } else if (current_char == 23) { // EOT (End of Transmission), Ctrl+w
             delete_cursor_left_word(&inputBuffer);
         } else if (current_char == 9) { // Tab
-            autocomplete(inputBuffer.buffer, strlen(inputBuffer.buffer));
+            autocomplete(&inputBuffer);
         } else if (current_char >= 32 && current_char <= 126) { // Printable characters
-            memmove(&inputBuffer.buffer[inputBuffer.cursor_position + 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
-            inputBuffer.buffer[inputBuffer.cursor_position] = (char)current_char;
-            inputBuffer.cursor_position++;
-            inputBuffer.length++;
+            // Convert Char to null-terminated string
+            char char_string[2] = {(char)current_char, '\0'};
+            insert_into_buffer_at_cursor_position(&inputBuffer, char_string, 1);
         }
 
         redraw_line(&inputBuffer);

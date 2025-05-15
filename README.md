@@ -30,10 +30,14 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 - [ ] Optional Vi-mode keybindings
 
 ### Auto-completion
-- [ ] Trigger on TAB
+#### General
+- [x] Trigger on TAB
 - [ ] Complete commands
-- [ ] Complete file paths
 - [ ] Custom completers (e.g. environment vars, functions)
+- [ ] Render elements in grid after certain threshold
+#### File Auto-completion
+- [ ] Complete file paths
+- [ ] Display file-elements in different colors
 
 ### Terminal & Display
 - [x] Disable canonical mode & echo using `termios`

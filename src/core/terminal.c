@@ -70,7 +70,7 @@ void move_cursor_to_end(InputBuffer *inputBuffer) {
 void delete_cursor_left_word(InputBuffer *inputBuffer) {
     unsigned int initial_cursor_position = inputBuffer->cursor_position;
 
-    for (const char *pointer = &inputBuffer->buffer[inputBuffer->cursor_position]; inputBuffer->cursor_position != 0; pointer--) {
+    for (const char *pointer = &inputBuffer->buffer[inputBuffer->cursor_position - 1]; inputBuffer->cursor_position != 0; pointer--) {
         // Only break if the first character is not already a space
         if (*pointer == ' ' && inputBuffer->cursor_position != initial_cursor_position) {
             break;
