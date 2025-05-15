@@ -1,11 +1,12 @@
 #define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
-//
-#include "../include/shell.h"
-#include "unistd.h"
+
+#include <shell.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
+#include <unistd.h>
 
 // Make sure that `prompt` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
 char prompt[100] = "";

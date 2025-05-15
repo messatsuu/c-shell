@@ -1,10 +1,11 @@
-#include "../include/process.h"
+#include <process.h>
+#include <utility.h>
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/wait.h>
-#include <utility.h>
+#include <unistd.h>
 
 // TODO: Find a way to run a command that covers the following points:
 // - The command should be capturable (pipe, FILE* redirect, etc.) for unit-testing

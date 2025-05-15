@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <cmocka.h>
 
-#include "../../include/shell.h"
+#include <prompt.h>
+#include <shell.h>
+#include <utility.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include "../include/utility.h"
-#include "../include/prompt.h"
 
 // Mock implementation of `gethostname`
 ssize_t gethostname(char *name, size_t len) {

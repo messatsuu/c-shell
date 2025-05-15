@@ -6,7 +6,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 
-#include "../include/utility.h"
+#include <utility>
 
 static void test_echo_output(void **state) {
     // Setup

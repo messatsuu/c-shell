@@ -1,4 +1,5 @@
-#include "../include/history.h"
+#include <history.h>
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>

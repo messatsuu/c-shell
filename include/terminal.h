@@ -1,7 +1,8 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include "../include/input.h"
+#include <input.h>
+
 #include <termios.h>
 
 void move_cursor_left();

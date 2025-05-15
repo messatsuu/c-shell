@@ -1,8 +1,8 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // Default Variables used across the platform
 #define INITIAL_BUFSIZE 20

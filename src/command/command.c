@@ -1,9 +1,10 @@
 #define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 
-#include "../include/history.h"
-#include "../include/parser.h"
-#include "../include/process.h"
-#include "../include/utility.h"
+#include <history.h>
+#include <parser.h>
+#include <process.h>
+#include <utility.h>
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
