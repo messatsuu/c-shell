@@ -16,6 +16,8 @@ void move_cursor_to_start(InputBuffer *inputBuffer);
 
 void move_cursor_to_end(InputBuffer *inputBuffer);
 
+void delete_cursor_left_word(InputBuffer *inputBuffer);
+
 // Initializes the terminal for raw mode
 void enable_raw_mode();
 

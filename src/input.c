@@ -28,7 +28,7 @@ void init_input_buffer(InputBuffer *inputBuffer) {
     inputBuffer->buffer_backup = allocate(INITIAL_BUFSIZE, true);
     inputBuffer->length = 0;
     inputBuffer->cursor_position = 0;
-    inputBuffer->historyIndex = 0;
+    inputBuffer->history_index = 0;
     inputBuffer->buffer_size = INITIAL_BUFSIZE;
     memset(inputBuffer->buffer, 0, INITIAL_BUFSIZE);
     memset(inputBuffer->buffer_backup, 0, INITIAL_BUFSIZE);
@@ -79,30 +79,30 @@ void set_history_entry_to_buffer(
     }
     
     // Convert history's count to a signed int to avoid wrapping issues
-    int newHistoryIndex = (int)history->count - (int)(inputBuffer->historyIndex + incrementValue);
+    int new_history_index = (int)history->count - (int)(inputBuffer->history_index + incrementValue);
     // If the new history index is out of bounds, return
-    if (newHistoryIndex < 0 || newHistoryIndex > history->count) {
+    if (new_history_index < 0 || new_history_index > history->count) {
         return;
     }
 
-    if (inputBuffer->historyIndex == 0) {
+    if (inputBuffer->history_index == 0) {
         // Save the current buffer to the backup buffer
         strncpy(inputBuffer->buffer_backup, inputBuffer->buffer, inputBuffer->buffer_size);
     }
 
     // If the new history index is same as the count (outside of bounds), restore the backed up buffer
-    if (newHistoryIndex == history->count) {
+    if (new_history_index == history->count) {
         strncpy(inputBuffer->buffer, inputBuffer->buffer_backup, inputBuffer->buffer_size);
     } else {
         // Otherwise we copy the history entry to the buffer and reallocate if needed
-        int history_entry_length = strlen(history->entries[newHistoryIndex]);
+        int history_entry_length = strlen(history->entries[new_history_index]);
         if (history_entry_length + 1 >= inputBuffer->buffer_size) {
             reallocate_input_buffer(inputBuffer, history_entry_length);
         }
-        strncpy(inputBuffer->buffer, history->entries[newHistoryIndex], inputBuffer->buffer_size);
+        strncpy(inputBuffer->buffer, history->entries[new_history_index], inputBuffer->buffer_size);
     }
 
-    inputBuffer->historyIndex = inputBuffer->historyIndex + incrementValue;
+    inputBuffer->history_index = inputBuffer->history_index + incrementValue;
     inputBuffer->length = strlen(inputBuffer->buffer);
     inputBuffer->cursor_position = inputBuffer->length;
     redraw_line(inputBuffer);
@@ -115,7 +115,7 @@ char *read_input_prompt() {
     enable_raw_mode();
 
     while (1) {
-        int currentChar = getchar();
+        int current_char = getchar();
 
         // If SIG_INT is captured, clear the buffer and redraw
         if (sigint_received) {
@@ -127,12 +127,12 @@ char *read_input_prompt() {
             continue;
         }
 
-        if (currentChar == 4) { // Ctrl+C, Ctrl+D
+        if (current_char == 4) { // Ctrl+C, Ctrl+D
             cleanup_input_buffer(&inputBuffer);
             return NULL;
         }
 
-        if (currentChar == 10) { // Enter
+        if (current_char == 10) { // Enter
             inputBuffer.buffer[inputBuffer.length] = '\0';
             break;
         }
@@ -143,20 +143,20 @@ char *read_input_prompt() {
             }
         }
 
-        if (inputBuffer.cursor_position > 0 && (currentChar == 127 || currentChar == 8)) { // Backspace
+        if (inputBuffer.cursor_position > 0 && (current_char == 127 || current_char == 8)) { // Backspace
             memmove(&inputBuffer.buffer[inputBuffer.cursor_position - 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
             inputBuffer.cursor_position--;
             inputBuffer.length--;
             inputBuffer.buffer[inputBuffer.length] = '\0';
-        } else if (currentChar == 27) { // Escape sequence
-            int nextChar = getchar();
-            if (nextChar != '[' && nextChar != ';') {
+        } else if (current_char == 27) { // Escape sequence
+            int next_char = getchar();
+            if (next_char != '[' && next_char != ';') {
                 continue;
             }
 
-            nextChar = getchar();
+            next_char = getchar();
 
-            switch (nextChar) {
+            switch (next_char) {
                 case 'A': // up
                     set_history_entry_to_buffer(+1, &inputBuffer);
                     break;
@@ -176,12 +176,12 @@ char *read_input_prompt() {
                     }
                     break;
                 case '1':
-                    nextChar = getchar();
-                    if (nextChar != ';' || getchar() != '5') {
+                    next_char = getchar();
+                    if (next_char != ';' || getchar() != '5') {
                         continue;
                     }
-                    nextChar = getchar();
-                    switch (nextChar) {
+                    next_char = getchar();
+                    switch (next_char) {
                         case 'C': // ctrl+right
                             move_cursor_right_word(&inputBuffer);
                             break;
@@ -191,18 +191,18 @@ char *read_input_prompt() {
                     }
                     break;
             }
-        } else if (currentChar == 1) { // SOH (Start of Header), Ctrl+a
+        } else if (current_char == 1) { // SOH (Start of Header), Ctrl+a
             move_cursor_to_start(&inputBuffer);
-        } else if (currentChar == 5) { // ENQ (Enquiry), Ctrl+e
+        } else if (current_char == 5) { // ENQ (Enquiry), Ctrl+e
             move_cursor_to_end(&inputBuffer);
-        } else if (currentChar == 12) { // FF (Form Feed), Ctrl+l
+        } else if (current_char == 12) { // FF (Form Feed), Ctrl+l
             // Print as newlines depedening on screen height
             printf("\e[1;1H\e[2J");
-        } else if (currentChar == 23) { // EOT (End of Transmission), Ctrl+w
+        } else if (current_char == 23) { // EOT (End of Transmission), Ctrl+w
             delete_cursor_left_word(&inputBuffer);
-        } else if (currentChar >= 32 && currentChar <= 126) { // Printable characters
+        } else if (current_char >= 32 && current_char <= 126) { // Printable characters
             memmove(&inputBuffer.buffer[inputBuffer.cursor_position + 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
-            inputBuffer.buffer[inputBuffer.cursor_position] = (char)currentChar;
+            inputBuffer.buffer[inputBuffer.cursor_position] = (char)current_char;
             inputBuffer.cursor_position++;
             inputBuffer.length++;
         }

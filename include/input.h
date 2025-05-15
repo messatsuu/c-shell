@@ -13,7 +13,7 @@ typedef struct {
     char *buffer_backup;
     unsigned int length;
     unsigned int cursor_position;
-    unsigned int historyIndex;
+    unsigned int history_index;
     unsigned int buffer_size;
 } InputBuffer;
 
