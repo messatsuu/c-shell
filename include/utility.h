@@ -8,6 +8,7 @@
 #define INITIAL_BUFSIZE 20
 #define INITIAL_BUFSIZE_BIG 1024
 #define BUF_EXPANSION_SIZE 100
+#define BUF_EXPANSION_SIZE_BIG 1024
 #define MAX_ARGUMENTS_SIZE 100
 
 // Prints a message to stderr

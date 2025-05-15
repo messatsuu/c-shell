@@ -9,7 +9,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-#define HISTORY_BUFFER_SIZE 1
+#define HISTORY_BUFFER_SIZE 20
 
 typedef struct {
     char **entries; // Array of strings (dynamically allocated)
