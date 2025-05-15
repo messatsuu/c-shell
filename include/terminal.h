@@ -5,6 +5,8 @@
 
 #include <termios.h>
 
+void print_under_input(const char *message);
+
 void move_cursor_left();
 
 void move_cursor_right();

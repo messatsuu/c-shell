@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 
+#include <autocomplete.h>
 #include <history.h>
 #include <input.h>
 #include <prompt.h>
@@ -199,6 +200,8 @@ char *read_input_prompt() {
             printf("\e[1;1H\e[2J");
         } else if (current_char == 23) { // EOT (End of Transmission), Ctrl+w
             delete_cursor_left_word(&inputBuffer);
+        } else if (current_char == 9) { // Tab
+            autocomplete(inputBuffer.buffer, strlen(inputBuffer.buffer));
         } else if (current_char >= 32 && current_char <= 126) { // Printable characters
             memmove(&inputBuffer.buffer[inputBuffer.cursor_position + 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
             inputBuffer.buffer[inputBuffer.cursor_position] = (char)current_char;
