@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 #define _GNU_SOURCE
 
 #include <autocomplete.h>

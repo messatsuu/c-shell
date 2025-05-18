@@ -27,19 +27,16 @@ void move_cursor_right() {
 }
 
 void move_cursor_left_word(InputBuffer *inputBuffer) {
-    unsigned int initial_cursor_position = inputBuffer->cursor_position;
-
-    for (const char *pointer = &inputBuffer->buffer[inputBuffer->cursor_position]; inputBuffer->cursor_position != 0; pointer--) {
-        // Only break if the first character is not already a space
-        if (*pointer == ' ' && inputBuffer->cursor_position != initial_cursor_position) {
-            break;
+    unsigned int new_cursor_position = 0;
+    if (inputBuffer->cursor_position > 0) {
+        for (int i = inputBuffer->cursor_position - 1; i >= 0; i--) {
+            if (inputBuffer->buffer[i] == ' ') {
+                new_cursor_position = i;
+                break;
+            }
         }
-
-        inputBuffer->cursor_position--;
-        printf("\x1b[D");
     }
-
-    fflush(stdout);
+    inputBuffer->cursor_position = new_cursor_position;
 }
 
 void move_cursor_right_word(InputBuffer *inputBuffer) {
@@ -70,6 +67,7 @@ void move_cursor_to_end(InputBuffer *inputBuffer) {
 void delete_cursor_left_word(InputBuffer *inputBuffer) {
     unsigned int initial_cursor_position = inputBuffer->cursor_position;
 
+    // TODO: use strrchr()
     for (const char *pointer = &inputBuffer->buffer[inputBuffer->cursor_position - 1]; inputBuffer->cursor_position != 0; pointer--) {
         // Only break if the first character is not already a space
         if (*pointer == ' ' && inputBuffer->cursor_position != initial_cursor_position) {

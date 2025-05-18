@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
 
 #include <autocomplete.h>
 #include <autocomplete_result.h>

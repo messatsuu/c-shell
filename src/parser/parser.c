@@ -1,5 +1,4 @@
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
-
+#include <parser.h>
 #include <utility.h>
 
 #include <ctype.h>
@@ -9,13 +8,17 @@
 #include <string.h>
 #include <termios.h>
 
-#define INITIAL_COMMAND_CAPACITY 1
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
 
-typedef struct {
-    char *command;
-    char separator[3];
-} Command;
+void set_command_flags(Command *command) {
+    if (strchr(command->command, '|')) {
+        command->flags |= CMD_FLAG_PIPE;
+    }
+    if (strchr(command->command, '>')) {
+        command->flags |= CMD_FLAG_REDIRECT;
+    }
+    // TODO: implement CMD_FLAG_BACKGROUND
+}
 
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // Skip '$' character
@@ -56,7 +59,7 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
 }
 
 void convert_input_to_commands(char *input, int *count, Command **commands) {
-    int command_capacity = INITIAL_COMMAND_CAPACITY;
+    int command_capacity = INITIAL_BUFSIZE;
 
     if (*commands == NULL) {
         *commands = malloc(command_capacity * sizeof(Command));
@@ -64,22 +67,24 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 
     for (const char *pointer = input; *pointer != '\0';) {
         if (*count >= command_capacity) {
-            command_capacity += INITIAL_COMMAND_CAPACITY;
+            command_capacity += BUF_EXPANSION_SIZE;
             *commands = reallocate(*commands, command_capacity * sizeof(Command), true);
         }
 
+        // TODO: make it so that `echo "this ; is ; a string"` is a single command
+        // TODO: Implement escpaing space separation for arguments (e.g. xdg-open My\ File.zip)
         const char *sep = strstr(pointer, "&&");
         const char *sep2 = strstr(pointer, "||");
         const char *sep3 = strchr(pointer, ';');
 
-        // Find the nearest separator
         const char *nearest = NULL;
         const char *selected = NULL;
         const char *separators[] = {sep, sep2, sep3};
         const char *names[] = {"&&", "||", ";"};
 
+        // Find the nearest separator
         for (int j = 0; j < 3; j++) {
-            if (separators[j] && (!nearest || separators[j] < nearest)) {
+            if (separators[j] != NULL && (nearest == NULL || separators[j] < nearest)) {
                 nearest = separators[j];
                 selected = names[j];
             }
@@ -94,14 +99,15 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
             // No more separators, grab the rest
             (*commands)[*count].command = strdup(pointer);
             (*commands)[*count].separator[0] = '\0';  // No separator after the last command
+            set_command_flags(&(*commands)[*count]);
             *count = *count + 1;
             break;
         }
 
-        // TODO: Do both arguments need to be dynamically allocated?
         (*commands)[*count].command = strndup(pointer, nearest - pointer);
         strncpy((*commands)[*count].separator, selected, sizeof((*commands)[*count].separator));
         *count = *count + 1;
+        set_command_flags(&(*commands)[*count]);
 
         pointer = nearest + strlen(selected);
     }
@@ -110,9 +116,6 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 char *convert_input(char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = callocate(buffer_size, 1, true);
-    // Fill buffer with 0s to avoid garbage values in output
-    memset(buffer, 0, buffer_size);
-
     size_t index = 0;
 
     for (char *pointer = input; *pointer != '\0';) {
@@ -150,4 +153,34 @@ char *convert_input(char *input) {
 
     buffer[index] = '\0';
     return buffer;
+}
+
+char ***create_piped_command_array(char *args[]) {
+    char*** commands = malloc(sizeof(char**) * MAX_COMMANDS);
+    int command_index = 0;
+    int argument_index = 0;
+
+    commands[command_index] = malloc(sizeof(char*) * MAX_ARGS_PER_COMMAND);
+
+    for (int i = 0; args[i] != NULL; i++) {
+        if (strcmp(args[i], "|") == 0) {
+            // Null terminate end of command
+            commands[command_index][argument_index] = NULL;
+            // Start a new command
+            command_index++;
+            argument_index = 0;
+            commands[command_index] = malloc(sizeof(char*) * MAX_ARGS_PER_COMMAND);
+            continue;
+        }
+
+        commands[command_index][argument_index++] = args[i];
+    }
+
+    // NULL-terminate last command
+    commands[command_index][argument_index] = NULL;
+
+    // NULL-terminate the command array
+    commands[command_index + 1] = NULL;
+
+    return commands;
 }

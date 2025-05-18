@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
-
 #include <shell.h>
 
 #include <stdio.h>
@@ -22,8 +20,8 @@ char *create_ps1() {
 
     size_t index = 0;
 
-    // Example input: \n\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\]
-    // Example output: \033[1;32m[nix-shell:\w]$\033[0m
+    // Example input: \n\[\033[1;32m\][\u:\w]\$\[\033[0m\]
+    // Example output: \033[1;32m[user:current-dir]$\033[0m
     for (const char *pointer = ps1; *pointer != '\0'; pointer++) {
         // if the character isn't a '\', simply add it to ouput
         if (*pointer != '\\') {

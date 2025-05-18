@@ -1,15 +1,14 @@
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
-
-#include <shell.h>
 #include <command.h>
 #include <input.h>
 #include <parser.h>
 #include <prompt.h>
+#include <shell.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
+#include <stdbool.h>
 
 extern int last_exit_code;
 
@@ -23,7 +22,7 @@ void set_env_field(char *special_field, size_t special_field_size, char *env_var
 }
 
 void execute_input() {
-    int count = 0;
+    int command_count = 0;
     // Commands gets dynamically allocated in `convert_input_to_commands()`
     Command *commands = NULL;
     bool should_run = true;
@@ -38,9 +37,9 @@ void execute_input() {
         exit(0);
     }
 
-    convert_input_to_commands(input, &count, &commands);
+    convert_input_to_commands(input, &command_count, &commands);
 
-    for (size_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < command_count; i++) {
         Command command = commands[i];
 
         if (i != 0) {
@@ -56,7 +55,7 @@ void execute_input() {
         }
 
         if (should_run) {
-            execute_command(command.command);
+            execute_command(command.command, command.flags);
         }
         free(command.command);
     }

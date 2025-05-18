@@ -30,7 +30,7 @@ pkgs.mkShell {
   ];
 
   # Optional compiler flags
-  CXXFLAGS = "-std=c++17";
+  CXXFLAGS = "";
 
   # Path setup for includes
   CPATH = builtins.concatStringsSep ":" [

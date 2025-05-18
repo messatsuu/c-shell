@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L  // Enables POSIX functions like strdup()
-
 #include <command.h>
 #include <utility.h>
 
@@ -83,7 +81,7 @@ int execute_command_from_history(const unsigned long index) {
 
     // we need to Duplicate the string, since making operations on it would change it in the history
     char* command = strdup(command_from_history);
-    int exit_code = execute_command(command);
+    int exit_code = execute_command(command, 0);
 
     free(command);
     return exit_code;
