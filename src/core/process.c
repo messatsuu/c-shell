@@ -109,9 +109,16 @@ int run_child_process_piped(char *args[]) {
         waitpid(pids[i], &statuses[i], 0);
         status = WEXITSTATUS(statuses[i]);
         if (status != 0) {
-            return status;
+            break;
         }
     }
 
-    return 0;
+    // Free all commands allocated by parser
+    for (int j = 0; j <= i; j++) {
+        free(commands[j]);
+    }
+    free(commands);
+
+
+    return status;
 }

@@ -156,11 +156,11 @@ char *convert_input(char *input) {
 }
 
 char ***create_piped_command_array(char *args[]) {
-    char*** commands = malloc(sizeof(char**) * MAX_COMMANDS);
+    char*** commands = allocate(sizeof(char**) * MAX_COMMANDS, true);
     int command_index = 0;
     int argument_index = 0;
 
-    commands[command_index] = malloc(sizeof(char*) * MAX_ARGS_PER_COMMAND);
+    commands[command_index] = allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
 
     for (int i = 0; args[i] != NULL; i++) {
         if (strcmp(args[i], "|") == 0) {
@@ -169,7 +169,7 @@ char ***create_piped_command_array(char *args[]) {
             // Start a new command
             command_index++;
             argument_index = 0;
-            commands[command_index] = malloc(sizeof(char*) * MAX_ARGS_PER_COMMAND);
+            commands[command_index] = allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
             continue;
         }
 
