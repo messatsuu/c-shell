@@ -17,6 +17,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 INC_TEST_DIR = ./tests/include
 SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES))
 TEST_FILES = $(wildcard tests/src/*.c)
+TEST_WRAPPER_AGS = -Wl,--wrap=run_execvp,--wrap=gethostname
 
 # Main Targets
 build:
@@ -27,7 +28,7 @@ run:
 
 # Unit Testing Targets
 build-test:
-	$(CC) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) -Wl,--wrap=run_execvp
+	$(CC) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_AGS)
 
 run-test:
 	./bin/test
@@ -37,7 +38,7 @@ build-debug:
 	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_DEBUG_PATH) -isystem $(INC_DIR)
 
 build-test-debug:
-	$(CC) $(DEBUG_CFLAGS) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) -Wl,--wrap=run_execvp
+	$(CC) $(DEBUG_CFLAGS) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_AGS)
 
 # Aliases
 b: build

@@ -9,12 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Mock implementation of `gethostname`
-ssize_t gethostname(char *name, size_t len) {
-    strcpy(name, "test-host");
-    return 0;
-}
-
 static void test_ps1_output(void **state) {
     // Setup
     FILE *stdout_mock = get_mock_stdout_file();
