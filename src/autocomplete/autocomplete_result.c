@@ -30,6 +30,12 @@ void add_entry_to_autocomplete_result(AutocompleteResult *autocompleteResult, ch
             new_entry[strlen(new_entry)] = '\0';
             break;
         }
+        case RESULT_ENTRY_TYPE_FILE: {
+            // Add a space to result entry if type file
+            new_entry[strlen(new_entry)] = ' ';
+            new_entry[strlen(new_entry)] = '\0';
+            break;
+        }
         default:
             break;
     }
