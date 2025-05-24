@@ -5,6 +5,7 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <utility.h>
 
 // Make sure that `prompt` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
 char prompt[100] = "";
@@ -57,7 +58,7 @@ char *create_ps1() {
                 break;
             }
             case 'h': {
-                gethostname(special_field, sizeof(special_field));
+                get_host_name(special_field, sizeof(special_field));
                 break;
             }
             default:

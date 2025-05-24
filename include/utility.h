@@ -29,4 +29,6 @@ void *callocate(unsigned int number_of_bytes, size_t size, bool exit);
 // Simple function that calls all other cleanup functions
 void cleanup();
 
+ssize_t get_host_name(char *name, size_t len);
+
 #endif

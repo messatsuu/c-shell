@@ -15,8 +15,8 @@ int __wrap_run_execvp(char** args) {
     return __real_run_execvp(args);
 }
 
-// We mock gethostname(), since the host is context-dependant
-ssize_t __wrap_gethostname(char *name, size_t len) {
+// We mock get_host_name() (function in prompt.c), since the host is context-dependant
+ssize_t __wrap_get_host_name(char *name, size_t len) {
     strcpy(name, "test-host");
     return 0;
 }

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
+#include <unistd.h>
 
 void log_error(const char *format, ...) {
     va_list args;
@@ -61,4 +62,9 @@ void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
 
 void cleanup() {
     cleanup_history();
+}
+
+// Wrapper function to override in testing (statically linked glibc-functions cannot be overriden in github actions?)
+ssize_t get_host_name(char *name, size_t len) {
+    return gethostname(name, len);
 }

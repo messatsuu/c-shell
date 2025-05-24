@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <cmocka.h>
 #include <stdlib.h>
-#include <string.h>
 
 static void test_ps1_output(void **state) {
     // Setup

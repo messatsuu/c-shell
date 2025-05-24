@@ -17,7 +17,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 INC_TEST_DIR = ./tests/include
 SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES))
 TEST_FILES = $(wildcard tests/src/*.c)
-TEST_WRAPPER_AGS = -Wl,--wrap=run_execvp,--wrap=gethostname
+TEST_WRAPPER_AGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
 
 # Main Targets
 build:
