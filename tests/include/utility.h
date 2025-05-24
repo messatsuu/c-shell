@@ -12,4 +12,6 @@ FILE *get_mock_stdout_file();
 
 FILE *write_to_mock_stdout(char *input);
 
+FILE *clear_mock_stdout_file();
+
 #endif
