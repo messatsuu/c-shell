@@ -20,11 +20,9 @@ pkgs.mkShell {
   ];
 
   buildInputs = [
+    # Dependencies
     # stdlib for C++
     pkgs.libcxx
-
-    # Dependencies
-    # pkgs.ncurses
     # Unit testing
     pkgs.cmocka
   ];

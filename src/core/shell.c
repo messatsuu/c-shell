@@ -26,10 +26,6 @@ void execute_input() {
     // Commands gets dynamically allocated in `convert_input_to_commands()`
     Command *commands = NULL;
     bool should_run = true;
-
-    create_ps1();
-    printf("%s", prompt);
-
     char *input = read_input_prompt();
 
     if (input == NULL) {
@@ -72,5 +68,7 @@ void reset_shell() {
 }
 
 void create_prompt() {
+    create_ps1();
+    printf("%s", prompt);
     execute_input();
 }

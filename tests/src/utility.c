@@ -1,18 +1,9 @@
+#include "unistd.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <utility.h>
 
-FILE *mock_stdout() {
-    FILE *temp_file = tmpfile();
-    if (temp_file == NULL) {
-        exit(0);
-    }
-
-    // Redirect stdout to the temporary file
-    FILE *original_stdout = stdout;
-    stdout = temp_file;
-
-    return temp_file;
-}
+const char *mock_stdout_filepath = "/tmp/mock_stdout";
 
 void read_file_to_buffer(FILE *output, char* buffer, size_t length) {
     // Rewind the temporary file and read its contents to `buffer`
@@ -25,7 +16,7 @@ void read_file_to_buffer(FILE *output, char* buffer, size_t length) {
     }
 }
 
-FILE* mock_stdin(const char* input) {
+FILE* write_to_mock_stdin(const char* input) {
     FILE *temp_file = tmpfile();
     if (!temp_file) {
         perror("tmpfile");
@@ -40,4 +31,20 @@ FILE* mock_stdin(const char* input) {
     stdin = temp_file;
 
     return temp_file;
+}
+
+FILE *get_mock_stdout_file() {
+    FILE *mock_stdout_file = fopen(mock_stdout_filepath, "w+");
+    if (mock_stdout_file == NULL) {
+        log_error_with_exit("Failed to open/create mock file");
+    }
+
+    return mock_stdout_file;
+}
+
+FILE *write_to_mock_stdout(char *input) {
+    FILE *mock_stdout_file = get_mock_stdout_file();
+    fprintf(mock_stdout_file, "%s", input);
+
+    return mock_stdout_file;
 }

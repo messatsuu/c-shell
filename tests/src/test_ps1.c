@@ -1,11 +1,11 @@
-#include <setjmp.h>
-#include <stdio.h>
-#include <cmocka.h>
-
+#include "../include/utility.h"
 #include <prompt.h>
 #include <shell.h>
 #include <utility.h>
 
+#include <setjmp.h>
+#include <stdio.h>
+#include <cmocka.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,7 +17,7 @@ ssize_t gethostname(char *name, size_t len) {
 
 static void test_ps1_output(void **state) {
     // Setup
-    FILE *stdout_mock = mock_stdout();
+    FILE *stdout_mock = get_mock_stdout_file();
     setenv("USER", "test-user", 1);
     setenv("PWD", "/usr/bin/c-shell-implementation", 1);
     setenv("PS1", "[\\u@\\w on \\h] $", 1);
@@ -37,7 +37,7 @@ static int teardown(void **state) {
     return 0;
 }
 
-int run_suite_test_ps1() {
+unsigned int run_suite_test_ps1() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_ps1_output),
     };

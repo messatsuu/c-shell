@@ -9,6 +9,7 @@ EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 
 SRC_DIR = ./src
 INC_DIR = ./include
+TEST_INC_DIR = ./tests/include/
 
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.c')
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
@@ -24,20 +25,19 @@ build:
 run:
 	$(EXECUTABLE_PATH)
 
-# Debug Targets
-build-debug:
-	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_DEBUG_PATH) -isystem $(INC_DIR)
-
-run-debug:
-	gdb $(EXECUTABLE_DEBUG_PATH)
-
 # Unit Testing Targets
 build-test:
-	$(CC) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(INC_DIR)
+	$(CC) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) -Wl,--wrap=run_execvp
 
 run-test:
 	./bin/test
 
+# Debug Targets
+build-debug:
+	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_DEBUG_PATH) -isystem $(INC_DIR)
+
+build-test-debug:
+	$(CC) $(DEBUG_CFLAGS) $(TEST_FILES) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) -Wl,--wrap=run_execvp
 
 # Aliases
 b: build
@@ -45,8 +45,7 @@ r: run
 br: build run
 
 bd: build-debug
-rd: run-debug
-brd: build-debug run-debug
+btd: build-test-debug
 
 bt: build-test
 rt: run-test
