@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <autocomplete.h>
-#include <autocomplete_result.h>
-#include <terminal.h>
+#include "autocomplete/autocomplete.h"
+#include "autocomplete/autocomplete_result.h"
+#include "core/terminal.h"
 #include <utility.h>
 #include <limits.h>
 

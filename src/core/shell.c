@@ -1,8 +1,8 @@
-#include <command.h>
-#include <input.h>
-#include <parser.h>
-#include <prompt.h>
-#include <shell.h>
+#include "command/command.h"
+#include "input/input.h"
+#include "parser/parser.h"
+#include "core/prompt.h"
+#include "core/shell.h"
 
 #include <stdio.h>
 #include <stdlib.h>

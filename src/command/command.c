@@ -1,7 +1,7 @@
-#include <builtin.h>
-#include <history.h>
-#include <parser.h>
-#include <process.h>
+#include "input/history.h"
+#include "command/builtins.h"
+#include "parser/parser.h"
+#include "core/process.h"
 #include <utility.h>
 
 #include <stdbool.h>

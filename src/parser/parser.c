@@ -1,4 +1,4 @@
-#include <parser.h>
+#include "parser/parser.h"
 #include <utility.h>
 
 #include <ctype.h>
@@ -106,8 +106,8 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 
         (*commands)[*count].command = strndup(pointer, nearest - pointer);
         strncpy((*commands)[*count].separator, selected, sizeof((*commands)[*count].separator));
-        *count = *count + 1;
         set_command_flags(&(*commands)[*count]);
+        *count = *count + 1;
 
         pointer = nearest + strlen(selected);
     }

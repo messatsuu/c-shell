@@ -1,8 +1,8 @@
-#include <autocomplete.h>
-#include <history.h>
-#include <input.h>
-#include <prompt.h>
-#include <terminal.h>
+#include "autocomplete/autocomplete.h"
+#include "input/history.h"
+#include "input/input.h"
+#include "core/prompt.h"
+#include "core/terminal.h"
 #include <utility.h>
 
 #include <signal.h>

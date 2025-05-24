@@ -1,4 +1,4 @@
-#include <command.h>
+#include "command/command.h"
 #include <utility.h>
 
 #include <stdio.h>

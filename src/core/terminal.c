@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <terminal.h>
+#include "core/terminal.h"
 
 static struct termios orig_termios;
 

@@ -1,8 +1,8 @@
 #define _GNU_SOURCE
 
-#include <autocomplete.h>
-#include <autocomplete_result.h>
-#include <terminal.h>
+#include "autocomplete/autocomplete.h"
+#include "autocomplete/autocomplete_result.h"
+#include "core/terminal.h"
 #include <utility.h>
 
 #include <dirent.h>

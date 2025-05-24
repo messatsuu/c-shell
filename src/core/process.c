@@ -1,7 +1,8 @@
-#include <parser.h>
-#include <process.h>
+#include "parser/parser.h"
+#include "core/execvp.h"
+#include "core/process.h"
+
 #include <utility.h>
-#include <execvp.h>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 #ifndef AUTOCOMPLETE_RESULTH_H
 #define AUTOCOMPLETE_RESULTH_H
 
-#include <input.h>
+#include "input/input.h"
 #define ENTRY_MAX 4096
 
 enum AutocompleteResultEntryType {

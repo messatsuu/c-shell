@@ -1,7 +1,7 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include <input.h>
+#include "input/input.h"
 
 #include <termios.h>
 

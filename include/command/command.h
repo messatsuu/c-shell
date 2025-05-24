@@ -1,7 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include <parser.h>
+#include "parser/parser.h"
 
 #include <unistd.h>
 

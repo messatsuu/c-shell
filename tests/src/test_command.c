@@ -1,6 +1,6 @@
 #include "../include/utility.h"
-#include <process.h>
-#include <shell.h>
+#include "core/process.h"
+#include "core/shell.h"
 
 #include <setjmp.h>
 #include <stdio.h>

@@ -1,6 +1,6 @@
 #include "../include/utility.h"
-#include <prompt.h>
-#include <shell.h>
+#include "core/prompt.h"
+#include "core/shell.h"
 #include <utility.h>
 
 #include <setjmp.h>

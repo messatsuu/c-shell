@@ -1,5 +1,5 @@
-#include <command.h>
-#include <history.h>
+#include "command/command.h"
+#include "input/history.h"
 #include <utility.h>
 
 #include <stdbool.h>
