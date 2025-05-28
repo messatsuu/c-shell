@@ -7,7 +7,7 @@
 const char *mock_stdout_filepath = "/tmp/mock_stdout";
 
 void read_file_to_buffer(FILE *output, char* buffer, size_t length) {
-    // Rewind the temporary file and read its contents to `buffer`
+    // Rewind the mock file and read its contents to `buffer`
     rewind(output);
     char result[INITIAL_BUFSIZE_BIG] = "";
 

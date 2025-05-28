@@ -20,6 +20,11 @@ void set_command_flags(Command *command) {
     // TODO: implement CMD_FLAG_BACKGROUND
 }
 
+void initialize_command(Command *command) {
+    command->flags = 0;
+    command->separator[0] = '\0';
+}
+
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // Skip '$' character
     (*pointer)++;
@@ -62,7 +67,7 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
     int command_capacity = INITIAL_BUFSIZE;
 
     if (*commands == NULL) {
-        *commands = malloc(command_capacity * sizeof(Command));
+        *commands = callocate(command_capacity, sizeof(Command), true);
     }
 
     for (const char *pointer = input; *pointer != '\0';) {
@@ -73,20 +78,23 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 
         // TODO: make it so that `echo "this ; is ; a string"` is a single command
         // TODO: Implement escpaing space separation for arguments (e.g. xdg-open My\ File.zip)
-        const char *sep = strstr(pointer, "&&");
-        const char *sep2 = strstr(pointer, "||");
-        const char *sep3 = strchr(pointer, ';');
+        const char *and_separator = strstr(pointer, "&&");
+        const char *or_separator = strstr(pointer, "||");
+        const char *semi_separator = strchr(pointer, ';');
 
-        const char *nearest = NULL;
+        const char *next_separator = NULL;
         const char *selected = NULL;
-        const char *separators[] = {sep, sep2, sep3};
+        const char *separators[] = {and_separator, or_separator, semi_separator};
+        const int number_of_separators = sizeof(separators) / sizeof(separators[0]);
         const char *names[] = {"&&", "||", ";"};
 
+        Command *command = &(*commands)[*count];
+
         // Find the nearest separator
-        for (int j = 0; j < 3; j++) {
-            if (separators[j] != NULL && (nearest == NULL || separators[j] < nearest)) {
-                nearest = separators[j];
-                selected = names[j];
+        for (int i = 0; i < number_of_separators; i++) {
+            if (separators[i] != NULL && (next_separator == NULL || separators[i] < next_separator)) {
+                next_separator = separators[i];
+                selected = names[i];
             }
         }
 
@@ -95,21 +103,22 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
             pointer++;
         }
 
-        if (!nearest) {
-            // No more separators, grab the rest
-            (*commands)[*count].command = strdup(pointer);
-            (*commands)[*count].separator[0] = '\0';  // No separator after the last command
-            set_command_flags(&(*commands)[*count]);
-            *count = *count + 1;
+        *count = *count + 1;
+        initialize_command(command);
+
+        if (!next_separator) {
+            // No more separators, grab the rest (until end of string) and finish
+            command->command = strdup(pointer);
+            set_command_flags(command);
             break;
         }
 
-        (*commands)[*count].command = strndup(pointer, nearest - pointer);
-        strncpy((*commands)[*count].separator, selected, sizeof((*commands)[*count].separator));
-        set_command_flags(&(*commands)[*count]);
-        *count = *count + 1;
+        command->command = strndup(pointer, next_separator - pointer);
+        strncpy(command->separator, selected, sizeof(command->separator));
+        set_command_flags(command);
 
-        pointer = nearest + strlen(selected);
+        // Continue after the separator
+        pointer = next_separator + strlen(selected);
     }
 }
 
@@ -122,7 +131,7 @@ char *convert_input(char *input) {
         // If the buffer is full, reallocate memory
         if (index >= buffer_size -1) {
             buffer_size += BUF_EXPANSION_SIZE;
-            char *temp = realloc(buffer, buffer_size);
+            char *temp = reallocate(buffer, buffer_size, false);
 
             if (!temp) {
                 log_error("Input buffer Reallocation Error");

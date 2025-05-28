@@ -1,4 +1,5 @@
 #include "core/shell.h"
+#include <string.h>
 #include <utility.h>
 
 #include <signal.h>
@@ -14,12 +15,15 @@ void handle_sigint(int signal) {
 }
 
 void setup_signal_handlers() {
-    struct sigaction sig_action;
+    struct sigaction sig_action = {0};
+    // Set the handler to be called on SIGINT
     sig_action.sa_handler = handle_sigint;
+    // unset all flags on sigaction struct
     sigemptyset(&sig_action.sa_mask);
 
+    // Bind the sigaction struct to the SIGINT signal
     if (sigaction(SIGINT, &sig_action, NULL) == -1) {
-        perror("sigaction");
+        perror("sigaction error");
     }
 }
 
