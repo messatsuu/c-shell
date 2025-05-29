@@ -142,97 +142,110 @@ char *read_input_prompt() {
             continue;
         }
 
-        if (current_char == 4) { // Ctrl+C, Ctrl+D
-            cleanup_input_buffer(&inputBuffer);
-            return NULL;
-        }
-
-        if (current_char == 10) { // Enter
-            inputBuffer.buffer[inputBuffer.length] = '\0';
-            break;
-        }
-
         if (inputBuffer.length + 1 >= inputBuffer.buffer_size) {
             if (reallocate_input_buffer(&inputBuffer, BUF_EXPANSION_SIZE) == -1) {
                 return NULL;
             }
         }
 
-        if (inputBuffer.cursor_position > 0 && (current_char == 127 || current_char == 8)) { // Backspace
-            memmove(&inputBuffer.buffer[inputBuffer.cursor_position - 1], &inputBuffer.buffer[inputBuffer.cursor_position], inputBuffer.length - inputBuffer.cursor_position);
-            inputBuffer.cursor_position--;
-            inputBuffer.length--;
-            inputBuffer.buffer[inputBuffer.length] = '\0';
-        } else if (current_char == 27) { // Escape sequence
-            int next_char = getchar();
-            if (next_char != '[' && next_char != ';') {
-                continue;
+        switch (current_char) {
+            case 4: // Ctrl+D
+                cleanup_input_buffer(&inputBuffer);
+                return NULL;
+
+            case 10: // Enter
+                inputBuffer.buffer[inputBuffer.length] = '\0';
+                goto done;
+
+            case 127: // Backspace (DEL)
+            case 8:   // Backspace (BS)
+                if (inputBuffer.cursor_position > 0) {
+                    memmove(&inputBuffer.buffer[inputBuffer.cursor_position - 1],
+                            &inputBuffer.buffer[inputBuffer.cursor_position],
+                            inputBuffer.length - inputBuffer.cursor_position);
+                    inputBuffer.cursor_position--;
+                    inputBuffer.length--;
+                    inputBuffer.buffer[inputBuffer.length] = '\0';
+                }
+                break;
+
+            case 27: { // Escape sequence
+                int next_char = getchar();
+                if (next_char != '[' && next_char != ';') break;
+
+                next_char = getchar();
+                switch (next_char) {
+                    case 'A': // Up
+                        set_history_entry_to_buffer(+1, &inputBuffer);
+                        break;
+                    case 'B': // Down
+                        set_history_entry_to_buffer(-1, &inputBuffer);
+                        break;
+                    case 'C': // Right
+                        if (inputBuffer.cursor_position < inputBuffer.length) {
+                            inputBuffer.cursor_position++;
+                            move_cursor_right();
+                        }
+                        break;
+                    case 'D': // Left
+                        if (inputBuffer.cursor_position > 0) {
+                            inputBuffer.cursor_position--;
+                            move_cursor_left();
+                        }
+                        break;
+                    case '1': {
+                        if (getchar() != ';' || getchar() != '5') {
+                            break;
+                        }
+                        next_char = getchar();
+                        switch (next_char) {
+                            case 'C': // Ctrl+Right
+                                move_cursor_right_word(&inputBuffer);
+                                break;
+                            case 'D': // Ctrl+Left
+                                move_cursor_left_word(&inputBuffer);
+                                break;
+                        }
+                        break;
+                    }
+                }
+                break;
             }
 
-            next_char = getchar();
-
-            switch (next_char) {
-                case 'A': // up
-                    set_history_entry_to_buffer(+1, &inputBuffer);
-                    break;
-                case 'B': // down
-                    set_history_entry_to_buffer(-1, &inputBuffer);
-                    break;
-                case 'C': // right
-                    if (inputBuffer.cursor_position < inputBuffer.length) {
-                        inputBuffer.cursor_position++;
-                        move_cursor_right();
-                    }
-                    break;
-                case 'D': // left
-                    if (inputBuffer.cursor_position > 0) {
-                        inputBuffer.cursor_position--;
-                        move_cursor_left();
-                    }
-                    break;
-                case '1':
-                    next_char = getchar();
-                    if (next_char != ';' || getchar() != '5') {
-                        continue;
-                    }
-                    next_char = getchar();
-                    switch (next_char) {
-                        case 'C': // ctrl+right
-                            move_cursor_right_word(&inputBuffer);
-                            break;
-                        case 'D': // ctrl+left
-                            move_cursor_left_word(&inputBuffer);
-                            break;
-                    }
-                    break;
-            }
-        } else if (current_char == 1) { // SOH (Start of Header), Ctrl+a
-            move_cursor_to_start(&inputBuffer);
-        } else if (current_char == 5) { // ENQ (Enquiry), Ctrl+e
-            move_cursor_to_end(&inputBuffer);
-        } else if (current_char == 12) { // FF (Form Feed), Ctrl+l
-            // Print as newlines depedening on screen height
-            printf("\e[1;1H\e[2J");
-        } else if (current_char == 23) { // EOT (End of Transmission), Ctrl+w
-            delete_cursor_left_word(&inputBuffer);
-        } else if (current_char == 9) { // Tab
-            autocomplete(&inputBuffer);
-        } else if (current_char >= 32 && current_char <= 126) { // Printable characters
-            // Convert Char to null-terminated string
-            char char_string[2] = {(char)current_char, '\0'};
-            insert_into_buffer_at_cursor_position(&inputBuffer, char_string, 1);
+            case 1: // Ctrl+A
+                move_cursor_to_start(&inputBuffer);
+                break;
+            case 5: // Ctrl+E
+                move_cursor_to_end(&inputBuffer);
+                break;
+            case 12: // Ctrl+L
+                printf("\e[1;1H\e[2J");
+                break;
+            case 23: // Ctrl+W
+                delete_cursor_left_word(&inputBuffer);
+                break;
+            case 9: // Tab
+                autocomplete(&inputBuffer);
+                break;
+            default:
+                if (current_char >= 32 && current_char <= 126) {
+                    char char_string[2] = { (char)current_char, '\0' };
+                    insert_into_buffer_at_cursor_position(&inputBuffer, char_string, 1);
+                }
+                break;
         }
 
         redraw_line(&inputBuffer);
     }
 
+done:
     disable_raw_mode();
     printf("\n");
 
     char *input = allocate(inputBuffer.length + 1, false);
     if (input != NULL) {
         memcpy(input, inputBuffer.buffer, inputBuffer.length);
-        input[inputBuffer.length] = '\0'; // Null-terminate manually
+        input[inputBuffer.length] = '\0';
     }
 
     cleanup_input_buffer(&inputBuffer);
