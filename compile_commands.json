@@ -203,6 +203,27 @@
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
       "./bin/main",
+      "./src/parser/command_parser.c"
+    ],
+    "directory": "/home/nicolas/src/c-shell-implementation",
+    "file": "/home/nicolas/src/c-shell-implementation/src/parser/command_parser.c",
+    "output": "/home/nicolas/src/c-shell-implementation/bin/main"
+  },
+  {
+    "arguments": [
+      "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/bin/clang",
+      "-c",
+      "-std=c11",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-D_POSIX_C_SOURCE=200809L",
+      "-I",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-I",
+      "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
+      "-o",
+      "./bin/main",
       "./src/parser/parser.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
@@ -429,12 +450,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/main-0e8568.o",
+      "/tmp/main-bd6705.o",
       "./src/main.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/main.c",
-    "output": "/tmp/main-0e8568.o"
+    "output": "/tmp/main-bd6705.o"
   },
   {
     "arguments": [
@@ -572,12 +593,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/utility-0139a5.o",
+      "/tmp/utility-784a30.o",
       "./src/utility.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/utility.c",
-    "output": "/tmp/utility-0139a5.o"
+    "output": "/tmp/utility-784a30.o"
   },
   {
     "arguments": [
@@ -715,12 +736,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/shell-1a0c6f.o",
+      "/tmp/shell-af5c61.o",
       "./src/core/shell.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/core/shell.c",
-    "output": "/tmp/shell-1a0c6f.o"
+    "output": "/tmp/shell-af5c61.o"
   },
   {
     "arguments": [
@@ -858,12 +879,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/execvp-4507de.o",
+      "/tmp/execvp-4ca91e.o",
       "./src/core/execvp.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/core/execvp.c",
-    "output": "/tmp/execvp-4507de.o"
+    "output": "/tmp/execvp-4ca91e.o"
   },
   {
     "arguments": [
@@ -1001,12 +1022,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/terminal-26d172.o",
+      "/tmp/terminal-e1a097.o",
       "./src/core/terminal.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/core/terminal.c",
-    "output": "/tmp/terminal-26d172.o"
+    "output": "/tmp/terminal-e1a097.o"
   },
   {
     "arguments": [
@@ -1144,12 +1165,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/process-a209f4.o",
+      "/tmp/process-6c8821.o",
       "./src/core/process.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/core/process.c",
-    "output": "/tmp/process-a209f4.o"
+    "output": "/tmp/process-6c8821.o"
   },
   {
     "arguments": [
@@ -1287,12 +1308,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/prompt-4d849b.o",
+      "/tmp/prompt-935cb5.o",
       "./src/core/prompt.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/core/prompt.c",
-    "output": "/tmp/prompt-4d849b.o"
+    "output": "/tmp/prompt-935cb5.o"
   },
   {
     "arguments": [
@@ -1430,12 +1451,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/autocomplete_result-788764.o",
+      "/tmp/autocomplete_result-aabd53.o",
       "./src/autocomplete/autocomplete_result.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/autocomplete/autocomplete_result.c",
-    "output": "/tmp/autocomplete_result-788764.o"
+    "output": "/tmp/autocomplete_result-aabd53.o"
   },
   {
     "arguments": [
@@ -1573,12 +1594,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/autocomplete-b9a143.o",
+      "/tmp/autocomplete-ae1643.o",
       "./src/autocomplete/autocomplete.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/autocomplete/autocomplete.c",
-    "output": "/tmp/autocomplete-b9a143.o"
+    "output": "/tmp/autocomplete-ae1643.o"
   },
   {
     "arguments": [
@@ -1716,12 +1737,155 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/parser-62085c.o",
+      "/tmp/command_parser-465758.o",
+      "./src/parser/command_parser.c"
+    ],
+    "directory": "/home/nicolas/src/c-shell-implementation",
+    "file": "/home/nicolas/src/c-shell-implementation/src/parser/command_parser.c",
+    "output": "/tmp/command_parser-465758.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/0ih8fjbgmi1j9yby2cbd1x6nx6ix2xjk-clang-17.0.6/bin/clang-17",
+      "-cc1",
+      "-triple",
+      "x86_64-unknown-linux-gnu",
+      "-emit-obj",
+      "-dumpdir",
+      "./bin/main-",
+      "-disable-free",
+      "-clear-ast-before-backend",
+      "-disable-llvm-verifier",
+      "-discard-value-names",
+      "-main-file-name",
+      "-mrelocation-model",
+      "pic",
+      "-pic-level",
+      "2",
+      "-fhalf-no-semantic-interposition",
+      "-mframe-pointer=none",
+      "-fmath-errno",
+      "-ffp-contract=on",
+      "-fno-rounding-math",
+      "-mconstructor-aliases",
+      "-funwind-tables=2",
+      "-target-cpu",
+      "x86-64",
+      "-tune-cpu",
+      "generic",
+      "-debugger-tuning=gdb",
+      "-fcoverage-compilation-dir=/home/nicolas/src/c-shell-implementation",
+      "-nostdsysteminc",
+      "-resource-dir",
+      "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root",
+      "-idirafter",
+      "/nix/store/rzs2mn1lv3dsiyilygfz9vv1p8r36jvn-glibc-2.39-52-dev/include",
+      "-isystem",
+      "/nix/store/a3z185rk84zv2pdh4iz3hlpcxv1fx9r1-lldb-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/a3z185rk84zv2pdh4iz3hlpcxv1fx9r1-lldb-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/8x0nkg0cd9a6485x4cmhxjfihxgyarc1-gdb-14.2/include",
+      "-isystem",
+      "/nix/store/8x0nkg0cd9a6485x4cmhxjfihxgyarc1-gdb-14.2/include",
+      "-isystem",
+      "/nix/store/v85arfxy3bw58h41a3g5lvkhdfr4vd1l-gtest-1.14.0-dev/include",
+      "-isystem",
+      "/nix/store/v85arfxy3bw58h41a3g5lvkhdfr4vd1l-gtest-1.14.0-dev/include",
+      "-isystem",
+      "/nix/store/fh32kmqyv72mqzpn8s3hb5cjfvhsrm3l-valgrind-3.22.0-dev/include",
+      "-isystem",
+      "/nix/store/fh32kmqyv72mqzpn8s3hb5cjfvhsrm3l-valgrind-3.22.0-dev/include",
+      "-isystem",
+      "/nix/store/mfvxqfpbv6dd5zwvrq50spfm1693jda5-compiler-rt-libc-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/mfvxqfpbv6dd5zwvrq50spfm1693jda5-compiler-rt-libc-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/gyl5a057j2bk9fisn5m1crcxxkmrvx39-cmocka-1.1.7/include",
+      "-isystem",
+      "/nix/store/gyl5a057j2bk9fisn5m1crcxxkmrvx39-cmocka-1.1.7/include",
+      "-isystem",
+      "/nix/store/a3z185rk84zv2pdh4iz3hlpcxv1fx9r1-lldb-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/a3z185rk84zv2pdh4iz3hlpcxv1fx9r1-lldb-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/8x0nkg0cd9a6485x4cmhxjfihxgyarc1-gdb-14.2/include",
+      "-isystem",
+      "/nix/store/8x0nkg0cd9a6485x4cmhxjfihxgyarc1-gdb-14.2/include",
+      "-isystem",
+      "/nix/store/v85arfxy3bw58h41a3g5lvkhdfr4vd1l-gtest-1.14.0-dev/include",
+      "-isystem",
+      "/nix/store/v85arfxy3bw58h41a3g5lvkhdfr4vd1l-gtest-1.14.0-dev/include",
+      "-isystem",
+      "/nix/store/fh32kmqyv72mqzpn8s3hb5cjfvhsrm3l-valgrind-3.22.0-dev/include",
+      "-isystem",
+      "/nix/store/fh32kmqyv72mqzpn8s3hb5cjfvhsrm3l-valgrind-3.22.0-dev/include",
+      "-isystem",
+      "/nix/store/mfvxqfpbv6dd5zwvrq50spfm1693jda5-compiler-rt-libc-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/mfvxqfpbv6dd5zwvrq50spfm1693jda5-compiler-rt-libc-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-isystem",
+      "/nix/store/gyl5a057j2bk9fisn5m1crcxxkmrvx39-cmocka-1.1.7/include",
+      "-isystem",
+      "/nix/store/gyl5a057j2bk9fisn5m1crcxxkmrvx39-cmocka-1.1.7/include",
+      "-U",
+      "_FORTIFY_SOURCE",
+      "-I",
+      "./include",
+      "-D",
+      "_POSIX_C_SOURCE=200809L",
+      "-U",
+      "_FORTIFY_SOURCE",
+      "-D",
+      "_FORTIFY_SOURCE=2",
+      "-I/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-I/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
+      "-internal-isystem",
+      "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
+      "-source-date-epoch",
+      "315532800",
+      "-O2",
+      "-Wformat",
+      "-Wformat-security",
+      "-Werror=format-security",
+      "-Wall",
+      "-Werror",
+      "-std=c11",
+      "-fdebug-compilation-dir=/home/nicolas/src/c-shell-implementation",
+      "-ferror-limit",
+      "19",
+      "-fwrapv",
+      "-stack-protector",
+      "2",
+      "-stack-protector-buffer-size",
+      "4",
+      "-fgnuc-version=4.2.1",
+      "-fcolor-diagnostics",
+      "-vectorize-loops",
+      "-vectorize-slp",
+      "-faddrsig",
+      "-D__GCC_HAVE_DWARF2_CFI_ASM=1",
+      "-x",
+      "c",
+      "-I",
+      "/nix/store/dylcqgbaclzw5q3liy76ns4358qv2x38-libcxx-17.0.6-dev/include",
+      "-I",
+      "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
+      "-o",
+      "/tmp/parser-51afd8.o",
       "./src/parser/parser.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/parser/parser.c",
-    "output": "/tmp/parser-62085c.o"
+    "output": "/tmp/parser-51afd8.o"
   },
   {
     "arguments": [
@@ -1859,12 +2023,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/command-ea2807.o",
+      "/tmp/command-45f003.o",
       "./src/command/command.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/command/command.c",
-    "output": "/tmp/command-ea2807.o"
+    "output": "/tmp/command-45f003.o"
   },
   {
     "arguments": [
@@ -2002,12 +2166,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/builtins-a835de.o",
+      "/tmp/builtins-7ceb09.o",
       "./src/command/builtins.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/command/builtins.c",
-    "output": "/tmp/builtins-a835de.o"
+    "output": "/tmp/builtins-7ceb09.o"
   },
   {
     "arguments": [
@@ -2145,12 +2309,12 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/history-5ed395.o",
+      "/tmp/history-b3015e.o",
       "./src/input/history.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/input/history.c",
-    "output": "/tmp/history-5ed395.o"
+    "output": "/tmp/history-b3015e.o"
   },
   {
     "arguments": [
@@ -2288,11 +2452,11 @@
       "-I",
       "/nix/store/v78293y2wi2kyxb93hp30k0ra9r77amf-clang-wrapper-17.0.6/resource-root/include",
       "-o",
-      "/tmp/input-4db7f8.o",
+      "/tmp/input-0b34be.o",
       "./src/input/input.c"
     ],
     "directory": "/home/nicolas/src/c-shell-implementation",
     "file": "/home/nicolas/src/c-shell-implementation/src/input/input.c",
-    "output": "/tmp/input-4db7f8.o"
+    "output": "/tmp/input-0b34be.o"
   }
 ]

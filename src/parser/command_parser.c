@@ -4,15 +4,13 @@
 #include "utility.h"
 #include <stdio.h>
 #include <string.h>
+
 void set_command_flags(Command *command) {
     if (strchr(command->command, '|')) {
         command->flags |= CMD_FLAG_PIPE;
     }
     if (strchr(command->command, '>')) {
         command->flags |= CMD_FLAG_REDIRECT;
-    }
-    if (command->command[0] == '!') {
-        command->flags |= CMD_FLAG_HISTORY;
     }
     // TODO: implement CMD_FLAG_BACKGROUND
 }
@@ -24,11 +22,12 @@ void initialize_command(Command *command) {
 }
 
 void set_command_string(Command *command, char* command_string) {
-    if (command->flags & CMD_FLAG_REDIRECT) {
-        char *redirect_file_string = strchr(command_string, '>');
+    char *redirect_file_string = NULL;
+    if ((redirect_file_string = strchr(command_string, '>'))) {
         // Terminate command string at position of redirect char
         command_string[redirect_file_string - command_string] = '\0';
 
+        redirect_file_string++;
         while (*redirect_file_string == ' ') {
             redirect_file_string++;
         }
@@ -37,6 +36,8 @@ void set_command_string(Command *command, char* command_string) {
         int redirect_file_fd = open(redirect_file_string, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         command->output_file_descriptor = redirect_file_fd;
     }
+
+    command->command = command_string;
 }
 
 void convert_input_to_commands(char *input, int *count, Command **commands) {
@@ -84,14 +85,14 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
 
         if (!next_separator) {
             // No more separators, grab the rest (until end of string) and finish
-            command->command = strdup(pointer);
+            set_command_string(command, strdup(pointer));
             set_command_flags(command);
             break;
         }
 
-        command->command = strndup(pointer, next_separator - pointer);
-        strncpy(command->separator, selected, sizeof(command->separator));
+        set_command_string(command, strndup(pointer, next_separator - pointer));
         set_command_flags(command);
+        strncpy(command->separator, selected, sizeof(command->separator));
 
         // Continue after the separator
         pointer = next_separator + strlen(selected);

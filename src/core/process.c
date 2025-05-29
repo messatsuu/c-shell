@@ -1,6 +1,7 @@
 #include "parser/parser.h"
 #include "core/execvp.h"
 #include "core/process.h"
+#include "parser/command_parser.h"
 
 #include <utility.h>
 
@@ -9,6 +10,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+// TODO: is this function needed? currently we can run anythnig over run_child_process_piped anyways
 int run_child_process_normal(char *args[]) {
     pid_t pid = fork();
 
@@ -30,7 +32,7 @@ int run_child_process_normal(char *args[]) {
     return WEXITSTATUS(status);
 }
 
-int run_child_process_piped(char *args[]) {
+int run_child_process_piped(char *args[], Command *command) {
     unsigned int i = 0;
     int pipe_file_descriptor[2];
     // Setting file_descriptor to impossible initial value
@@ -56,7 +58,7 @@ int run_child_process_piped(char *args[]) {
             exit(EXIT_FAILURE);
         }
 
-        // Child process
+        // CHILD PROCESS
         if (pid == 0) {
             // If a previous pipe is set to read from, duplicate it onto STDIN (and close the original)
             if (previous_pipe_file_read_end != -1) {
@@ -71,13 +73,16 @@ int run_child_process_piped(char *args[]) {
                 close(pipe_file_descriptor[0]); // Close read end
                 dup2(pipe_file_descriptor[1], STDOUT_FILENO); // Duplicate the pipe_file's write-end onto STDOUT
                 close(pipe_file_descriptor[1]);
+            } else if (command->output_file_descriptor != STDOUT_FILENO) {
+                // If it is the last command and the output should be redirected to any other FD than STDOUT, clone it onto STDOUT
+                dup2(command->output_file_descriptor, STDOUT_FILENO);
             }
 
             // execvp() replaces the process image, 
             run_execvp(commands[i]);
         }
 
-        // Parent process
+        // PARENT PROCESS
         if (previous_pipe_file_read_end != -1) close(previous_pipe_file_read_end);
         // If there is a next command in the pipeline, set up the read-end for the next child to read from
         if (!is_last_command) {
@@ -90,8 +95,8 @@ int run_child_process_piped(char *args[]) {
 
     // Wait for all children; If any process return a non-zero exit-code, return it
     for (int j = 0; j <= i; j++) {
-        waitpid(pids[i], &statuses[i], 0);
-        status = WEXITSTATUS(statuses[i]);
+        waitpid(pids[j], &statuses[j], 0);
+        status = WEXITSTATUS(statuses[j]);
         if (status != 0) {
             break;
         }
