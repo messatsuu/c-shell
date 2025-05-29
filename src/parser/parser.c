@@ -51,7 +51,7 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
 
 int convert_history_command(char **pointer, char *input, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // This also moves `pointer` to char* after the last number
-    int history_index = strtoul(strchr(input, '!') + 1, pointer, 0);
+    int history_index = strtoul(strchr(*pointer, '!') + 1, pointer, 0);
     char *command_from_history = get_command_from_history(history_index);
     if (command_from_history == NULL) {
         return -1;
@@ -67,7 +67,7 @@ int convert_history_command(char **pointer, char *input, char **buffer, unsigned
         *buffer = reallocate(*buffer, *buffer_size, true);
     }
 
-    strcpy(*buffer, command_from_history);
+    strcat(*buffer, command_from_history);
     free(command_from_history);
     *index += command_length;
 
