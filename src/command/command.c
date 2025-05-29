@@ -1,7 +1,8 @@
+#include "command/command.h"
 #include "input/history.h"
 #include "command/builtins.h"
-#include "parser/parser.h"
 #include "core/process.h"
+#include "parser/command_parser.h"
 #include <utility.h>
 
 #include <stdbool.h>
@@ -12,18 +13,18 @@
 
 int last_exit_code = 0;
 
-int execute_command(char *input, unsigned int command_flags) {
-    // TODO: valgrind throws if command is not found (e.g. "histoyr")
-    char *original_input = strdup(input);
-    input = convert_input(input);
+int execute_command(Command *command) {
+    char* input = strdup(command->command);
+    if (command->flags & CMD_FLAG_HISTORY) {
+        // convert the characters after the '!' to an unsigned long (by decimals), pass it to function
+        input = get_command_from_history(strtoul(strchr(input, '!') + 1, NULL, 10));
+    }
 
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
-    bool is_history_command = *input == '!';
 
     if (token == NULL) {
         // free dynamically allocated memory
-        free(original_input);
         free(input);
 
         return 0;
@@ -36,26 +37,12 @@ int execute_command(char *input, unsigned int command_flags) {
     }
     args[i] = NULL;
 
-    if (is_history_command) {
-        // convert the characters after the '!' to an unsigned long (by decimals), pass it to function
-        last_exit_code = execute_command_from_history(strtoul(input + 1, NULL, 10));
-    } else if (is_builtin_command(args[0])) {
+    if (is_builtin_command(args[0])) {
         last_exit_code = run_builtin_command(args);
     } else {
-        if (command_flags & CMD_FLAG_PIPE) {
-            last_exit_code = run_child_process_piped(args);
-        } else {
-            last_exit_code = run_child_process_normal(args);
-        }
+        last_exit_code = run_child_process_piped(args, command->flags);
     }
 
-    if (!is_history_command) {
-        append_to_history(original_input);
-    }
-
-    free(original_input);
     free(input);
-
     return last_exit_code;
 }
-

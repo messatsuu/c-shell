@@ -1,4 +1,3 @@
-#include "command/command.h"
 #include <utility.h>
 
 #include <stdio.h>
@@ -68,10 +67,10 @@ void append_to_history(const char *command) {
     history->count++;
 }
 
-int execute_command_from_history(const unsigned long index) {
+char* get_command_from_history(const unsigned long index) {
     if (history == NULL || index > history->count || index == 0) {
-        printf("History index %lu out of range\n", index);
-        return 1;
+        log_error("History index %lu out of range\n", index);
+        return NULL;
     }
 
     unsigned int history_index = index;
@@ -80,11 +79,7 @@ int execute_command_from_history(const unsigned long index) {
     char *command_from_history = history->entries[history_index];
 
     // we need to Duplicate the string, since making operations on it would change it in the history
-    char* command = strdup(command_from_history);
-    int exit_code = execute_command(command, 0);
-
-    free(command);
-    return exit_code;
+    return strdup(command_from_history);
 }
 
 char *get_entry_from_history(const unsigned int index) {

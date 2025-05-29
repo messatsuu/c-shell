@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "input/history.h"
 #include <utility.h>
 
 #include <ctype.h>
@@ -9,21 +10,6 @@
 #include <termios.h>
 
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
-
-void set_command_flags(Command *command) {
-    if (strchr(command->command, '|')) {
-        command->flags |= CMD_FLAG_PIPE;
-    }
-    if (strchr(command->command, '>')) {
-        command->flags |= CMD_FLAG_REDIRECT;
-    }
-    // TODO: implement CMD_FLAG_BACKGROUND
-}
-
-void initialize_command(Command *command) {
-    command->flags = 0;
-    command->separator[0] = '\0';
-}
 
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // Skip '$' character
@@ -63,73 +49,39 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
     return 0;
 }
 
-void convert_input_to_commands(char *input, int *count, Command **commands) {
-    int command_capacity = INITIAL_BUFSIZE;
-
-    if (*commands == NULL) {
-        *commands = callocate(command_capacity, sizeof(Command), true);
+int convert_history_command(char **pointer, char *input, char **buffer, unsigned int *buffer_size, unsigned long *index) {
+    // This also moves `pointer` to char* after the last number
+    int history_index = strtoul(strchr(input, '!') + 1, pointer, 0);
+    char *command_from_history = get_command_from_history(history_index);
+    if (command_from_history == NULL) {
+        return -1;
     }
 
-    for (const char *pointer = input; *pointer != '\0';) {
-        if (*count >= command_capacity) {
-            command_capacity += BUF_EXPANSION_SIZE;
-            *commands = reallocate(*commands, command_capacity * sizeof(Command), true);
+    int command_length = strlen(command_from_history);
+
+    if (*index + command_length >= *buffer_size - 1) {
+        // TODO: handle realloc error gracefully
+        while ((*buffer_size - 1) < *index + command_length) {
+            *buffer_size += BUF_EXPANSION_SIZE;
         }
-
-        // TODO: make it so that `echo "this ; is ; a string"` is a single command
-        // TODO: Implement escpaing space separation for arguments (e.g. xdg-open My\ File.zip)
-        const char *and_separator = strstr(pointer, "&&");
-        const char *or_separator = strstr(pointer, "||");
-        const char *semi_separator = strchr(pointer, ';');
-
-        const char *next_separator = NULL;
-        const char *selected = NULL;
-        const char *separators[] = {and_separator, or_separator, semi_separator};
-        const int number_of_separators = sizeof(separators) / sizeof(separators[0]);
-        const char *names[] = {"&&", "||", ";"};
-
-        Command *command = &(*commands)[*count];
-
-        // Find the nearest separator
-        for (int i = 0; i < number_of_separators; i++) {
-            if (separators[i] != NULL && (next_separator == NULL || separators[i] < next_separator)) {
-                next_separator = separators[i];
-                selected = names[i];
-            }
-        }
-
-        // If there's a starting whitespace, remove it
-        if (*pointer == ' ') {
-            pointer++;
-        }
-
-        *count = *count + 1;
-        initialize_command(command);
-
-        if (!next_separator) {
-            // No more separators, grab the rest (until end of string) and finish
-            command->command = strdup(pointer);
-            set_command_flags(command);
-            break;
-        }
-
-        command->command = strndup(pointer, next_separator - pointer);
-        strncpy(command->separator, selected, sizeof(command->separator));
-        set_command_flags(command);
-
-        // Continue after the separator
-        pointer = next_separator + strlen(selected);
+        *buffer = reallocate(*buffer, *buffer_size, true);
     }
+
+    strcpy(*buffer, command_from_history);
+    free(command_from_history);
+    *index += command_length;
+
+    return 0;
 }
 
 char *convert_input(char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = callocate(buffer_size, 1, true);
-    size_t index = 0;
+    unsigned long index = 0;
 
     for (char *pointer = input; *pointer != '\0';) {
         // If the buffer is full, reallocate memory
-        if (index >= buffer_size -1) {
+        if (index >= buffer_size - 1) {
             buffer_size += BUF_EXPANSION_SIZE;
             char *temp = reallocate(buffer, buffer_size, false);
 
@@ -143,6 +95,14 @@ char *convert_input(char *input) {
 
         if (*pointer == '$') {
             if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
+                free(buffer);
+                return NULL;
+            }
+            continue;
+        }
+
+        if (*pointer == '!') {
+            if (convert_history_command(&pointer, input, &buffer, &buffer_size, &index) == -1) {
                 free(buffer);
                 return NULL;
             }

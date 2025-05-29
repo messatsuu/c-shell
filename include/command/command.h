@@ -1,10 +1,9 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "parser/parser.h"
-
+#include "parser/command_parser.h"
 #include <unistd.h>
 
-int execute_command(char *input, unsigned int command_flags);
+int execute_command(Command *command);
 
 #endif

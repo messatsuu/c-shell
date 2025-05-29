@@ -15,7 +15,7 @@ void cleanup_history();
 
 void append_to_history(const char *command);
 
-int execute_command_from_history(unsigned long index);
+char* get_command_from_history(unsigned long index);
 
 char *get_entry_from_history(const unsigned int index);
 
