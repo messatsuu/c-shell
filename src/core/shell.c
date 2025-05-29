@@ -1,14 +1,16 @@
 #include "command/command.h"
-#include "input/input.h"
-#include "parser/parser.h"
 #include "core/prompt.h"
 #include "core/shell.h"
+#include "input/history.h"
+#include "input/input.h"
+#include "parser/command_parser.h"
+#include "parser/parser.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
-#include <stdbool.h>
 
 extern int last_exit_code;
 
@@ -26,14 +28,22 @@ void execute_input() {
     // Commands gets dynamically allocated in `convert_input_to_commands()`
     Command *commands = NULL;
     bool should_run = true;
-    char *input = read_input_prompt();
+    char *original_input = read_input_prompt();
 
-    if (input == NULL) {
+    if (original_input == NULL) {
         free(commands);
         exit(0);
     }
 
+    char *input = convert_input(original_input);
+    free(original_input);
+
+    if (input == NULL) {
+        return;
+    }
+
     convert_input_to_commands(input, &command_count, &commands);
+    // Command duplicates the needed parts of input, so we free early
 
     for (size_t i = 0; i < command_count; i++) {
         Command command = commands[i];
@@ -51,11 +61,12 @@ void execute_input() {
         }
 
         if (should_run) {
-            execute_command(command.command, command.flags);
+            execute_command(&command);
         }
         free(command.command);
     }
 
+    append_to_history(input);
     free(commands);
     free(input);
 }
