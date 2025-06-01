@@ -30,6 +30,8 @@ int reallocate_autocomplete_entries(AutocompleteResult *autocompleteResult, unsi
 
 void cleanup_autocomplete_result(AutocompleteResult *autocompleteResult);
 
+int sort_autocomplete_result_entries(const void *a, const void *b);
+
 void print_autocomplete_entries(AutocompleteResult *autocompleteResult);
 
 #endif

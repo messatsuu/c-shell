@@ -39,6 +39,10 @@ void set_autocomplete_entries_directory(AutocompleteResult *autocompleteResult, 
 
         add_entry_to_autocomplete_result(autocompleteResult, entry->d_name, entryType);
     }
+
+    // Sort entries by type
+    qsort(autocompleteResult->entries, autocompleteResult->count, sizeof(AutocompleteResultEntry *), sort_autocomplete_result_entries);
+
     closedir(directory);
 }
 

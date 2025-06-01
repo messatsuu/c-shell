@@ -82,6 +82,22 @@ int get_longest_autocomplete_result_length(AutocompleteResult *autocompleteResul
     return longest_result_length;
 }
 
+int sort_autocomplete_result_entries(const void *a, const void *b) {
+    AutocompleteResultEntry *entry1 = *(AutocompleteResultEntry **)a;
+    AutocompleteResultEntry *entry2 = *(AutocompleteResultEntry **)b;
+
+    // Sort directories first
+    if (entry1->resultEntryType == RESULT_ENTRY_TYPE_DIR && entry2->resultEntryType != RESULT_ENTRY_TYPE_DIR) {
+        return -1;
+    }
+    if (entry1->resultEntryType != RESULT_ENTRY_TYPE_DIR && entry2->resultEntryType == RESULT_ENTRY_TYPE_DIR) {
+        return 1;
+    }
+
+    // Sort alphabetically
+    return strcmp(entry1->entry, entry2->entry);
+}
+
 void print_autocomplete_entries(AutocompleteResult *autocompleteResult) {
     if (autocompleteResult->count == 0) {
         return;
