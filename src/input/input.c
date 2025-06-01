@@ -221,6 +221,12 @@ char *read_input_prompt() {
             case 12: // Ctrl+L
                 printf("\e[1;1H\e[2J");
                 break;
+            case 21: // Ctrl+U
+                delete_cursor_to_start(&inputBuffer);
+                break;
+            case 11: // Ctrl+K
+                delete_cursor_to_end(&inputBuffer);
+                break;
             case 23: // Ctrl+W
                 delete_cursor_left_word(&inputBuffer);
                 break;

@@ -21,6 +21,12 @@ void move_cursor_to_end(InputBuffer *inputBuffer);
 
 void delete_cursor_left_word(InputBuffer *inputBuffer);
 
+void delete_cursor_to_start(InputBuffer *inputBuffer);
+
+void delete_cursor_to_end(InputBuffer *inputBuffer);
+
+int get_terminal_columns_count();
+
 // Initializes the terminal for raw mode
 void enable_raw_mode();
 
