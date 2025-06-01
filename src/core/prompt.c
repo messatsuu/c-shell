@@ -8,7 +8,7 @@
 #include <utility.h>
 
 // Make sure that `prompt` is initialized as "", since the function is called multiple times (may lead to undefined behavior)
-char prompt[100] = "";
+char prompt[1000] = "";
 
 char *create_ps1() {
     char *ps1 = getenv("PS1");
@@ -16,7 +16,7 @@ char *create_ps1() {
 
     // If PS1 is not set, we use a default prompt
     if (ps1 == NULL) {
-        ps1 = "\e[0;34mnic-shell \\u@\\h> \e[m";
+        ps1 = "\e[0;34mc-shell \\u@\\h> \e[m";
     }
 
     size_t index = 0;
@@ -38,10 +38,19 @@ char *create_ps1() {
             continue;
         }
 
+        if (*pointer == 'a') { // End of a prompt title, add to output
+            prompt[index++] = '\a';
+            continue;
+        }
+
         if (*pointer == 'e' || strncmp(pointer, "033", 3) == 0) {
             prompt[index++] = '\033';
             if (*pointer == '0') {  // Skip "033"
                 pointer += 2;
+            } else if (strncmp(pointer, "e]0;", 4) == 0) { // Stort of a prompt title, add to output
+                strcat(prompt, "]0;");
+                pointer += 3;
+                index += 3;
             }
             continue;
         }
@@ -72,8 +81,6 @@ char *create_ps1() {
         index += strlen(special_field);
     }
 
-    // null-terminate
-    prompt[index++] = '\0';
     return prompt;
 }
 

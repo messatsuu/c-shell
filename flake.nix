@@ -14,7 +14,7 @@
       # Package build for c-shell
       packages.${system}.default = pkgs.stdenv.mkDerivation {
         pname = "c-shell";
-        version = "0.1";
+        version = "0.1.0";
         src = ./.;
 
         buildInputs = [ pkgs.clang ];

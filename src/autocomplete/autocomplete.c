@@ -25,10 +25,12 @@ void set_autocomplete_entries_directory(AutocompleteResult *autocompleteResult, 
             continue;
         }
         if (autocompleteResult->count >= autocompleteResult->capacity) {
-            reallocate_autocomplete_entries(autocompleteResult, BUF_EXPANSION_SIZE);
+            if (reallocate_autocomplete_entries(autocompleteResult, BUF_EXPANSION_SIZE) == -1) {
+                return;
+            }
         }
 
-        enum AutocompleteResultEntryType entryType;
+        enum AutocompleteResultEntryType entryType = {0};
         if (entry->d_type == DT_DIR || entry->d_type == DT_BLK) {
             entryType = RESULT_ENTRY_TYPE_DIR;
         } else {
