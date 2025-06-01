@@ -69,14 +69,51 @@ void cleanup_autocomplete_result(AutocompleteResult *autocompleteResult) {
     free(autocompleteResult->search_term);
 }
 
+int get_longest_autocomplete_result_length(AutocompleteResult *autocompleteResult) {
+    unsigned int longest_result_length = 0;
+
+    for (int i = 0; i < autocompleteResult->count; i++) {
+        unsigned int autocomplete_result_length = strlen(autocompleteResult->entries[i]->entry);
+        if (autocomplete_result_length > longest_result_length) {
+            longest_result_length = autocomplete_result_length;
+        }
+    }
+
+    return longest_result_length;
+}
+
 void print_autocomplete_entries(AutocompleteResult *autocompleteResult) {
+    if (autocompleteResult->count == 0) {
+        return;
+    }
+
     unsigned int buffer_size = INITIAL_BUFSIZE_BIG;
-    char *result_buffer = allocate(buffer_size, true);
-    result_buffer[0] = '\0';
+    char *result_buffer = callocate(buffer_size, 1, true);
+
+    unsigned terminal_column_count = get_terminal_columns_count();
+    unsigned int longest_result_length = get_longest_autocomplete_result_length(autocompleteResult);
+    unsigned int entries_per_row = terminal_column_count / longest_result_length;
+    unsigned int spaces_per_row = (terminal_column_count - (longest_result_length * entries_per_row)) / entries_per_row;
+
+    if (entries_per_row == 0) {
+        entries_per_row = 1;
+        spaces_per_row = 1;
+    } else {
+        while (spaces_per_row == 0 && entries_per_row > 1) {
+            entries_per_row--;
+            spaces_per_row = (terminal_column_count - (longest_result_length * entries_per_row)) / entries_per_row;
+        }
+    }
+
+    // using memcpy with manually tracked index to avoid using strcat (slow due to rescan of whole buffer)
+    unsigned int index = 0;
 
     for (size_t i = 0; i < autocompleteResult->count; i++) {
         // The Color to output in
         char *output_color = WHITE;
+        char *current_autocomplete_result = autocompleteResult->entries[i]->entry;
+        unsigned int spaces_to_print = longest_result_length - strlen(current_autocomplete_result) + spaces_per_row;
+
         // additional text to render with autocomplete result
         switch (autocompleteResult->entries[i]->resultEntryType) {
             case RESULT_ENTRY_TYPE_DIR:
@@ -88,21 +125,34 @@ void print_autocomplete_entries(AutocompleteResult *autocompleteResult) {
         }
 
         // If the size of all elements for the printout is bigger than the current `buffer_size`, reallocate
-        if (strlen(result_buffer) + strlen(output_color) + strlen(autocompleteResult->entries[i]->entry) + strlen(NORMAL) + 1 >= buffer_size) {
+        if (strlen(result_buffer) + strlen(output_color) + strlen(current_autocomplete_result) + strlen(NORMAL) + spaces_to_print + 1 >= buffer_size) {
             buffer_size += BUF_EXPANSION_SIZE_BIG;
             result_buffer = reallocate(result_buffer, buffer_size, true);
         }
 
         // Put Entry into result-string
-        strcat(result_buffer, output_color);
-        strcat(result_buffer, autocompleteResult->entries[i]->entry);
-        strcat(result_buffer, NORMAL);
+        memcpy(result_buffer + index, output_color, strlen(output_color));
+        index += strlen(output_color);
+        memcpy(result_buffer + index, current_autocomplete_result, strlen(current_autocomplete_result));
+        index += strlen(current_autocomplete_result);
+        memcpy(result_buffer + index, NORMAL, strlen(NORMAL));
+        index += strlen(NORMAL);
 
         if (i < autocompleteResult->count - 1) {
-            // TODO: make it so that this is a certain percent of total screen width, instead of random number of spaces
-            strcat(result_buffer, " ");
+            for (int j = 0; j < spaces_to_print; j++) {
+                memcpy(result_buffer + index, " ", 1);
+                index++;
+            }
+
+            if (((i + 1) % entries_per_row) == 0) {
+                char *newline_sequence = "\n\r\x1b[2K";
+                memcpy(result_buffer + index, newline_sequence, strlen(newline_sequence));
+                index += strlen(newline_sequence);
+            }
         }
     }
+
+    result_buffer[index] = '\0';
 
     print_under_input(result_buffer);
     free(result_buffer);

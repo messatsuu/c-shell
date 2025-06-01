@@ -102,7 +102,7 @@ void autocomplete(InputBuffer *inputBuffer) {
     // If we have only a single result, replace the search-term in the inputBuffer with the result
     if (autocompleteResult.count == 1) {
         set_autocomplete_entry_at_cursor_position(inputBuffer, &autocompleteResult);
-    } else if (autocompleteResult.count > 1) {
+    } else {
         print_autocomplete_entries(&autocompleteResult);
     }
 

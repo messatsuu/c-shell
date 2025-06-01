@@ -10,7 +10,7 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 - [x] Backspace/delete support
 - [ ] Insert/overwrite modes (optional)
 - [x] Word movement (Ctrl+Left / Ctrl+Right)
-- [ ] Clear line (Ctrl+L)
+- [x] Clear line (Ctrl+L)
 - [ ] Home/End key support
 
 - [ ] Multi-line input support
@@ -18,7 +18,7 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 
 #### History Management
 - [x] Input history storage (in-memory)
-- [ ] Traverse history (up/down arrows)
+- [x] Traverse history (up/down arrows)
 - [ ] Edit historical entries
 - [x] Prevent duplicate entries (optional)
 - [ ] Persistent history file (optional)
