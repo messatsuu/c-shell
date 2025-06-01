@@ -1,6 +1,6 @@
 # C SHELL
 
-Small shell project to learn more about C. Might actually make this halfway POSIX compliant.
+Small shell project to learn more about C. Interested in learning about POSIX standards.
 
 ## TODOs ordered by priority
 
@@ -41,9 +41,9 @@ Small shell project to learn more about C. Might actually make this halfway POSI
 
 ### Terminal & Display
 - [x] Disable canonical mode & echo using `termios`
-- [ ] Interpret escape sequences (arrow keys, Home/End, etc.)
-- [ ] Track and move cursor within terminal
-- [ ] Redraw prompt and input efficiently
+- [x] Interpret escape sequences (arrow keys, Home/End, etc.)
+- [x] Track and move cursor within terminal
+- [x] Redraw prompt and input efficiently
 - [ ] Handle terminal resizing (`SIGWINCH`)
 
 ###  Signal Handling

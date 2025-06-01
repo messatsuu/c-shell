@@ -92,6 +92,13 @@ void print_autocomplete_entries(AutocompleteResult *autocompleteResult) {
 
     unsigned terminal_column_count = get_terminal_columns_count();
     unsigned int longest_result_length = get_longest_autocomplete_result_length(autocompleteResult);
+
+    // If there aren't that many results, we don't want to use the whole screen width
+    // TODO: might cause issues with longer file-names
+    if (autocompleteResult->count < (terminal_column_count / 2)) {
+        terminal_column_count = terminal_column_count / 2;
+    }
+
     unsigned int entries_per_row = terminal_column_count / longest_result_length;
     unsigned int spaces_per_row = (terminal_column_count - (longest_result_length * entries_per_row)) / entries_per_row;
 
