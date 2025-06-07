@@ -21,8 +21,8 @@ char *create_ps1() {
 
     size_t index = 0;
 
-    // Example input: \n\[\033[1;32m\][\u:\w]\$\[\033[0m\]
-    // Example output: \033[1;32m[user:current-dir]$\033[0m
+    // Example Input: \n\[\033[1;32m\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\]
+    // Example Output: \033[1;32m[0;user@home: current-dir\auser@home:current-dir]$\033[0m
     for (const char *pointer = ps1; *pointer != '\0'; pointer++) {
         // if the character isn't a '\', simply add it to ouput
         if (*pointer != '\\') {
@@ -77,10 +77,30 @@ char *create_ps1() {
         }
 
         // Concat the contents of `special_field` to prompt and move index forward
-        strncat(prompt, special_field, strlen(special_field));
-        index += strlen(special_field);
+        int special_field_length = strlen(special_field);
+        strncat(prompt, special_field, special_field_length);
+        index += special_field_length;
     }
 
     return prompt;
 }
 
+unsigned int get_prompt_visible_length() {
+    int len = 0;
+    for (const char *p = prompt; *p; p++) {
+        // Skip prompt titles
+        if (strncmp(p, "\e]0;", 4) == 0) {
+            while (*p && *p != '\a') p++;
+            continue;
+        }
+
+        // Skip escape sequences
+        if (*p == '\033') {
+            while (*p && *p != 'm') p++;
+            continue;
+        }
+
+        len++;
+    }
+    return len;
+}

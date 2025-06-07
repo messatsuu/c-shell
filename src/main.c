@@ -30,7 +30,6 @@ void setup_signal_handlers() {
 // General function to do things before the shell is started
 void initialize_shell() {
     char path[INITIAL_BUFSIZE_BIG];
-
     signed long length = readlink("/proc/self/exe", path, INITIAL_BUFSIZE_BIG);
     if (length == -1) {
         log_error_with_exit("Could not read executable name");
@@ -46,7 +45,7 @@ int main() {
     initialize_shell();
     atexit(cleanup);
 
-    while (1) {
+    while (true) {
         create_prompt();
     }
 

@@ -4,8 +4,6 @@
 #define MAX_COMMANDS 10
 #define MAX_ARGS_PER_COMMAND 10
 
-// Convert an env variable from input to its value and concatenate into `buffer`.
-// Return -1 on error, 0 on success
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index);
 
 // Convert raw input from the user

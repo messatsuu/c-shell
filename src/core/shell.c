@@ -36,7 +36,6 @@ void execute_input() {
     }
 
     char *input = convert_input(original_input);
-    free(original_input);
 
     if (input == NULL) {
         return;
@@ -66,7 +65,8 @@ void execute_input() {
         free(command.command);
     }
 
-    append_to_history(input);
+    append_to_history(original_input);
+    free(original_input);
     free(commands);
     free(input);
 }

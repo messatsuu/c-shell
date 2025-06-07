@@ -60,11 +60,10 @@ void redraw_line(InputBuffer *inputBuffer) {
     printf("%s%s", prompt, inputBuffer->buffer);       // reprint input
     printf("\x1b[K");             // clear from cursor to end
 
-    unsigned int move_left = inputBuffer->length - inputBuffer->cursor_position;
+    printf("\r");
 
-    for (int i = 0; i < move_left; i++) {
-        move_cursor_left();      // restore cursor position
-    }
+    // Move to correct cursor position, only visible part of prompt
+    printf("\033[%dC", get_prompt_visible_length() + inputBuffer->cursor_position);
     fflush(stdout);
 }
 

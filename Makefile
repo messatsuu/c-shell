@@ -2,7 +2,7 @@
 .PHONY: build run debug debug-test build-run
 
 CC = clang
-CFLAGS = -std=c11 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
+CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 DEBUG_CFLAGS = -g -O0
 EXECUTABLE_PATH = ./bin/main
 EXECUTABLE_DEBUG_PATH = ./bin/main-debug
