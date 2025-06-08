@@ -1,4 +1,5 @@
 #include "input/history.h"
+#include "utility.h"
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -12,10 +13,13 @@ void log_error(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    // NOTE: Can this cause issues if the called function did not write to perror?
+    perror("");
     if (vfprintf(stderr, format, args) < 0) {
         perror("Error writing to stderr");
     }
 
+    printf("\n");
     va_end(args);
 }
 
@@ -24,7 +28,7 @@ noreturn void log_error_with_exit(const char *message) {
     exit(EXIT_FAILURE);
 }
 
-void *reallocate(void *pointer, size_t size,  bool exit) {
+void *reallocate(void *pointer, size_t size, bool exit) {
     void *reallocation_result = realloc(pointer, size);
     if (!reallocation_result) {
         free(pointer);
@@ -32,6 +36,26 @@ void *reallocate(void *pointer, size_t size,  bool exit) {
             log_error_with_exit("Reallocation Error");
         }
         return NULL;
+    }
+
+    return reallocation_result;
+}
+
+// Calls realloc() and initializes the added memory with calloc()
+void *reallocate_safe(void *pointer, unsigned int old_size, unsigned int new_size, bool exit) {
+    void *reallocation_result = realloc(pointer, new_size);
+    if (!reallocation_result) {
+        free(pointer);
+        if (exit) {
+            log_error_with_exit("Reallocation Error");
+        } else {
+            log_error_with_exit("Reallocation Error");
+        }
+        return NULL;
+    }
+
+    if (new_size > old_size) {
+        memset((char *)reallocation_result + old_size, 0, new_size - old_size);
     }
 
     return reallocation_result;

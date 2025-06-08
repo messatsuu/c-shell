@@ -35,6 +35,7 @@ void execute_input() {
         exit(0);
     }
 
+    mutate_original_input(&original_input);
     char *input = convert_input(original_input);
 
     if (input == NULL) {
@@ -65,6 +66,7 @@ void execute_input() {
         free(command.command);
     }
 
+    // TODO: history command (!10) should store evaluated command, not literal input
     append_to_history(original_input);
     free(original_input);
     free(commands);

@@ -20,6 +20,8 @@ void log_error_with_exit(const char *message);
 // Wrapper around realloc that exits with a message to stderr when realloc fails
 void *reallocate(void *pointer, size_t size,  bool exit);
 
+void *reallocate_safe(void *pointer, unsigned int old_size, unsigned int new_size, bool exit);
+
 // Wrapper around malloc that exits with a message to stderr when malloc fails
 void *allocate(size_t size, bool exit);
 

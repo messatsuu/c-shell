@@ -3,7 +3,7 @@
 
 CC = clang
 CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
-DEBUG_CFLAGS = -g -O0
+DEBUG_CFLAGS = -std=c23 -g -O0 -D_POSIX_C_SOURCE=200809L
 EXECUTABLE_PATH = ./bin/main
 EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 

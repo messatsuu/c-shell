@@ -53,7 +53,7 @@ Small shell project to learn more about C. Interested in learning about POSIX st
 
 ### Multibyte / UTF-8 Support
 - [ ] Handle Unicode input and display width
-- [ ] Support for combining characters or wide characters (e.g. Chinese)
+- [ ] Support for combining characters or wide characters (e.g. Chinese?)
 
 - [ ] Look at POSIX Standards
 

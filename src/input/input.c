@@ -33,11 +33,14 @@ void init_input_buffer(InputBuffer *inputBuffer) {
 }
 
 int reallocate_input_buffer(InputBuffer *inputBuffer, unsigned int buffer_expansion_size) {
+    unsigned int old_buffer_size = inputBuffer->buffer_size;
     inputBuffer->buffer_size += buffer_expansion_size;
-    inputBuffer->buffer = reallocate(inputBuffer->buffer, inputBuffer->buffer_size, false);
-    inputBuffer->buffer_backup = reallocate(inputBuffer->buffer_backup, inputBuffer->buffer_size, false);
+
+    inputBuffer->buffer = reallocate_safe(inputBuffer->buffer, old_buffer_size, inputBuffer->buffer_size, false);
+    inputBuffer->buffer_backup = reallocate_safe(inputBuffer->buffer_backup, old_buffer_size, inputBuffer->buffer_size, false);
 
     if (!inputBuffer->buffer || !inputBuffer->buffer_backup) {
+        log_error("Reallocation of input buffer failed");
         return -1;
     }
 
@@ -94,7 +97,9 @@ void set_history_entry_to_buffer(
         // Otherwise we copy the history entry to the buffer and reallocate if needed
         int history_entry_length = strlen(history->entries[new_history_index]);
         if (history_entry_length + 1 >= inputBuffer->buffer_size) {
-            reallocate_input_buffer(inputBuffer, history_entry_length);
+            if (reallocate_input_buffer(inputBuffer, history_entry_length) == -1) {
+                return;
+            };
         }
         strncpy(inputBuffer->buffer, history->entries[new_history_index], inputBuffer->buffer_size);
     }

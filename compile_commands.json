@@ -3,7 +3,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -24,7 +24,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -45,7 +45,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -66,7 +66,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -87,7 +87,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -108,7 +108,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -129,7 +129,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -150,7 +150,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -171,7 +171,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -192,7 +192,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -213,7 +213,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -234,7 +234,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -255,7 +255,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -276,7 +276,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -297,7 +297,7 @@
     "arguments": [
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c23",
       "-Wall",
       "-Werror",
       "-I./include",
@@ -413,7 +413,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -437,12 +437,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/main-e4530b.o",
+      "/tmp/nix-shell.b2c003/main-5449d1.o",
       "./src/main.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/main.c",
-    "output": "/tmp/nix-shell.6NROiE/main-e4530b.o"
+    "output": "/tmp/nix-shell.b2c003/main-5449d1.o"
   },
   {
     "arguments": [
@@ -543,7 +543,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -567,12 +567,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/utility-a61410.o",
+      "/tmp/nix-shell.b2c003/utility-9518a1.o",
       "./src/utility.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/utility.c",
-    "output": "/tmp/nix-shell.6NROiE/utility-a61410.o"
+    "output": "/tmp/nix-shell.b2c003/utility-9518a1.o"
   },
   {
     "arguments": [
@@ -673,7 +673,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -697,12 +697,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/shell-45644b.o",
+      "/tmp/nix-shell.b2c003/shell-0539f2.o",
       "./src/core/shell.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/core/shell.c",
-    "output": "/tmp/nix-shell.6NROiE/shell-45644b.o"
+    "output": "/tmp/nix-shell.b2c003/shell-0539f2.o"
   },
   {
     "arguments": [
@@ -803,7 +803,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -827,12 +827,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/execvp-2c2fc6.o",
+      "/tmp/nix-shell.b2c003/execvp-e14de9.o",
       "./src/core/execvp.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/core/execvp.c",
-    "output": "/tmp/nix-shell.6NROiE/execvp-2c2fc6.o"
+    "output": "/tmp/nix-shell.b2c003/execvp-e14de9.o"
   },
   {
     "arguments": [
@@ -933,7 +933,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -957,12 +957,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/terminal-c8918e.o",
+      "/tmp/nix-shell.b2c003/terminal-34e4ef.o",
       "./src/core/terminal.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/core/terminal.c",
-    "output": "/tmp/nix-shell.6NROiE/terminal-c8918e.o"
+    "output": "/tmp/nix-shell.b2c003/terminal-34e4ef.o"
   },
   {
     "arguments": [
@@ -1063,7 +1063,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1087,12 +1087,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/process-1c1d6c.o",
+      "/tmp/nix-shell.b2c003/process-a251ed.o",
       "./src/core/process.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/core/process.c",
-    "output": "/tmp/nix-shell.6NROiE/process-1c1d6c.o"
+    "output": "/tmp/nix-shell.b2c003/process-a251ed.o"
   },
   {
     "arguments": [
@@ -1193,7 +1193,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1217,12 +1217,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/prompt-7fb933.o",
+      "/tmp/nix-shell.b2c003/prompt-c0bcc5.o",
       "./src/core/prompt.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/core/prompt.c",
-    "output": "/tmp/nix-shell.6NROiE/prompt-7fb933.o"
+    "output": "/tmp/nix-shell.b2c003/prompt-c0bcc5.o"
   },
   {
     "arguments": [
@@ -1323,7 +1323,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1347,12 +1347,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/autocomplete_result-0a1a2d.o",
+      "/tmp/nix-shell.b2c003/autocomplete_result-9b6df2.o",
       "./src/autocomplete/autocomplete_result.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/autocomplete/autocomplete_result.c",
-    "output": "/tmp/nix-shell.6NROiE/autocomplete_result-0a1a2d.o"
+    "output": "/tmp/nix-shell.b2c003/autocomplete_result-9b6df2.o"
   },
   {
     "arguments": [
@@ -1453,7 +1453,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1477,12 +1477,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/autocomplete-5995e6.o",
+      "/tmp/nix-shell.b2c003/autocomplete-1c0dde.o",
       "./src/autocomplete/autocomplete.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/autocomplete/autocomplete.c",
-    "output": "/tmp/nix-shell.6NROiE/autocomplete-5995e6.o"
+    "output": "/tmp/nix-shell.b2c003/autocomplete-1c0dde.o"
   },
   {
     "arguments": [
@@ -1583,7 +1583,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1607,12 +1607,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/command_parser-574374.o",
+      "/tmp/nix-shell.b2c003/command_parser-dba12c.o",
       "./src/parser/command_parser.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/parser/command_parser.c",
-    "output": "/tmp/nix-shell.6NROiE/command_parser-574374.o"
+    "output": "/tmp/nix-shell.b2c003/command_parser-dba12c.o"
   },
   {
     "arguments": [
@@ -1713,7 +1713,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1737,12 +1737,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/parser-0f82c5.o",
+      "/tmp/nix-shell.b2c003/parser-d77b3f.o",
       "./src/parser/parser.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/parser/parser.c",
-    "output": "/tmp/nix-shell.6NROiE/parser-0f82c5.o"
+    "output": "/tmp/nix-shell.b2c003/parser-d77b3f.o"
   },
   {
     "arguments": [
@@ -1843,7 +1843,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1867,12 +1867,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/command-79ae7f.o",
+      "/tmp/nix-shell.b2c003/command-542ef8.o",
       "./src/command/command.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/command/command.c",
-    "output": "/tmp/nix-shell.6NROiE/command-79ae7f.o"
+    "output": "/tmp/nix-shell.b2c003/command-542ef8.o"
   },
   {
     "arguments": [
@@ -1973,7 +1973,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -1997,12 +1997,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/builtins-722c5f.o",
+      "/tmp/nix-shell.b2c003/builtins-963ed2.o",
       "./src/command/builtins.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/command/builtins.c",
-    "output": "/tmp/nix-shell.6NROiE/builtins-722c5f.o"
+    "output": "/tmp/nix-shell.b2c003/builtins-963ed2.o"
   },
   {
     "arguments": [
@@ -2103,7 +2103,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -2127,12 +2127,12 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/history-e7f5f1.o",
+      "/tmp/nix-shell.b2c003/history-dfdb6f.o",
       "./src/input/history.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/input/history.c",
-    "output": "/tmp/nix-shell.6NROiE/history-e7f5f1.o"
+    "output": "/tmp/nix-shell.b2c003/history-dfdb6f.o"
   },
   {
     "arguments": [
@@ -2233,7 +2233,7 @@
       "-Werror=format-security",
       "-Wall",
       "-Werror",
-      "-std=c11",
+      "-std=c23",
       "-ferror-limit",
       "19",
       "-fzero-call-used-regs=used-gpr",
@@ -2257,11 +2257,11 @@
       "-I",
       "/nix/store/fmysfy9gl5d59yir4fksi29wz10maljg-clang-wrapper-19.1.7/resource-root/include",
       "-o",
-      "/tmp/nix-shell.6NROiE/input-4c6e5b.o",
+      "/tmp/nix-shell.b2c003/input-14f4ae.o",
       "./src/input/input.c"
     ],
     "directory": "/home/nicolas/src/c-shell",
     "file": "/home/nicolas/src/c-shell/src/input/input.c",
-    "output": "/tmp/nix-shell.6NROiE/input-4c6e5b.o"
+    "output": "/tmp/nix-shell.b2c003/input-14f4ae.o"
   }
 ]
