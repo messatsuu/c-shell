@@ -11,6 +11,8 @@
 
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
 
+// Convert an env variable from input to its value and concatenate into `buffer`.
+// Return -1 on error, 0 on success
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // Skip '$' character
     (*pointer)++;
@@ -74,6 +76,51 @@ int convert_history_command(char **pointer, char *input, char **buffer, unsigned
     return 0;
 }
 
+void mutate_original_input(char **input) {
+    unsigned int buffer_size = INITIAL_BUFSIZE;
+    char *buffer = callocate(buffer_size, 1, true);
+    unsigned long index = 0;
+
+    for (char *pointer = *input; *pointer != '\0';) {
+        // If the buffer is full, reallocate memory
+        if (index >= buffer_size - 1) {
+            char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
+            buffer_size += BUF_EXPANSION_SIZE;
+
+            if (!temp) {
+                log_error("Input buffer Reallocation Error");
+                input = nullptr;
+                return;
+            }
+
+            buffer = temp;
+        }
+
+        if (*pointer == '!') {
+            if (convert_history_command(&pointer, *input, &buffer, &buffer_size, &index) == -1) {
+                free(buffer);
+                input = nullptr;
+                return;
+            }
+            continue;
+        }
+
+        // If the input is not a "special character", just add it to the output
+        buffer[index++] = *pointer;
+        pointer++;
+    }
+
+    if (index >= buffer_size) {
+        log_error("Buffer overflow detected when terminating input string.");
+        free(buffer);
+        input = nullptr;
+        return;
+    }
+
+    free(*input);
+    *input = buffer;
+}
+
 char *convert_input(char *input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = callocate(buffer_size, 1, true);
@@ -82,8 +129,8 @@ char *convert_input(char *input) {
     for (char *pointer = input; *pointer != '\0';) {
         // If the buffer is full, reallocate memory
         if (index >= buffer_size - 1) {
+            char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
             buffer_size += BUF_EXPANSION_SIZE;
-            char *temp = reallocate(buffer, buffer_size, false);
 
             if (!temp) {
                 log_error("Input buffer Reallocation Error");
@@ -93,16 +140,18 @@ char *convert_input(char *input) {
             buffer = temp;
         }
 
-        if (*pointer == '$') {
-            if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
-                free(buffer);
-                return NULL;
+        if (*pointer == '~') {
+            char *home_env_var = getenv("HOME");
+            if (home_env_var != NULL) {
+                strcat(buffer, home_env_var);
+                pointer++;
+                index += strlen(home_env_var);
+                continue;
             }
-            continue;
         }
 
-        if (*pointer == '!') {
-            if (convert_history_command(&pointer, input, &buffer, &buffer_size, &index) == -1) {
+        if (*pointer == '$') {
+            if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
                 free(buffer);
                 return NULL;
             }
