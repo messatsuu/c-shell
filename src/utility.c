@@ -1,6 +1,7 @@
-#include "input/history.h"
+// #include "input/history.h"
 #include "utility.h"
 
+#include <cshread/cshread.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -86,10 +87,5 @@ void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
 }
 
 void cleanup() {
-    cleanup_history();
-}
-
-// Wrapper function to override in testing (statically linked glibc-functions cannot be overriden in github actions?)
-ssize_t get_host_name(char *name, size_t len) {
-    return gethostname(name, len);
+    cshr_history_cleanup();
 }

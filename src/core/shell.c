@@ -1,10 +1,8 @@
 #include "command/command.h"
-#include "core/prompt.h"
 #include "core/shell.h"
-#include "input/history.h"
-#include "input/input.h"
 #include "parser/command_parser.h"
 #include "parser/parser.h"
+#include <cshread/cshread.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -14,21 +12,12 @@
 
 extern int last_exit_code;
 
-void set_env_field(char *special_field, size_t special_field_size, char *env_var) {
-    char *env = getenv(env_var);
-    if (env == NULL) {
-        return;
-    }
-
-    strncpy(special_field, env, special_field_size);
-}
-
 void execute_input() {
     int command_count = 0;
     // Commands gets dynamically allocated in `convert_input_to_commands()`
-    Command *commands = NULL;
+    Command *commands = nullptr;
     bool should_run = true;
-    char *original_input = read_input_prompt();
+    char *original_input = cshr_read_input();
 
     if (original_input == NULL) {
         free(commands);
@@ -67,7 +56,7 @@ void execute_input() {
     }
 
     // TODO: history command (!10) should store evaluated command, not literal input
-    append_to_history(original_input);
+    chsr_history_append(original_input);
     free(original_input);
     free(commands);
     free(input);
@@ -77,11 +66,9 @@ void execute_input() {
 void reset_shell() {
     printf("\n");
     fflush(stdout);
-    sigint_received = 1;
+    // sigint_received = 1;
 }
 
 void create_prompt() {
-    create_ps1();
-    printf("%s", prompt);
     execute_input();
 }

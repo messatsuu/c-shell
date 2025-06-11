@@ -1,5 +1,4 @@
-#include "command/command.h"
-#include "input/history.h"
+#include "cshread/history.h"
 #include <utility.h>
 
 #include <stdbool.h>
@@ -67,7 +66,7 @@ int run_builtin_command(char *command[]) {
         // TODO: when exiting here, memory from execute_command() does not get freed
         exit(0);
     } else if (strcmp("history", command[0]) == 0) {
-        print_history();
+        chsr_print_history();
     } else if (strcmp("last_exit_code", command[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     } else if (strcmp("export", command[0]) == 0) {
@@ -96,4 +95,3 @@ int run_builtin_command(char *command[]) {
 
     return 0;
 }
-

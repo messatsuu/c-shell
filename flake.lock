@@ -1,5 +1,24 @@
 {
   "nodes": {
+    "cshread-lib": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "dirtyRev": "0ee877e9098483a5ae633b967aafcc0fd40be828-dirty",
+        "dirtyShortRev": "0ee877e-dirty",
+        "lastModified": 1749504189,
+        "narHash": "sha256-S+LGcpxBAzpLcg/7jswkcMCHVHJgxgxcKayH4z9JlOQ=",
+        "type": "git",
+        "url": "file:///home/nicolas/src/c-shell-read"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/nicolas/src/c-shell-read"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1747513229,
@@ -17,6 +36,7 @@
     },
     "root": {
       "inputs": {
+        "cshread-lib": "cshread-lib",
         "nixpkgs": "nixpkgs"
       }
     }

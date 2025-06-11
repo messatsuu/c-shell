@@ -3,24 +3,27 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
+    # TODO: change to git repo
+    cshread-lib.url = "git+file:///home/nicolas/src/c-shell-read";
+    cshread-lib.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, cshread-lib }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-    in
-    {
+      cshread = cshread-lib.packages.${system}.default;
+    in {
       # Package build for c-shell
       packages.${system}.default = pkgs.stdenv.mkDerivation {
         pname = "c-shell";
         version = "0.1.0";
         src = ./.;
 
-        buildInputs = [ pkgs.clang ];
+        buildInputs = [ pkgs.clang cshread ];
 
         buildPhase = ''
-          make build
+          make
         '';
 
         installPhase = ''
@@ -46,13 +49,15 @@
 
         buildInputs = [
           pkgs.libcxx
+          cshread
           # Unit testing
           pkgs.cmocka
         ];
 
         # Set CPATH environment variable
         shellHook = ''
-          export CPATH=${pkgs.lib.makeSearchPathOutput "dev" "include" [ pkgs.libcxx ]}:${pkgs.lib.makeSearchPath "resource-root/include" [ pkgs.clang ]}
+          export CPATH=${pkgs.lib.makeSearchPathOutput "dev" "include" [ pkgs.libcxx ]}:${pkgs.lib.makeSearchPath "resource-root/include" [ pkgs.clang ]}:${cshread}/include:$CPATH
+          export LIBRARY_PATH=${cshread}/lib:$LIBRARY_PATH
         '';
       };
     };
