@@ -25,6 +25,7 @@ Incremental search (e.g., <kbd>Ctrl+R</kbd>)
 
 ### Current file structure and dependencies
 This is the planned architecture, libcsh-util is currently still a single file (utility.h) and will be implemented into its own library when needed.
+Calls made to the library are displayed in green.
 ```mermaid
 graph LR
     csh(C-Shell Core) --> libcsh-r(libcsh-read)
@@ -46,5 +47,5 @@ graph LR
 
 	libcsh-util --> utility.c
 	
-    linkStyle 8,9,10 stroke:#090,stroke-width:2px
+    linkStyle 10,11,12 stroke:#090,stroke-width:2px
 ```
