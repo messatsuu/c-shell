@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "cshread/history.h"
 // #include "input/history.h"
 #include <utility.h>
 
@@ -53,25 +54,25 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
 
 int convert_history_command(char **pointer, char *input, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // This also moves `pointer` to char* after the last number
-    // int history_index = strtoul(strchr(*pointer, '!') + 1, pointer, 0);
-    // char *command_from_history = get_command_from_history(history_index);
-    // if (command_from_history == NULL) {
-    //     return -1;
-    // }
-    //
-    // int command_length = strlen(command_from_history);
-    //
-    // if (*index + command_length >= *buffer_size - 1) {
-    //     // TODO: handle realloc error gracefully
-    //     while ((*buffer_size - 1) < *index + command_length) {
-    //         *buffer_size += BUF_EXPANSION_SIZE;
-    //     }
-    //     *buffer = reallocate(*buffer, *buffer_size, true);
-    // }
-    //
-    // strcat(*buffer, command_from_history);
-    // free(command_from_history);
-    // *index += command_length;
+    int history_index = strtoul(strchr(*pointer, '!') + 1, pointer, 0);
+    char *command_from_history = cshr_history_get_command_dup(history_index);
+    if (command_from_history == NULL) {
+        return -1;
+    }
+    
+    int command_length = strlen(command_from_history);
+    
+    if (*index + command_length >= *buffer_size - 1) {
+        // TODO: handle realloc error gracefully
+        while ((*buffer_size - 1) < *index + command_length) {
+            *buffer_size += BUF_EXPANSION_SIZE;
+        }
+        *buffer = reallocate(*buffer, *buffer_size, true);
+    }
+    
+    strcat(*buffer, command_from_history);
+    free(command_from_history);
+    *index += command_length;
 
     return 0;
 }

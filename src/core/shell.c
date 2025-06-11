@@ -1,5 +1,6 @@
 #include "command/command.h"
 #include "core/shell.h"
+#include "cshread/input.h"
 #include "parser/command_parser.h"
 #include "parser/parser.h"
 #include <cshread/cshread.h>
@@ -55,7 +56,7 @@ void execute_input() {
         free(command.command);
     }
 
-    // TODO: history command (!10) should store evaluated command, not literal input
+    // TODO: create general struct for c-shell-read with flags so that this gets done internally (e.g. CSHR_FLAG_APPEND_HISTORY)
     chsr_history_append(original_input);
     free(original_input);
     free(commands);
@@ -66,7 +67,7 @@ void execute_input() {
 void reset_shell() {
     printf("\n");
     fflush(stdout);
-    // sigint_received = 1;
+    cshr_sigint_received = 1;
 }
 
 void create_prompt() {

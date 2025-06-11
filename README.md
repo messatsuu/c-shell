@@ -1,61 +1,50 @@
 # C SHELL
 
 Small shell project to learn more about C. Interested in learning about POSIX standards.
+## Current Architecture
+Currently the project is split into two repositories to mimic the Bash/GNU-readline relationship
 
-## TODOs ordered by priority
+- [C-Shell](https://github.com/messatsuu/c-shell)
+    - **Executing commands**
+        - Piping to child processes
+        - Handling outputting to File Descriptors
+    - **input parsing**
+        - Env-Vars
+        - History-Commands
+        - Built-in Commands
+    - signal handling
+- [C-Shell-Read](https://github.com/messatsuu/c-shell-read)
+    - **Line Editing**
+      - Keyboard shortcuts
+      - Parsing and printing out $PS1
+    - **Command History**
+    - **Auto-Completion**
+      - Tab-triggered suggestions
+      - Context-sensitive completions
+Incremental search (e.g., <kbd>Ctrl+R</kbd>)
 
-### Input and Line Editing
-- [x] Raw character-by-character input handling
-- [x] Cursor movement (left/right arrows)
-- [x] Backspace/delete support
-- [ ] Insert/overwrite modes (optional)
-- [x] Word movement (Ctrl+Left / Ctrl+Right)
-- [x] Clear line (Ctrl+L)
-- [ ] Home/End key support
+### Current file structure and dependencies
+This is the planned architecture, libcsh-util is currently still a single file (utility.h) and will be implemented into its own library when needed.
+```mermaid
+graph LR
+    csh(C-Shell Core) --> libcsh-r(libcsh-read)
+	csh(C-Shell Core) --> libcsh-util(libcsh-util)
+	
+	csh --> shell.c
+	csh --> parser.c
+	
+    libcsh-r --> input.c
+	libcsh-r --> history.c
+    libcsh-r --> autocomplete.c
+    libcsh-r --> terminal.c
+    libcsh-r --> prompt.c
+	autocomplete.c --> autocomplete_result.c
+	
+	shell.c -.-> input.c
+	parser.c -.-> history.c
+	shell.c -.-> history.c
 
-- [ ] Multi-line input support
-- [ ] Handling input past screen width (scrolling text view)
-
-#### History Management
-- [x] Input history storage (in-memory)
-- [x] Traverse history (up/down arrows)
-- [ ] Edit historical entries
-- [x] Prevent duplicate entries (optional)
-- [ ] Persistent history file (optional)
-
-### Keybindings
-- [x] Emacs-like bindings (Ctrl-A, Ctrl-E, Ctrl-K, Ctrl-U, Ctrl-W, etc.)
-- [x] Ctrl-D to exit shell
-- [x] Ctrl-C to cancel input line
-- [ ] Optional Vi-mode keybindings
-
-### Auto-completion
-#### General
-- [x] Trigger on TAB
-- [ ] Complete commands
-- [ ] Custom completers (e.g. environment vars, functions)
-- [ ] Render elements in grid after certain threshold
-#### File Auto-completion
-- [x] Complete file paths
-- [x] Display file-elements in different colors
-
-### Terminal & Display
-- [x] Disable canonical mode & echo using `termios`
-- [x] Interpret escape sequences (arrow keys, Home/End, etc.)
-- [x] Track and move cursor within terminal
-- [x] Redraw prompt and input efficiently
-- [ ] Handle terminal resizing (`SIGWINCH`)
-
-###  Signal Handling
-- [x] Properly handle `SIGINT` (Ctrl-C)
-- [ ] Handle `SIGTSTP` (Ctrl-Z) and backgrounding
-- [ ] Restore terminal state on crash or exit
-
-### Multibyte / UTF-8 Support
-- [ ] Handle Unicode input and display width
-- [ ] Support for combining characters or wide characters (e.g. Chinese?)
-
-- [ ] Look at POSIX Standards
-
-## LINKS
-- [Build your own shell](https://github.com/tokenrove/build-your-own-shell)
+	libcsh-util --> utility.c
+	
+    linkStyle 8,9,10 stroke:#090,stroke-width:2px
+```

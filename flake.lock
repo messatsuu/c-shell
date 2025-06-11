@@ -7,10 +7,10 @@
         ]
       },
       "locked": {
-        "dirtyRev": "0ee877e9098483a5ae633b967aafcc0fd40be828-dirty",
-        "dirtyShortRev": "0ee877e-dirty",
-        "lastModified": 1749504189,
-        "narHash": "sha256-S+LGcpxBAzpLcg/7jswkcMCHVHJgxgxcKayH4z9JlOQ=",
+        "dirtyRev": "d28ad2b129c29502929ac9e1b19e839a7ee5d7c1-dirty",
+        "dirtyShortRev": "d28ad2b-dirty",
+        "lastModified": 1749673262,
+        "narHash": "sha256-6A1Ds1Jo25X9/oUhHuNzYxlod3Y9Mi9R9lVW+afnDpg=",
         "type": "git",
         "url": "file:///home/nicolas/src/c-shell-read"
       },
