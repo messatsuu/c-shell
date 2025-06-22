@@ -52,10 +52,10 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
     return 0;
 }
 
-int convert_history_command(char **pointer, char *input, char **buffer, unsigned int *buffer_size, unsigned long *index) {
+int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
     // This also moves `pointer` to char* after the last number
     int history_index = strtoul(strchr(*pointer, '!') + 1, pointer, 0);
-    char *command_from_history = cshr_history_get_command_dup(history_index);
+    char *command_from_history = cshr_history_get_entry_dup(history_index);
     if (command_from_history == NULL) {
         return -1;
     }
@@ -98,7 +98,7 @@ void mutate_original_input(char **input) {
         }
 
         if (*pointer == '!') {
-            if (convert_history_command(&pointer, *input, &buffer, &buffer_size, &index) == -1) {
+            if (convert_history_command(&pointer, &buffer, &buffer_size, &index) == -1) {
                 free(buffer);
                 input = nullptr;
                 return;

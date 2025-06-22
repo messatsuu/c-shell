@@ -66,7 +66,7 @@ int run_builtin_command(char *command[]) {
         // TODO: when exiting here, memory from execute_command() does not get freed
         exit(0);
     } else if (strcmp("history", command[0]) == 0) {
-        chsr_print_history();
+        cshr_print_history();
     } else if (strcmp("last_exit_code", command[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     } else if (strcmp("export", command[0]) == 0) {

@@ -12,7 +12,7 @@
 int last_exit_code = 0;
 
 int execute_command(Command *command) {
-    char* input = strdup(command->command);
+    char *input = strdup(command->command);
     char *token = strtok(input, " ");
     char *args[MAX_ARGUMENTS_SIZE];
 

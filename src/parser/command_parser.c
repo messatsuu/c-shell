@@ -21,7 +21,7 @@ void initialize_command(Command *command) {
     command->output_file_descriptor = STDOUT_FILENO;
 }
 
-void set_command_string(Command *command, char* command_string) {
+void set_command_string(Command *command, char *command_string) {
     char *redirect_file_string = NULL;
     if ((redirect_file_string = strchr(command_string, '>'))) {
         // Terminate command string at position of redirect char

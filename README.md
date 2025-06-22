@@ -12,7 +12,7 @@ Currently the project is split into two repositories to mimic the Bash/GNU-readl
         - Env-Vars
         - History-Commands
         - Built-in Commands
-    - signal handling
+    - **Signal Handling**
 - [C-Shell-Read](https://github.com/messatsuu/c-shell-read)
     - **Line Editing**
       - Keyboard shortcuts
