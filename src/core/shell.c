@@ -1,10 +1,12 @@
 #include "command/command.h"
+#include "core/prompt.h"
 #include "core/shell.h"
+#include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/command_parser.h"
 #include "parser/parser.h"
-#include <cshread/cshread.h>
 
+#include <cshread/cshread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +20,14 @@ void execute_input() {
     // Commands gets dynamically allocated in `convert_input_to_commands()`
     Command *commands = nullptr;
     bool should_run = true;
-    char *original_input = cshr_read_input();
+
+    cshr_set_history_limit(500);
+    char *original_input = cshr_read_input(get_prompt());
 
     if (original_input == NULL) {
-        free(commands);
+        if (commands) {
+            free(commands);
+        }
         exit(0);
     }
 
@@ -57,7 +63,7 @@ void execute_input() {
     }
 
     // TODO: create general struct for c-shell-read with flags so that this gets done internally (e.g. CSHR_FLAG_APPEND_HISTORY)
-    chsr_history_append(original_input);
+    cshr_history_append(original_input);
     free(original_input);
     free(commands);
     free(input);

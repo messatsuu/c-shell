@@ -89,3 +89,8 @@ void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
 void cleanup() {
     cshr_history_cleanup();
 }
+
+// Wrapper function to override in testing (statically linked glibc-functions cannot be overriden in github actions?)
+ssize_t get_host_name(char *name, size_t len) {
+    return gethostname(name, len);
+}
