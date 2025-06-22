@@ -56,8 +56,12 @@
 
         # Set CPATH environment variable
         shellHook = ''
+          # env-vars
           export CPATH=${pkgs.lib.makeSearchPathOutput "dev" "include" [ pkgs.libcxx ]}:${pkgs.lib.makeSearchPath "resource-root/include" [ pkgs.clang ]}:${cshread}/include:$CPATH
           export LIBRARY_PATH=${cshread}/lib:$LIBRARY_PATH
+
+          # aliases
+          alias valgrind-debug="make bd && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/main-debug"
         '';
       };
     };

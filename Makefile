@@ -8,7 +8,7 @@ EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 
 # FLAGS
 CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
-DEBUG_CFLAGS = -std=c23 -g -O0 -D_POSIX_C_SOURCE=200809L
+CFLAGS_DEBUG = -std=c23 -g -O0 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 TEST_WRAPPER_FLAGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
 # TODO: provided by nix develop-shell, is this a good idea?
 LDFLAGS ?= $(shell echo $$NIX_LDFLAGS)
@@ -40,10 +40,10 @@ run-test:
 
 # Debug Targets
 build-debug:
-	$(CC) $(DEBUG_CFLAGS) $(SRC_FILES) -o $(EXECUTABLE_DEBUG_PATH) -isystem $(INC_DIR)
+	$(CC) $(abspath $(SRC_FILES)) -o $(EXECUTABLE_DEBUG_PATH) $(LDFLAGS) $(CFLAGS_DEBUG) -lcshread
 
 build-test-debug:
-	$(CC) $(DEBUG_CFLAGS) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_FLAGS)
+	$(CC) $(CFLAGS_DEBUG) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_FLAGS)
 
 # Aliases
 b: build
