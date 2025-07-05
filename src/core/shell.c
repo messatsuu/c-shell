@@ -24,14 +24,16 @@ void execute_input() {
     cshr_set_history_limit(500);
     char *original_input = cshr_read_input(get_prompt());
 
+    // GNU readline and c-shell-read both return NULL on EOF (CTRL+D), should this be handled differently?
     if (original_input == NULL) {
-        if (commands) {
-            free(commands);
-        }
         exit(0);
     }
 
     mutate_original_input(&original_input);
+    if (original_input == NULL || strlen(original_input) == 0) {
+        return;
+    }
+
     char *input = convert_input(original_input);
 
     if (input == NULL) {

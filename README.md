@@ -33,12 +33,12 @@ graph LR
 	
 	csh --> shell.c
 	csh --> parser.c
+    csh --> prompt.c
 	
     libcsh-r --> input.c
 	libcsh-r --> history.c
     libcsh-r --> autocomplete.c
     libcsh-r --> terminal.c
-    libcsh-r --> prompt.c
 	autocomplete.c --> autocomplete_result.c
 	
 	shell.c -.-> input.c

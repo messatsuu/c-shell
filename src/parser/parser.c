@@ -1,6 +1,5 @@
 #include "parser/parser.h"
 #include "cshread/history.h"
-// #include "input/history.h"
 #include <utility.h>
 
 #include <ctype.h>
@@ -100,7 +99,8 @@ void mutate_original_input(char **input) {
         if (*pointer == '!') {
             if (convert_history_command(&pointer, &buffer, &buffer_size, &index) == -1) {
                 free(buffer);
-                input = nullptr;
+                free(*input);
+                *input = nullptr;
                 return;
             }
             continue;
