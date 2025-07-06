@@ -32,12 +32,12 @@ int run_child_process_normal(char *args[]) {
     return WEXITSTATUS(status);
 }
 
-int run_child_process_piped(char *args[], Command *command) {
+int run_child_process_piped(Command *command) {
     unsigned int i = 0;
     int pipe_file_descriptor[2];
     // Setting file_descriptor to impossible initial value
     int previous_pipe_file_read_end = -1;
-    char*** commands = create_piped_command_array(args);
+    char*** commands = create_piped_command_array(command);
     int pids[MAX_COMMANDS] = {0};
     int statuses[MAX_COMMANDS] = {0};
     int status = 0;

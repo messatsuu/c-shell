@@ -61,7 +61,7 @@ void execute_input() {
         if (should_run) {
             execute_command(&command);
         }
-        free(command.command);
+        cleanup_command(&command);
     }
 
     // TODO: create general struct for c-shell-read with flags so that this gets done internally (e.g. CSHR_FLAG_APPEND_HISTORY)

@@ -7,10 +7,11 @@
         ]
       },
       "locked": {
-        "dirtyRev": "ecc339cb0c6f9906d80f9e4f547d3e1d2d6405e4-dirty",
-        "dirtyShortRev": "ecc339c-dirty",
-        "lastModified": 1750596552,
-        "narHash": "sha256-AGXcDNkUD07Y7u5/uRBIwhbAJd65H2tIv4EAmZPGNlo=",
+        "lastModified": 1751715670,
+        "narHash": "sha256-+G/cyAmGEFzhMdZmXJQK8p3577ZSYthRpcHs4WpNZj0=",
+        "ref": "refs/heads/main",
+        "rev": "ab2b26d412fc628dd62e1f1ed58bd3b6d00f0997",
+        "revCount": 8,
         "type": "git",
         "url": "file:///home/nicolas/src/c-shell-read"
       },
@@ -21,11 +22,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1747513229,
-        "narHash": "sha256-O1R294MZFO/b8piT3or8vAYjXWJaIv+JKxgNGjS35iY=",
+        "lastModified": 1751754459,
+        "narHash": "sha256-fOJcRd6grLd1zYkuviDbsaaQ0zLbwc2v+hZhJdXzodc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d36a168b415dd103cbe5d7d8696f3b281fdb5284",
+        "rev": "84e585cda4a97d5191fac3bb6fff3f4d8c97023a",
         "type": "github"
       },
       "original": {

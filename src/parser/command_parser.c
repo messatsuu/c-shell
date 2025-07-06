@@ -1,8 +1,10 @@
 #include "parser/command_parser.h"
+#include "command/command.h"
 #include "fcntl.h"
 #include "unistd.h"
 #include "utility.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void set_command_flags(Command *command) {
@@ -19,11 +21,22 @@ void initialize_command(Command *command) {
     command->flags = 0;
     command->separator[0] = '\0';
     command->output_file_descriptor = STDOUT_FILENO;
+    command->arguments = allocate(sizeof(char *) * MAX_ARGS_PER_COMMAND, true);
+}
+
+void cleanup_command(Command *command) {
+    free(command->command);
+
+    for (int i = 0; i < command->number_of_arguments; i++) {
+        free(command->arguments[i]);
+    }
+
+    free(command->arguments);
 }
 
 void set_command_string(Command *command, char *command_string) {
-    char *redirect_file_string = NULL;
-    if ((redirect_file_string = strchr(command_string, '>'))) {
+    char *redirect_file_string = strchr(command_string, '>');
+    if (redirect_file_string) {
         // Terminate command string at position of redirect char
         command_string[redirect_file_string - command_string] = '\0';
 
@@ -38,6 +51,18 @@ void set_command_string(Command *command, char *command_string) {
     }
 
     command->command = command_string;
+}
+
+void set_command_args(Command *command, char *command_string) {
+    char *argument = strtok(command_string, " ");
+    unsigned int i = 1;
+
+    command->arguments[0] = strdup(argument);
+    while ((argument = strtok(NULL, " ")) != NULL && i < MAX_ARGS_PER_COMMAND) {
+        command->arguments[i++] = strdup(argument);
+    }
+
+    command->number_of_arguments = i;
 }
 
 void convert_input_to_commands(char *input, int *count, Command **commands) {
@@ -87,11 +112,13 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
             // No more separators, grab the rest (until end of string) and finish
             set_command_string(command, strdup(pointer));
             set_command_flags(command);
+            set_command_args(command, command->command);
             break;
         }
 
         set_command_string(command, strndup(pointer, next_separator - pointer));
         set_command_flags(command);
+        set_command_args(command, command->command);
         strncpy(command->separator, selected, sizeof(command->separator));
 
         // Continue after the separator

@@ -1,5 +1,6 @@
 #include "parser/parser.h"
 #include "cshread/history.h"
+#include "parser/command_parser.h"
 #include <utility.h>
 
 #include <ctype.h>
@@ -10,6 +11,12 @@
 #include <termios.h>
 
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
+
+const char quote_characters[] = {
+    '\"',
+    '\'',
+    '`' // TODO: this should invoke sub-context commands
+};
 
 // Convert an env variable from input to its value and concatenate into `buffer`.
 // Return -1 on error, 0 on success
@@ -58,9 +65,9 @@ int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_
     if (command_from_history == NULL) {
         return -1;
     }
-    
+
     int command_length = strlen(command_from_history);
-    
+
     if (*index + command_length >= *buffer_size - 1) {
         // TODO: handle realloc error gracefully
         while ((*buffer_size - 1) < *index + command_length) {
@@ -68,12 +75,45 @@ int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_
         }
         *buffer = reallocate(*buffer, *buffer_size, true);
     }
-    
+
     strcat(*buffer, command_from_history);
     free(command_from_history);
     *index += command_length;
 
     return 0;
+}
+
+char get_quote_character(char character) {
+    for (unsigned int i = 0; i < (sizeof(quote_characters) / sizeof(quote_characters[0])); i++) {
+        if (character == quote_characters[i]) {
+            return character;
+        }
+    }
+
+    // TODO: Is returning 0 for failure really a good idea?
+    return 0;
+}
+
+void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, char quote_character) {
+    // Add quote to buffer
+    (*buffer)[(*index)++] = **pointer;
+    (*pointer)++;
+
+    // Add characters to buffer until second quote is reached
+    for (; **pointer != '\0';) {
+        if (*index > *buffer_size - 1) {
+            *buffer = reallocate_safe(*buffer, *buffer_size, *buffer_size + BUF_EXPANSION_SIZE, true);
+            *buffer_size += BUF_EXPANSION_SIZE;
+        }
+
+        // Break when the quote closes
+        (*buffer)[(*index)++] = **pointer;
+        (*pointer)++;
+
+        if (get_quote_character(**pointer) == quote_character) {
+            break;
+        }
+    }
 }
 
 void mutate_original_input(char **input) {
@@ -94,6 +134,12 @@ void mutate_original_input(char **input) {
             }
 
             buffer = temp;
+        }
+
+        char quote_character = get_quote_character(*pointer);
+        if (quote_character) {
+            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character);
+            continue;
         }
 
         if (*pointer == '!') {
@@ -174,25 +220,25 @@ char *convert_input(char *input) {
     return buffer;
 }
 
-char ***create_piped_command_array(char *args[]) {
-    char*** commands = allocate(sizeof(char**) * MAX_COMMANDS, true);
+char ***create_piped_command_array(Command *command) {
+    char*** commands = (char ***)allocate(sizeof(char**) * MAX_COMMANDS, true);
     int command_index = 0;
     int argument_index = 0;
 
-    commands[command_index] = allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
+    commands[command_index] = (char **)allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
 
-    for (int i = 0; args[i] != NULL; i++) {
-        if (strcmp(args[i], "|") == 0) {
+    for (int i = 0; i < command->number_of_arguments; i++) {
+        if (strcmp(command->arguments[i], "|") == 0) {
             // Null terminate end of command
             commands[command_index][argument_index] = NULL;
             // Start a new command
             command_index++;
             argument_index = 0;
-            commands[command_index] = allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
+            commands[command_index] = (char **)allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
             continue;
         }
 
-        commands[command_index][argument_index++] = args[i];
+        commands[command_index][argument_index++] = command->arguments[i];
     }
 
     // NULL-terminate last command
