@@ -7,7 +7,7 @@ EXECUTABLE_PATH = ./bin/main
 EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 
 # FLAGS
-CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
+CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L -fsanitize=address,undefined
 CFLAGS_DEBUG = -std=c23 -g -O0 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 TEST_WRAPPER_FLAGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
 # TODO: provided by nix develop-shell, is this a good idea?
