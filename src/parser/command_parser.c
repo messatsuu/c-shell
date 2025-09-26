@@ -8,20 +8,25 @@
 #include <string.h>
 
 void set_command_flags(Command *command) {
+    char *redirect_file_string = strchr(command->command, '>');
+
     if (strchr(command->command, '|')) {
         command->flags |= CMD_FLAG_PIPE;
     }
-    if (strchr(command->command, '>')) {
-        command->flags |= CMD_FLAG_REDIRECT;
+    if (redirect_file_string) {
+        // If '>>' then APPEND, otherwise REDIRECT
+        char *next_char = (redirect_file_string + 1);
+        command->flags |= *next_char == '>' ? CMD_FLAG_APPEND : CMD_FLAG_REDIRECT;
     }
     // TODO: implement CMD_FLAG_BACKGROUND
 }
 
-void initialize_command(Command *command) {
+void initialize_command(Command *command, char *command_string) {
     command->flags = 0;
     command->separator[0] = '\0';
     command->output_file_descriptor = STDOUT_FILENO;
-    command->arguments = allocate(sizeof(char *) * MAX_ARGS_PER_COMMAND, true);
+    command->arguments = (char **)allocate(sizeof(char *) * MAX_ARGS_PER_COMMAND, true);
+    command->command = command_string;
 }
 
 void cleanup_command(Command *command) {
@@ -31,26 +36,33 @@ void cleanup_command(Command *command) {
         free(command->arguments[i]);
     }
 
-    free(command->arguments);
+    free((char *)command->arguments);
+    if (command->flags & (CMD_FLAG_REDIRECT | CMD_FLAG_APPEND)) {
+        close(command->output_file_descriptor);
+    }
 }
 
-void set_command_string(Command *command, char *command_string) {
-    char *redirect_file_string = strchr(command_string, '>');
-    if (redirect_file_string) {
-        // Terminate command string at position of redirect char
-        command_string[redirect_file_string - command_string] = '\0';
+void set_command_string(Command *command) {
+    if (command->flags & (CMD_FLAG_REDIRECT | CMD_FLAG_APPEND)) {
+        int open_flags = O_WRONLY | O_CREAT | O_TRUNC;
+        char *redirect_file_string = strchr(command->command, '>');
+        // Terminate command string at position of redirect-char
+        command->command[redirect_file_string - command->command] = '\0';
+
+        if (command->flags & CMD_FLAG_APPEND) {
+            // Basically the same, besides appending instead of truncating to 0 bytes
+            open_flags = O_WRONLY | O_CREAT | O_APPEND;
+            redirect_file_string++;
+        }
 
         redirect_file_string++;
         while (*redirect_file_string == ' ') {
             redirect_file_string++;
         }
 
-        // TODO: close the FD once command is executed
-        int redirect_file_fd = open(redirect_file_string, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        int redirect_file_fd = open(redirect_file_string, open_flags, 0644);
         command->output_file_descriptor = redirect_file_fd;
     }
-
-    command->command = command_string;
 }
 
 void set_command_args(Command *command, char *command_string) {
@@ -106,18 +118,19 @@ void convert_input_to_commands(char *input, int *count, Command **commands) {
         }
 
         *count = *count + 1;
-        initialize_command(command);
+        char *command_string = !next_separator ? strdup(pointer) : strndup(pointer, next_separator - pointer);
+        initialize_command(command, command_string);
 
         if (!next_separator) {
             // No more separators, grab the rest (until end of string) and finish
-            set_command_string(command, strdup(pointer));
             set_command_flags(command);
+            set_command_string(command);
             set_command_args(command, command->command);
             break;
         }
 
-        set_command_string(command, strndup(pointer, next_separator - pointer));
         set_command_flags(command);
+        set_command_string(command);
         set_command_args(command, command->command);
         strncpy(command->separator, selected, sizeof(command->separator));
 

@@ -1,3 +1,4 @@
+#include "command/command.h"
 #include "parser/parser.h"
 #include "core/execvp.h"
 #include "core/process.h"
@@ -73,8 +74,8 @@ int run_child_process_piped(Command *command) {
                 close(pipe_file_descriptor[0]); // Close read end
                 dup2(pipe_file_descriptor[1], STDOUT_FILENO); // Duplicate the pipe_file's write-end onto STDOUT
                 close(pipe_file_descriptor[1]);
-            } else if (command->output_file_descriptor != STDOUT_FILENO) {
-                // If it is the last command and the output should be redirected to any other FD than STDOUT, clone it onto STDOUT
+            } else if (command->flags & (CMD_FLAG_REDIRECT | CMD_FLAG_APPEND)) {
+                // If it is the last command and it should be redirected to another file-descriptor, clone it onto STDOUT
                 dup2(command->output_file_descriptor, STDOUT_FILENO);
             }
 

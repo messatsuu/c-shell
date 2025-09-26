@@ -30,6 +30,7 @@ void execute_input() {
     }
 
     mutate_original_input(&original_input);
+    // TODO: implement better cleanup with separate function
     if (original_input == NULL || strlen(original_input) == 0) {
         return;
     }

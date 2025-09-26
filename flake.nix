@@ -61,7 +61,7 @@
           export LIBRARY_PATH=${cshread}/lib:$LIBRARY_PATH
 
           # aliases
-          alias valgrind-debug="make bd && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/main-debug"
+          alias valgrind-debug="make bd && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./bin/main-debug"
         '';
       };
     };

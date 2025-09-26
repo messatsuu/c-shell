@@ -22,7 +22,7 @@ void setup_signal_handlers() {
     sigemptyset(&sig_action.sa_mask);
 
     // Bind the sigaction struct to the SIGINT signal
-    if (sigaction(SIGINT, &sig_action, NULL) == -1) {
+    if (sigaction(SIGINT, &sig_action, nullptr) == -1) {
         perror("sigaction error");
     }
 }
@@ -38,6 +38,10 @@ void initialize_shell() {
 
     path[length] = '\0';
     setenv("SHELL", path, true);
+
+    // Set secondary prompt string (displayed on e.g. unclosed quotes)
+    // TODO: currently gets executed literally e.g. `echo $PS2` just runs `echo >` with ouput redirection
+    // setenv("PS2",  " > ", true);
 }
 
 int main() {

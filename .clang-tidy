@@ -1,2 +1,1 @@
 Checks: '*,-llvmlibc-restrict-system-libc-headers,-google-readability-todo'
-FormatStyle: 'file'

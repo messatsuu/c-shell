@@ -6,7 +6,8 @@
 // 1u == 1 as unsigned integer
 #define CMD_FLAG_PIPE       (1u << 0)
 #define CMD_FLAG_REDIRECT   (1u << 1)
-#define CMD_FLAG_BACKGROUND (1u << 2) // TODO: implement
+#define CMD_FLAG_APPEND     (1u << 2)
+#define CMD_FLAG_BACKGROUND (1u << 3) // TODO: implement
 
 typedef struct {
     char *command; // The whole passed command
