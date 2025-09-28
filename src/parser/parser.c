@@ -1,6 +1,5 @@
 #include "parser/parser.h"
 #include "cshread/history.h"
-#include "parser/command_parser.h"
 #include <utility.h>
 
 #include <ctype.h>
@@ -181,7 +180,7 @@ char *convert_input(char *input) {
 
             if (!temp) {
                 log_error("Input buffer Reallocation Error");
-                return NULL;
+                return nullptr;
             }
 
             buffer = temp;
@@ -213,39 +212,9 @@ char *convert_input(char *input) {
     if (index >= buffer_size) {
         log_error("Buffer overflow detected when terminating input string.");
         free(buffer);
-        return NULL;
+        return nullptr;
     }
 
     buffer[index] = '\0';
     return buffer;
-}
-
-char ***create_piped_command_array(Command *command) {
-    char*** commands = (char ***)allocate(sizeof(char**) * MAX_COMMANDS, true);
-    int command_index = 0;
-    int argument_index = 0;
-
-    commands[command_index] = (char **)allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
-
-    for (int i = 0; i < command->number_of_arguments; i++) {
-        if (strcmp(command->arguments[i], "|") == 0) {
-            // Null terminate end of command
-            commands[command_index][argument_index] = NULL;
-            // Start a new command
-            command_index++;
-            argument_index = 0;
-            commands[command_index] = (char **)allocate(sizeof(char*) * MAX_ARGS_PER_COMMAND, true);
-            continue;
-        }
-
-        commands[command_index][argument_index++] = command->arguments[i];
-    }
-
-    // NULL-terminate last command
-    commands[command_index][argument_index] = NULL;
-
-    // NULL-terminate the command array
-    commands[command_index + 1] = NULL;
-
-    return commands;
 }

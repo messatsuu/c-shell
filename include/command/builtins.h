@@ -6,6 +6,6 @@
 #include <unistd.h>
 
 bool is_builtin_command(const char *command);
-int run_builtin_command(Command *command);
+int run_builtin_command(char **argv);
 
 #endif

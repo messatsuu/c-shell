@@ -35,9 +35,9 @@ bool is_builtin_command(const char *command) {
     return false;
 }
 
-int run_builtin_command(Command *command) {
-    if (strcmp("cd", command->arguments[0]) == 0) {
-        char *path = command->arguments[1];
+int run_builtin_command(char **argv) {
+    if (strcmp("cd", argv[0]) == 0) {
+        char *path = argv[1];
         if (path == NULL) {
             path = getenv("HOME");
 
@@ -63,21 +63,21 @@ int run_builtin_command(Command *command) {
         }
 
         setenv("PWD", cwd, 1);
-    } else if (strcmp("exit", command->arguments[0]) == 0) {
+    } else if (strcmp("exit", argv[0]) == 0) {
         // TODO: when exiting here, memory from execute_command() does not get freed
         exit(0);
-    } else if (strcmp("history", command->arguments[0]) == 0) {
+    } else if (strcmp("history", argv[0]) == 0) {
         cshr_print_history();
-    } else if (strcmp("last_exit_code", command->arguments[0]) == 0) {
+    } else if (strcmp("last_exit_code", argv[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
-    } else if (strcmp("export", command->arguments[0]) == 0) {
+    } else if (strcmp("export", argv[0]) == 0) {
         // TODO: Change parser.c to work with "". Currently `export foo=";bar"` breaks
-        char *equal_sign = strchr(command->arguments[1], '=');
+        char *equal_sign = strchr(argv[1], '=');
         if (equal_sign == NULL) {
             return 0;
         }
 
-        size_t name_len = equal_sign - command->arguments[1];
+        size_t name_len = equal_sign - argv[1];
         if (name_len >= MAX_ENV_VAR_NAME) {
             log_error("export: environment variable name too long");
             return 1;
@@ -86,7 +86,7 @@ int run_builtin_command(Command *command) {
         char env_var_name[MAX_ENV_VAR_NAME] = {0};
         char env_var_value[MAX_ENV_VAR_VALUE] = {0};
 
-        strncpy(env_var_name, command->arguments[1], name_len);
+        strncpy(env_var_name, argv[1], name_len);
         env_var_name[name_len] = '\0';
         strncpy(env_var_value, equal_sign + 1, MAX_ENV_VAR_VALUE - 1);
         env_var_value[MAX_ENV_VAR_VALUE - 1] = '\0';

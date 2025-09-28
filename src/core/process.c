@@ -1,8 +1,6 @@
-#include "command/command.h"
-#include "parser/parser.h"
+#include "command/builtins.h"
 #include "core/execvp.h"
 #include "core/process.h"
-#include "parser/command_parser.h"
 
 #include <utility.h>
 
@@ -11,46 +9,29 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-// TODO: is this function needed? currently we can run anythnig over run_child_process_piped anyways
-int run_child_process_normal(char *args[]) {
-    pid_t pid = fork();
-
-    if (pid < 0) {
-        perror("Fork failed");
-        return -1;
-    }
-
-    if (pid == 0) {
-        run_execvp(args);
-    }
-
-    int status = 0;
-    if (waitpid(pid, &status, 0) == -1) {
-        perror("Waiting for child process failed");
-        return -1;
-    }
-
-    return WEXITSTATUS(status);
-}
-
-int run_child_process_piped(Command *command) {
-    unsigned int i = 0;
+int run_child_process_pipeline_ast(AST *pipeline) {
     int pipe_file_descriptor[2];
+    int number_of_commands = pipeline->pipeline.count;
     // Setting file_descriptor to impossible initial value
     int previous_pipe_file_read_end = -1;
-    char*** commands = create_piped_command_array(command);
-    int pids[MAX_COMMANDS] = {0};
-    int statuses[MAX_COMMANDS] = {0};
+    int *pids = callocate(number_of_commands, sizeof(int), true);
+    int *statuses = callocate(number_of_commands, sizeof(int), true);
     int status = 0;
 
-    for (; commands[i] != NULL; i++) {
-        bool is_last_command = commands[i+1] == NULL;
+    for (unsigned int i = 0; i < number_of_commands; i++) {
+        bool is_last_command = i + 1 == number_of_commands;
+        AST *simpleCommand = pipeline->pipeline.commands[i];
+
         if (!is_last_command) {
             // Setup pipe to redirect STDIN/STDOUT
             if (pipe(pipe_file_descriptor) == -1) {
                 perror("pipe error");
                 log_error_with_exit("pipe could not be created");
             }
+        } else if (is_builtin_command(simpleCommand->simple.argv[0])) {
+            // If the command is a builtin and doesn't pipe, we run it without forking
+            run_builtin_command(simpleCommand->simple.argv);
+            continue;
         }
 
         pid_t pid = fork();
@@ -74,17 +55,24 @@ int run_child_process_piped(Command *command) {
                 close(pipe_file_descriptor[0]); // Close read end
                 dup2(pipe_file_descriptor[1], STDOUT_FILENO); // Duplicate the pipe_file's write-end onto STDOUT
                 close(pipe_file_descriptor[1]);
-            } else if (command->flags & (CMD_FLAG_REDIRECT | CMD_FLAG_APPEND)) {
+            // } else if (simpleCommand->simple.redirection) {
+                // TODO: implement!
                 // If it is the last command and it should be redirected to another file-descriptor, clone it onto STDOUT
-                dup2(command->output_file_descriptor, STDOUT_FILENO);
+                // dup2(command->output_file_descriptor, STDOUT_FILENO);
             }
 
-            // execvp() replaces the process image, 
-            run_execvp(commands[i]);
+            // Builtins can run in child processes if they are piped
+            if (is_builtin_command(simpleCommand->simple.argv[0])) {
+                run_builtin_command(simpleCommand->simple.argv);
+            } else {
+                run_execvp(simpleCommand->simple.argv);
+            }
         }
 
         // PARENT PROCESS
-        if (previous_pipe_file_read_end != -1) close(previous_pipe_file_read_end);
+        if (previous_pipe_file_read_end != -1) {
+            close(previous_pipe_file_read_end);
+        }
         // If there is a next command in the pipeline, set up the read-end for the next child to read from
         if (!is_last_command) {
             close(pipe_file_descriptor[1]); // Close write end
@@ -95,20 +83,13 @@ int run_child_process_piped(Command *command) {
     }
 
     // Wait for all children; If any process return a non-zero exit-code, return it
-    for (int j = 0; j <= i; j++) {
+    for (int j = 0; j < number_of_commands; j++) {
         waitpid(pids[j], &statuses[j], 0);
         status = WEXITSTATUS(statuses[j]);
         if (status != 0) {
             break;
         }
     }
-
-    // Free all commands allocated by parser
-    for (int j = 0; j <= i; j++) {
-        free(commands[j]);
-    }
-    free(commands);
-
 
     return status;
 }

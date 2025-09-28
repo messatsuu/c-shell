@@ -22,7 +22,7 @@ TEST_INC_DIR = ./tests/include/
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.c')
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 
-SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES)) $(wildcard tests/src/*.c)
+SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES)) $(shell find tests -name '*.c')
 
 # Main Targets
 build:
@@ -33,7 +33,7 @@ run:
 
 # Unit Testing Targets
 build-test:
-	$(CC) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_FLAGS)
+	$(CC) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(CFLAGS) $(TEST_WRAPPER_FLAGS) -lcshread
 
 run-test:
 	./bin/test
