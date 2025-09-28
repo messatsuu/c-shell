@@ -32,6 +32,6 @@ jobs:
             - if: steps.image-cache.outputs.cache-hit == 'true'
               run: docker load -i ~/image-cache/nix.tar
 
-            -   name: Run tests with nix-shell
+            -   name: Run tests with nix develop shell
                 run: |
-                    docker run -v $PWD:/workspace -w /workspace nixos/nix /bin/sh -c "nix develop --command make brt"
+                    docker run -v $PWD:/workspace -w /workspace nixos/nix /bin/sh -c "nix --extra-experimental-features nix-command develop --extra-experimental-features flakes --command make brt"

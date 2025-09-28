@@ -7,7 +7,7 @@ EXECUTABLE_PATH = ./bin/main
 EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 
 # FLAGS
-CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L -fsanitize=address,undefined
+CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 CFLAGS_DEBUG = -std=c23 -g -O0 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 TEST_WRAPPER_FLAGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
 # TODO: provided by nix develop-shell, is this a good idea?
@@ -25,8 +25,9 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES)) $(shell find tests -name '*.c')
 
 # Main Targets
+# TODO: add -fsanitize to CFLAGS once mem-leaks are addressed
 build:
-	$(CC) $(SRC_FILES) -o $(EXECUTABLE_PATH) $(LDFLAGS) $(CFLAGS) -lcshread
+	$(CC) $(SRC_FILES) -o $(EXECUTABLE_PATH) $(LDFLAGS) $(CFLAGS) -fsanitize=address,undefined -lcshread
 
 run:
 	$(EXECUTABLE_PATH)
