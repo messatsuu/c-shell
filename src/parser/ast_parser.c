@@ -9,17 +9,15 @@ AST *convert_simple_command(Token **tokens) {
     AST *simpleCommandAST = allocate(sizeof(AST), true);
     simpleCommandAST->type = NODE_SIMPLE;
 
-    char **argv = (char **)allocate(INITIAL_BUFSIZE * sizeof(char **), true);
+    simpleCommandAST->simple.argv = (char **)allocate(INITIAL_BUFSIZE * sizeof(char **), true);
     unsigned int i = 0;
 
     while ((*tokens)->type == TOKEN_WORD) {
-        argv[i++] = (*tokens)->text;
+        simpleCommandAST->simple.argv[i++] = strdup((*tokens)->text);
         (*tokens)++;
     }
 
-    argv[i++] = nullptr;
-    simpleCommandAST->simple.argv = argv;
-
+    simpleCommandAST->simple.argv[i++] = nullptr;
     return simpleCommandAST;
 }
 

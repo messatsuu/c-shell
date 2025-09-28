@@ -94,24 +94,24 @@ char get_quote_character(char character) {
 }
 
 void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, char quote_character) {
-    // Add quote to buffer
-    (*buffer)[(*index)++] = **pointer;
+    // skip quote
     (*pointer)++;
 
     // Add characters to buffer until second quote is reached
     for (; **pointer != '\0';) {
+        // Reallocate
         if (*index > *buffer_size - 1) {
             *buffer = reallocate_safe(*buffer, *buffer_size, *buffer_size + BUF_EXPANSION_SIZE, true);
             *buffer_size += BUF_EXPANSION_SIZE;
         }
 
-        // Break when the quote closes
-        (*buffer)[(*index)++] = **pointer;
-        (*pointer)++;
-
+        // Break on closing quote
         if (get_quote_character(**pointer) == quote_character) {
             break;
         }
+
+        (*buffer)[(*index)++] = **pointer;
+        (*pointer)++;
     }
 }
 
@@ -167,54 +167,61 @@ void mutate_original_input(char **input) {
     *input = buffer;
 }
 
-char *convert_input(char *input) {
-    unsigned int buffer_size = INITIAL_BUFSIZE;
-    char *buffer = callocate(buffer_size, 1, true);
-    unsigned long index = 0;
+void convert_argv(char **argv) {
+    unsigned int i = 0;
 
-    for (char *pointer = input; *pointer != '\0';) {
-        // If the buffer is full, reallocate memory
-        if (index >= buffer_size - 1) {
-            char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
-            buffer_size += BUF_EXPANSION_SIZE;
+    while (argv[i] != nullptr) {
+        char *argument = argv[i];
 
-            if (!temp) {
-                log_error("Input buffer Reallocation Error");
-                return nullptr;
+        unsigned int buffer_size = INITIAL_BUFSIZE;
+        char *buffer = callocate(buffer_size, 1, true);
+        unsigned long index = 0;
+        for (char *pointer = argument; *pointer != '\0';) {
+            // If the buffer is full, reallocate memory
+            if (index >= buffer_size - 1) {
+                char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
+                buffer_size += BUF_EXPANSION_SIZE;
+
+                if (!temp) {
+                    log_error("Input buffer Reallocation Error");
+                    // return nullptr;
+                }
+
+                buffer = temp;
             }
 
-            buffer = temp;
-        }
-
-        if (*pointer == '~') {
-            char *home_env_var = getenv("HOME");
-            if (home_env_var != NULL) {
-                strcat(buffer, home_env_var);
-                pointer++;
-                index += strlen(home_env_var);
+            char quote_character = get_quote_character(*pointer);
+            if (quote_character) {
+                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character);
                 continue;
             }
-        }
 
-        if (*pointer == '$') {
-            if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
-                free(buffer);
-                return NULL;
+
+            if (*pointer == '~') {
+                char *home_env_var = getenv("HOME");
+                if (home_env_var != NULL) {
+                    strcat(buffer, home_env_var);
+                    pointer++;
+                    index += strlen(home_env_var);
+                    continue;
+                }
             }
-            continue;
+
+            if (*pointer == '$') {
+                if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
+                    free(buffer);
+                    // return nullptr;
+                }
+                continue;
+            }
+
+            // If the input is not a "special character", just add it to the output
+            buffer[index++] = *pointer;
+            pointer++;
         }
 
-        // If the input is not a "special character", just add it to the output
-        buffer[index++] = *pointer;
-        pointer++;
+        free(argv[i]);
+        buffer[index] = '\0';
+        argv[i++] = buffer;
     }
-
-    if (index >= buffer_size) {
-        log_error("Buffer overflow detected when terminating input string.");
-        free(buffer);
-        return nullptr;
-    }
-
-    buffer[index] = '\0';
-    return buffer;
 }

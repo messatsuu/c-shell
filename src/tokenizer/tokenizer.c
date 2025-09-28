@@ -14,7 +14,7 @@ void debug_print_tokens(Token *tokens) {
     unsigned int i = 0;
     printf("TOKENIZATION:\n");
     while (tokens[i].type != TOKEN_EOF) {
-        printf("TYPE: %u, TEXT: %s\n", tokens[i].type, tokens[i].text);
+        printf("TYPE: %u, TEXT: %s, LENGTH: %lu\n", tokens[i].type, tokens[i].text, strlen(tokens[i].text));
         i++;
     }
     printf("\n\n");
@@ -40,7 +40,7 @@ Token *tokenize(const char *input) {
         }
 
         // Operators
-        if (is_operand_character(input[i])) {
+        if (is_operand_character(current_char)) {
             unsigned int operand_length = 1;
 
             // Advance `operand_length` if double-char operand
@@ -73,16 +73,17 @@ Token *tokenize(const char *input) {
                 continue;
             }
 
-            // Quote handling
-            char quote_character = input[j++];
+            // Quote handling; put all arguments in token and retain quotes
+            char quote_character = input[j];
+            buffer[k++] = input[j++]; // Copy the opening quote
 
+            // Copy until we hit the matching closing quote or end of input
             while (input[j] && input[j] != quote_character) {
                 buffer[k++] = input[j++];
             }
 
-            // skip closing quote
             if (input[j] == quote_character) {
-                j++;
+                buffer[k++] = input[j++];
             }
         }
         buffer[k] = '\0';
@@ -99,4 +100,13 @@ Token *tokenize(const char *input) {
     tokens[count++] = (Token){TOKEN_EOF, NULL};
 
     return tokens;
+}
+
+void cleanup_tokens(Token *tokens) {
+    unsigned int i = 0;
+    while (tokens[i].type != TOKEN_EOF) {
+        free(tokens[i++].text);
+    }
+
+    free(tokens);
 }

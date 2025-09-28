@@ -49,4 +49,6 @@ typedef struct AST {
     };
 } AST;
 
+void cleanup_ast_list(AST *listAst);
+
 #endif

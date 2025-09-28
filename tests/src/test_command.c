@@ -29,12 +29,12 @@ static void test_piped_command_output(void **state) {
     char buffer[1024];
 
     // Run
-    write_to_mock_stdin("ls / | grep bin\n");
+    write_to_mock_stdin("echo \"foo bar\" | tr ' ' '\\n' | sort\n");
     execute_input();
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
-    assert_string_equal(buffer, "bin\n");
+    assert_string_equal(buffer, "bar\nfoo\n");
 }
 
 static void test_chained_command_output(void **state) {

@@ -15,4 +15,6 @@ typedef struct {
 
 Token *tokenize(const char *input);
 
+void cleanup_tokens(Token *tokens);
+
 #endif

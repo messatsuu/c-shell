@@ -1,6 +1,7 @@
 #include "command/builtins.h"
 #include "core/execvp.h"
 #include "core/process.h"
+#include "parser/parser.h"
 
 #include <utility.h>
 
@@ -21,6 +22,7 @@ int run_child_process_pipeline_ast(AST *pipeline) {
     for (unsigned int i = 0; i < number_of_commands; i++) {
         bool is_last_command = i + 1 == number_of_commands;
         AST *simpleCommand = pipeline->pipeline.commands[i];
+        convert_argv(simpleCommand->simple.argv);
 
         if (!is_last_command) {
             // Setup pipe to redirect STDIN/STDOUT
@@ -90,6 +92,9 @@ int run_child_process_pipeline_ast(AST *pipeline) {
             break;
         }
     }
+
+    free(statuses);
+    free(pids);
 
     return status;
 }

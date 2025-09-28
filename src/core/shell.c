@@ -1,9 +1,11 @@
+#include "ast/ast.h"
 #include "command/command.h"
 #include "core/prompt.h"
 #include "core/shell.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"
+#include "parser/parser.h"
 #include "tokenizer/tokenizer.h"
 
 #include <cshread/cshread.h>
@@ -24,15 +26,23 @@ void execute_input() {
     }
 
     if (strlen(original_input) == 0) {
+        free(original_input);
         return;
     }
 
+    mutate_original_input(&original_input);
+
     Token *tokens = tokenize(original_input);
+    Token *baseTokenPointer = tokens;
     AST *astList = convert_tokens_to_ast(&tokens);
 
     execute_ast_list(astList);
 
     cshr_history_append(original_input);
+
+    // Cleanup
+    cleanup_ast_list(astList);
+    cleanup_tokens(baseTokenPointer);
     free(original_input);
 }
 
