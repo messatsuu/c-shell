@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <utility.h>
 
+#include "fcntl.h"
+#include "tests/include/utility.h"
 #include "unistd.h"
 #include <errno.h>
 #include <stdlib.h>

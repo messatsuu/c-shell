@@ -1,12 +1,13 @@
 #include "core/shell.h"
-#include <string.h>
-#include <utility.h>
+#include "core/prompt.h"
 
+#include <cshread/cshread.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <utility.h>
 #include <wait.h>
 
 // On SIGINT, flush terminal input and print PS1
@@ -50,7 +51,8 @@ int main() {
     atexit(cleanup);
 
     while (true) {
-        create_prompt();
+        char *original_input = cshr_read_input(get_prompt());
+        execute_input(original_input);
     }
 
     return 0;

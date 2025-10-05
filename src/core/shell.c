@@ -1,6 +1,5 @@
 #include "ast/ast.h"
 #include "command/command.h"
-#include "core/prompt.h"
 #include "core/shell.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
@@ -17,9 +16,7 @@
 
 extern int last_exit_code;
 
-void execute_input() {
-    char *original_input = cshr_read_input(get_prompt());
-
+void execute_input(char *original_input) {
     // GNU readline and c-shell-read both return NULL on EOF (CTRL+D), should this be handled differently?
     if (original_input == NULL) {
         exit(0);
@@ -30,9 +27,10 @@ void execute_input() {
         return;
     }
 
-    mutate_original_input(&original_input);
+    char *mutated_input = strdup(original_input);
+    mutate_original_input(&mutated_input);
 
-    Token *tokens = tokenize(original_input);
+    Token *tokens = tokenize(mutated_input);
     Token *baseTokenPointer = tokens;
     AST *astList = convert_tokens_to_ast(&tokens);
 
@@ -44,6 +42,7 @@ void execute_input() {
     cleanup_ast_list(astList);
     cleanup_tokens(baseTokenPointer);
     free(original_input);
+    free(mutated_input);
 }
 
 // flush terminal input and communicate sigint-capture to cshr
@@ -51,8 +50,4 @@ void reset_shell() {
     printf("\n");
     fflush(stdout);
     cshr_sigint_received = 1;
-}
-
-void create_prompt() {
-    execute_input();
 }

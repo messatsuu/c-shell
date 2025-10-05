@@ -7,6 +7,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <utility.h>
 
 static void test_echo_output(void **state) {
@@ -15,8 +16,7 @@ static void test_echo_output(void **state) {
     char buffer[1024];
 
     // Run
-    write_to_mock_stdin("echo -n foo; echo -n bar; echo baz\n");
-    execute_input();
+    execute_input(strdup("echo -n foo; echo -n bar; echo baz\n"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
@@ -29,8 +29,7 @@ static void test_piped_command_output(void **state) {
     char buffer[1024];
 
     // Run
-    write_to_mock_stdin("echo \"foo bar\" | tr ' ' '\\n' | sort\n");
-    execute_input();
+    execute_input(strdup("echo \"foo bar\" | tr ' ' '\\n' | sort\n"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
@@ -43,8 +42,7 @@ static void test_chained_command_output(void **state) {
     char buffer[1024];
 
     // Run
-    write_to_mock_stdin("false && echo AND || echo OR ; echo SEMI\n");
-    execute_input();
+    execute_input(strdup("false && echo AND || echo OR ; echo SEMI\n"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));

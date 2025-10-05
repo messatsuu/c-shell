@@ -5,8 +5,6 @@
 void reset_shell();
 
 // Main shell loop
-void create_prompt();
-
-void execute_input();
+void execute_input(char *original_input);
 
 #endif

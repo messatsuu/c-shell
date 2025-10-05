@@ -44,7 +44,7 @@ build-debug:
 	$(CC) $(abspath $(SRC_FILES)) -o $(EXECUTABLE_DEBUG_PATH) $(LDFLAGS) $(CFLAGS_DEBUG) -lcshread
 
 build-test-debug:
-	$(CC) $(CFLAGS_DEBUG) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(TEST_WRAPPER_FLAGS)
+	$(CC) $(SRC_TEST_FILES) -lcmocka -o ./bin/test-debug -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(CFLAGS_DEBUG) $(TEST_WRAPPER_FLAGS) -lcshread
 
 # Aliases
 b: build
