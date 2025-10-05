@@ -9,15 +9,15 @@
       "locked": {
         "lastModified": 1751715670,
         "narHash": "sha256-+G/cyAmGEFzhMdZmXJQK8p3577ZSYthRpcHs4WpNZj0=",
-        "ref": "refs/heads/main",
+        "owner": "messatsuu",
+        "repo": "c-shell-read",
         "rev": "ab2b26d412fc628dd62e1f1ed58bd3b6d00f0997",
-        "revCount": 8,
-        "type": "git",
-        "url": "file:///home/nicolas/src/c-shell-read"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/nicolas/src/c-shell-read"
+        "owner": "messatsuu",
+        "repo": "c-shell-read",
+        "type": "github"
       }
     },
     "nixpkgs": {
