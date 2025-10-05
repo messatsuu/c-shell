@@ -5,24 +5,22 @@
 
 const char *mock_stdout_filepath = "/tmp/mock_stdout";
 
-void read_file_to_buffer(FILE *output, char* buffer, size_t length) {
-    fflush(output);
-    // Rewind the mock file and read its contents to `buffer`
-    rewind(output);
-    char result[INITIAL_BUFSIZE_BIG] = "";
-
-    char *read = NULL;
-
-    while ((read = fgets(buffer, INITIAL_BUFSIZE_BIG, output)) != NULL) {
-        strncat(result, read, INITIAL_BUFSIZE_BIG);
-    }
-
-    if (result[0] == '\0') {
-        fprintf(stderr, "%s\n", "Error while reading stdout into buffer (possibly empty contents)");
+void read_file_to_buffer(FILE *output, char *buffer, size_t length) {
+    if (fseek(output, 0, SEEK_SET) != 0) {
+        perror("rewind failed");
         exit(1);
     }
 
-    strcpy(buffer, result);
+    size_t total = 0;
+    while (fgets(buffer + total, length - total, output) != NULL) {
+        total = strlen(buffer);
+        if (total >= length - 1) break;
+    }
+
+    if (total == 0) {
+        fprintf(stderr, "Error while reading stdout into buffer (possibly empty contents)\n");
+        exit(1);
+    }
 }
 
 FILE* write_to_mock_stdin(const char* input) {
