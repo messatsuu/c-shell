@@ -14,25 +14,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
 
-            - run: mkdir -p ~/image-cache
-            - run: git config --global --add safe.directory /workspace
-
-            - id: image-cache
-              uses: actions/cache@v4
+            - name: Install Nix
+              uses: cachix/install-nix-action@v17
               with:
-                  path: ~/image-cache
-                  key: image-cache-${{ runner.os }}
-
-            - if: steps.image-cache.outputs.cache-hit != 'true'
-              run: |
-                  docker pull nixos/nix
-                  docker save -o ~/image-cache/nix.tar nixos/nix
-
-            - if: steps.image-cache.outputs.cache-hit == 'true'
-              run: docker load -i ~/image-cache/nix.tar
+                  extra_nix_config: |
+                    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
             -   name: Run tests with nix develop shell
                 run: |
-                    docker run -v $PWD:/workspace -w /workspace nixos/nix /bin/sh -c "nix --extra-experimental-features nix-command develop --extra-experimental-features flakes --command make brt"
+                    nix develop --command make brt
