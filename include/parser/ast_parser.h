@@ -11,6 +11,6 @@ typedef struct ASTParseState {
 } ASTParseState;
 
 void cleanup_ast_parse_state();
-ASTParseState *convert_tokens_to_ast(Token **tokens);
+ASTParseState *convert_tokens_to_ast(const Token **tokens);
 
 #endif

@@ -13,14 +13,16 @@ static int is_operand_character(char character) {
 static TokenType get_operand_token_type(const char *input, unsigned int operand_length) {
     TokenType type = TOKEN_OPERAND;
 
+    switch (*input) {
+        case '>':
+            type = TOKEN_REDIRECT;
+            break;
+    }
+
     if (operand_length == 1) {
         switch (*input) {
             case '|':
                 type = TOKEN_PIPE;
-                break;
-            // TODO: handle this better
-            case '>':
-                type = TOKEN_REDIRECT;
                 break;
         }
     }
@@ -126,11 +128,12 @@ Token *tokenize(const char *input) {
     return tokens;
 }
 
-void cleanup_tokens(Token *tokens) {
+void cleanup_tokens(const Token *tokens) {
     unsigned int i = 0;
     while (tokens[i].type != TOKEN_EOF) {
         free(tokens[i++].text);
     }
 
-    free(tokens);
+    // casting to drop const (freeing consts is illegal)
+    free((Token *)tokens);
 }

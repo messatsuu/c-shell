@@ -30,8 +30,8 @@ void execute_input(char *original_input) {
     char *mutated_input = strdup(original_input);
     mutate_original_input(&mutated_input);
 
-    Token *tokens = tokenize(mutated_input);
-    Token *baseTokenPointer = tokens;
+    const Token *tokens = tokenize(mutated_input);
+    const Token *baseTokenPointer = tokens;
     ASTParseState *parseState = convert_tokens_to_ast(&tokens);
     AST *listAst = parseState->listAst;
 

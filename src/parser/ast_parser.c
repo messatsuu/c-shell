@@ -26,7 +26,7 @@ RedirType get_redir_type(char *text) {
     return type;
 }
 
-AST *convert_simple_command(Token **tokens) {
+AST *convert_simple_command(const Token **tokens) {
     AST *simpleCommandAst = allocate(sizeof(AST), true);
     simpleCommandAst->type = NODE_SIMPLE;
 
@@ -71,7 +71,7 @@ return_simple_command:
     return simpleCommandAst;
 }
 
-AST *convert_pipeline(Token **tokens) {
+AST *convert_pipeline(const Token **tokens) {
     AST *pipelineAst = allocate(sizeof(AST), true);
     pipelineAst->type = NODE_PIPELINE;
     pipelineAst->pipeline.count = 0;
@@ -118,7 +118,7 @@ void debug_print_ast(AST *listAst) {
     }
 }
 
-ASTParseState *convert_tokens_to_ast(Token **tokens) {
+ASTParseState *convert_tokens_to_ast(const Token **tokens) {
     parseState = allocate(sizeof(ASTParseState), true);
     parseState->errors = callocate(INITIAL_BUFSIZE, sizeof(char *), true);
     parseState->error_count = 0;
