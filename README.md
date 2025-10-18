@@ -50,9 +50,9 @@ graph LR
     linkStyle 10,11,12 stroke:#090,stroke-width:2px
 ```
 
-# Planned features and bugfixes
-## C-Shell
-### Parsing & AST-Structure
+## Planned features and bugfixes
+### C-Shell
+#### Parsing & AST-Structure
 - [ ] Escaping characters correctly (`echo \'`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
 - [ ] sub-shells (`echo $(echo foo)`)
@@ -61,5 +61,5 @@ graph LR
     - [ ] for-loops
     - [ ] while-loops
 
-## C-Shell-Read
+#### C-Shell-Read
 - [ ] Make autocomplete finish to nearest non-ambiguous term
