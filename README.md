@@ -49,3 +49,15 @@ graph LR
 	
     linkStyle 10,11,12 stroke:#090,stroke-width:2px
 ```
+
+# Planned features and bugfixes
+## C-Shell
+
+### Parsing & AST-Structure
+- [ ] Escaping characters correctly (`echo \'`)
+- [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
+- [ ] sub-shells (`echo $(echo foo)`)
+- [ ] Implement more bash-syntax
+    - [ ] variable declaration
+    - [ ] for-loops
+    - [ ] while-loops

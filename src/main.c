@@ -41,8 +41,8 @@ void initialize_shell() {
     setenv("SHELL", path, true);
 
     // Set secondary prompt string (displayed on e.g. unclosed quotes)
-    // TODO: currently gets executed literally e.g. `echo $PS2` just runs `echo >` with ouput redirection
-    // setenv("PS2",  " > ", true);
+    // TODO: implement in c-shell-read
+    setenv("PS2",  " > ", true);
 }
 
 int main() {
