@@ -52,7 +52,6 @@ graph LR
 
 # Planned features and bugfixes
 ## C-Shell
-
 ### Parsing & AST-Structure
 - [ ] Escaping characters correctly (`echo \'`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
@@ -61,3 +60,6 @@ graph LR
     - [ ] variable declaration
     - [ ] for-loops
     - [ ] while-loops
+
+## C-Shell-Read
+- [ ] Make autocomplete finish to nearest non-ambiguous term
