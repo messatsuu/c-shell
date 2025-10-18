@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
-    # TODO: change to git repo
     cshread-lib.url = "github:messatsuu/c-shell-read";
     cshread-lib.inputs.nixpkgs.follows = "nixpkgs";
   };

@@ -10,17 +10,19 @@ static int is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
 }
 
-static TokenType get_operand_token_type(const char *input) {
+static TokenType get_operand_token_type(const char *input, unsigned int operand_length) {
     TokenType type = TOKEN_OPERAND;
 
-    switch (*input) {
-        case '|':
-            type = TOKEN_PIPE;
-            break;
-        // TODO: handle this better
-        case '>':
-            type = TOKEN_REDIRECT;
-            break;
+    if (operand_length == 1) {
+        switch (*input) {
+            case '|':
+                type = TOKEN_PIPE;
+                break;
+            // TODO: handle this better
+            case '>':
+                type = TOKEN_REDIRECT;
+                break;
+        }
     }
 
     return type;
@@ -77,7 +79,7 @@ Token *tokenize(const char *input) {
         if (is_operand_character(current_char)) {
             unsigned int operand_length = get_operand_length(input + i);
             char *text = strndup(input + i, operand_length);
-            TokenType type = get_operand_token_type(input + i);
+            TokenType type = get_operand_token_type(input + i, operand_length);
 
             tokens[count++] = (Token){type, text};
             i += operand_length;
