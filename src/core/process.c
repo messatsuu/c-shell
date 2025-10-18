@@ -57,10 +57,8 @@ int run_child_process_pipeline_ast(AST *pipeline) {
                 close(pipe_file_descriptor[0]); // Close read end
                 dup2(pipe_file_descriptor[1], STDOUT_FILENO); // Duplicate the pipe_file's write-end onto STDOUT
                 close(pipe_file_descriptor[1]);
-            // } else if (simpleCommand->simple.redirection) {
-                // TODO: implement!
-                // If it is the last command and it should be redirected to another file-descriptor, clone it onto STDOUT
-                // dup2(command->output_file_descriptor, STDOUT_FILENO);
+            } else if (simpleCommand->simple.redirection != nullptr) {
+                dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDOUT_FILENO);
             }
 
             // Builtins can run in child processes if they are piped

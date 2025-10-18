@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stdio.h>
 typedef enum {
     LIST_NONE, // just a single pipeline, list has only left side
     LIST_SEQ, // ;
@@ -15,9 +16,9 @@ typedef enum {
 } RedirType;
 
 // TODO: should this have `File` as a member?
-typedef struct {
+typedef struct Redirection {
     RedirType type;
-    char *filename;
+    FILE *redirect_file;
 } Redirection;
 
 typedef enum {
@@ -48,6 +49,8 @@ typedef struct AST {
         } list;
     };
 } AST;
+
+void cleanup_simple_command(AST *simpleCommandAst);
 
 void cleanup_ast_list(AST *listAst);
 

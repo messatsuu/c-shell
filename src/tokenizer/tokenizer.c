@@ -10,6 +10,40 @@ static int is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
 }
 
+static TokenType get_operand_token_type(const char *input) {
+    TokenType type = TOKEN_OPERAND;
+
+    switch (*input) {
+        case '|':
+            type = TOKEN_PIPE;
+            break;
+        // TODO: handle this better
+        case '>':
+            type = TOKEN_REDIRECT;
+            break;
+    }
+
+    return type;
+}
+
+static unsigned int get_operand_length(const char *input) {
+    // all currently supported multi-char operators
+    const char *operators[] = {
+        "||", "&&", ">>",
+        nullptr
+    };
+
+    for (int i = 0; operators[i]; i++) {
+        unsigned int operator_length = strlen(operators[i]);
+        if (strncmp(input, operators[i], operator_length) == 0) {
+            return operator_length;
+        }
+    }
+
+    // Default: single-character operator
+    return 1;
+}
+
 void debug_print_tokens(Token *tokens) {
     unsigned int i = 0;
     printf("TOKENIZATION:\n");
@@ -41,22 +75,11 @@ Token *tokenize(const char *input) {
 
         // Operators
         if (is_operand_character(current_char)) {
-            unsigned int operand_length = 1;
+            unsigned int operand_length = get_operand_length(input + i);
+            char *text = strndup(input + i, operand_length);
+            TokenType type = get_operand_token_type(input + i);
 
-            // Advance `operand_length` if double-char operand
-            if ((current_char == '|' && input[i+1] == '|') ||
-                (current_char == '&' && input[i+1] == '&') ||
-                (current_char == '>' && input[i+1] == '>')) {
-                operand_length++;
-            } else if (current_char == '|') {
-                // Pipes
-                tokens[count++] = (Token){TOKEN_PIPE, strndup(&current_char, 1)};
-                i++;
-                continue;
-            }
-
-            char *text = strndup(&input[i], operand_length);
-            tokens[count++] = (Token){TOKEN_OPERAND, text};
+            tokens[count++] = (Token){type, text};
             i += operand_length;
             continue;
         }
@@ -66,7 +89,6 @@ Token *tokenize(const char *input) {
         char buffer[INITIAL_BUFSIZE_BIG];
         unsigned int k = 0;
 
-        // TODO: is is_op_char() check needed?
         while (input[j] && !isspace((unsigned char)input[j]) && !is_operand_character(input[j])) {
             if (input[j] != '\'' && input[j] != '"') {
                 buffer[k++] = input[j++];
@@ -97,7 +119,7 @@ Token *tokenize(const char *input) {
     }
 
     // EOF token
-    tokens[count++] = (Token){TOKEN_EOF, NULL};
+    tokens[count++] = (Token){TOKEN_EOF, nullptr};
 
     return tokens;
 }

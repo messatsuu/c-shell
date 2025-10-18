@@ -5,6 +5,7 @@ typedef enum {
     TOKEN_WORD,
     TOKEN_OPERAND,
     TOKEN_PIPE,
+    TOKEN_REDIRECT,
     TOKEN_EOF
 } TokenType;
 

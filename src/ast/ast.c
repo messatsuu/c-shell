@@ -14,6 +14,11 @@ void cleanup_ast_list(AST *listAst) {
                 k++;
             }
 
+            if (simpleCommand->simple.redirection != nullptr) {
+                fclose(simpleCommand->simple.redirection->redirect_file);
+                free(simpleCommand->simple.redirection);
+            }
+
             free(simpleCommand->simple.argv);
             free(simpleCommand);
         }

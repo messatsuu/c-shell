@@ -1,24 +1,74 @@
 #include "ast/ast.h"
+#include "parser/ast_parser.h"
 #include "tokenizer/tokenizer.h"
 #include "utility.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "parser/ast_parser.h"
+
+ASTParseState *parseState = nullptr;
+
+void report_error(char *message) {
+    parseState->errors[parseState->error_count++] = strdup(message);
+}
+
+RedirType get_redir_type(char *text) {
+    RedirType type = REDIR_OUT;
+
+    if (strcmp(text, ">>") == 0) {
+        type = REDIR_OUT_APP;
+    }
+
+    if (strcmp(text, "<") == 0) {
+        type = REDIR_IN;
+    }
+
+    return type;
+}
 
 AST *convert_simple_command(Token **tokens) {
-    AST *simpleCommandAST = allocate(sizeof(AST), true);
-    simpleCommandAST->type = NODE_SIMPLE;
+    AST *simpleCommandAst = allocate(sizeof(AST), true);
+    simpleCommandAst->type = NODE_SIMPLE;
 
-    simpleCommandAST->simple.argv = (char **)allocate(INITIAL_BUFSIZE * sizeof(char **), true);
-    unsigned int i = 0;
+    simpleCommandAst->simple.argv = (char **)allocate(INITIAL_BUFSIZE * sizeof(char **), true);
+    simpleCommandAst->simple.redirection = nullptr;
 
-    while ((*tokens)->type == TOKEN_WORD) {
-        simpleCommandAST->simple.argv[i++] = strdup((*tokens)->text);
+    unsigned int argc = 0;
+
+    while ((*tokens)->type == TOKEN_WORD || (*tokens)->type == TOKEN_REDIRECT) {
+        if ((*tokens)->type == TOKEN_REDIRECT) {
+            // Next token needs to be the redirect-file
+            if ((*tokens + 1)->type != TOKEN_WORD) {
+                report_error((char *)"Syntax Error: expected token");
+                goto return_simple_command;
+            }
+
+            Redirection *redirection = allocate(sizeof(Redirection), true);
+            redirection->type = get_redir_type((*tokens)->text);
+            char *file_mode = nullptr;
+
+            // TODO: implement REDIR_IN
+            switch (redirection->type) {
+                case REDIR_OUT_APP:
+                    file_mode = (char *)"a";
+                    break;
+                default:
+                    file_mode = (char *)"w";
+            }
+
+            redirection->redirect_file = fopen((*tokens + 1)->text, file_mode);
+
+            simpleCommandAst->simple.redirection = redirection;
+            (*tokens) += 2;
+            continue;
+        }
+        simpleCommandAst->simple.argv[argc++] = strdup((*tokens)->text);
         (*tokens)++;
     }
 
-    simpleCommandAST->simple.argv[i++] = nullptr;
-    return simpleCommandAST;
+return_simple_command:
+    simpleCommandAst->simple.argv[argc++] = nullptr;
+    return simpleCommandAst;
 }
 
 AST *convert_pipeline(Token **tokens) {
@@ -28,7 +78,11 @@ AST *convert_pipeline(Token **tokens) {
     pipelineAst->pipeline.commands = (AST **)allocate(INITIAL_BUFSIZE * sizeof(AST *), true);
 
     while ((*tokens)->type == TOKEN_WORD) {
-        pipelineAst->pipeline.commands[pipelineAst->pipeline.count++] = convert_simple_command(tokens);
+        AST *simpleCommandAst = convert_simple_command(tokens);
+        if (simpleCommandAst == nullptr) {
+            return pipelineAst;
+        }
+        pipelineAst->pipeline.commands[pipelineAst->pipeline.count++] = simpleCommandAst;
 
         if ((*tokens)->type == TOKEN_PIPE) {
             (*tokens)++;
@@ -42,10 +96,12 @@ AST *convert_pipeline(Token **tokens) {
 
 void debug_print_ast(AST *listAst) {
     printf("AST PARSING:\n");
+
     printf("List:\n");
     for (unsigned int i = 0; i < listAst->list.count; i++) {
         printf("pipeline %d:\n", i);
         AST *pipeline = listAst->list.pipelines[i];
+
         printf("\tcount: %d\n", pipeline->pipeline.count);
         printf("\toperator: %d\n", listAst->list.operators[i]);
 
@@ -62,7 +118,12 @@ void debug_print_ast(AST *listAst) {
     }
 }
 
-AST *convert_tokens_to_ast(Token **tokens) {
+ASTParseState *convert_tokens_to_ast(Token **tokens) {
+    parseState = allocate(sizeof(ASTParseState), true);
+    parseState->errors = callocate(INITIAL_BUFSIZE, sizeof(char *), true);
+    parseState->error_count = 0;
+    parseState->listAst = nullptr;
+
     AST *listAst = allocate(sizeof(AST), true);
     listAst->type = NODE_LIST;
     listAst->list.operators = allocate(INITIAL_BUFSIZE * sizeof(ListType *), true);
@@ -91,5 +152,16 @@ AST *convert_tokens_to_ast(Token **tokens) {
         listAst->list.count++;
     } while ((*tokens)->type == TOKEN_OPERAND);
 
-    return listAst;
+    parseState->listAst = listAst;
+    return parseState;
+}
+
+void cleanup_ast_parse_state() {
+    cleanup_ast_list(parseState->listAst);
+
+    for (unsigned int i = 0; i < parseState->error_count; i++) {
+        free(parseState->errors[i]);
+    }
+    free(parseState->errors);
+    free(parseState);
 }

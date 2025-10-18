@@ -4,6 +4,13 @@
 #include "ast/ast.h"
 #include "tokenizer/tokenizer.h"
 
-AST *convert_tokens_to_ast(Token **tokens);
+typedef struct ASTParseState {
+    AST *listAst;
+    char **errors;
+    unsigned int error_count;
+} ASTParseState;
+
+void cleanup_ast_parse_state();
+ASTParseState *convert_tokens_to_ast(Token **tokens);
 
 #endif

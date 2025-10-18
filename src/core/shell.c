@@ -32,14 +32,23 @@ void execute_input(char *original_input) {
 
     Token *tokens = tokenize(mutated_input);
     Token *baseTokenPointer = tokens;
-    AST *astList = convert_tokens_to_ast(&tokens);
+    ASTParseState *parseState = convert_tokens_to_ast(&tokens);
+    AST *listAst = parseState->listAst;
 
-    execute_ast_list(astList);
+    if (parseState->error_count > 0) {
+        for (unsigned int i = 0; i < parseState->error_count; i++) {
+            fprintf(stderr, "%s\n", parseState->errors[i]);
+        }
+
+        goto cleanup;
+    }
+
+    execute_ast_list(listAst);
 
     cshr_history_append(original_input);
 
-    // Cleanup
-    cleanup_ast_list(astList);
+cleanup:
+    cleanup_ast_parse_state();
     cleanup_tokens(baseTokenPointer);
     free(original_input);
     free(mutated_input);
