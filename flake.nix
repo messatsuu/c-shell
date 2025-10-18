@@ -62,6 +62,7 @@
 
           # aliases
           alias valgrind-debug="make bd && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./bin/main-debug"
+          alias vd="valgrind-debug"
         '';
       };
     };

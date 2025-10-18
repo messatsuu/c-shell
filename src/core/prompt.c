@@ -15,7 +15,7 @@ char *get_prompt() {
 
     // If PS1 is not set, we use a default prompt
     if (ps1 == NULL) {
-        ps1 = "\e[0;34mc-shell \\u@\\h> \e[m";
+        ps1 = (char *)"\x1B[0;34mc-shell \\u@\\h> \x1B[m";
     }
 
     size_t index = 0;

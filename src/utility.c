@@ -10,6 +10,10 @@
 #include <string.h>
 #include <unistd.h>
 
+// Tell the compiler to ignore [-Wformat-nonliteral] on vfprintf-call (disable literal-checking)
+// 1 = position of the format-string parameter
+// 2 = position of the first variadic argument
+__attribute__((format(printf, 1, 2)))
 void log_error(const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -25,7 +29,7 @@ void log_error(const char *format, ...) {
 }
 
 noreturn void log_error_with_exit(const char *message) {
-    log_error(message);
+    log_error("%s", message);
     exit(EXIT_FAILURE);
 }
 
