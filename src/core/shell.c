@@ -22,16 +22,17 @@ void execute_input(char *original_input) {
         exit(0);
     }
 
-    if (strlen(original_input) == 0) {
-        free(original_input);
-        return;
-    }
-
     char *mutated_input = strdup(original_input);
     mutate_original_input(&mutated_input);
 
     const Token *tokens = tokenize(mutated_input);
     const Token *baseTokenPointer = tokens;
+
+    // empty input, cleanup
+    if (tokens[0].type == TOKEN_EOF) {
+        goto cleanup;
+    }
+
     ASTParseState *parseState = convert_tokens_to_ast(&tokens);
     AST *listAst = parseState->listAst;
 
@@ -45,9 +46,9 @@ void execute_input(char *original_input) {
 
     execute_ast_list(listAst);
 
+cleanup:
     cshr_history_append(original_input);
 
-cleanup:
     cleanup_ast_parse_state();
     cleanup_tokens(baseTokenPointer);
     free(original_input);

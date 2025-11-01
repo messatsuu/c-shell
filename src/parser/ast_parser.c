@@ -157,6 +157,10 @@ ASTParseState *convert_tokens_to_ast(const Token **tokens) {
 }
 
 void cleanup_ast_parse_state() {
+    if (parseState == nullptr) {
+        return;
+    }
+
     cleanup_ast_list(parseState->listAst);
 
     for (unsigned int i = 0; i < parseState->error_count; i++) {
