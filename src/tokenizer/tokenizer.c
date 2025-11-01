@@ -10,6 +10,10 @@ static int is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
 }
 
+static int is_quote_character(char character) {
+    return (character == '\'' || character == '\"');
+}
+
 static TokenType get_operand_token_type(const char *input, unsigned int operand_length) {
     TokenType type = TOKEN_OPERAND;
 
@@ -94,7 +98,13 @@ Token *tokenize(const char *input) {
         unsigned int k = 0;
 
         while (input[j] && !isspace((unsigned char)input[j]) && !is_operand_character(input[j])) {
-            if (input[j] != '\'' && input[j] != '"') {
+            if (input[j] == '\\' && is_quote_character(input[j + 1])) {
+                buffer[k++] = input[j++];
+                buffer[k++] = input[j++];
+                continue;
+            }
+
+            if (!is_quote_character(input[j])) {
                 buffer[k++] = input[j++];
                 continue;
             }

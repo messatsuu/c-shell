@@ -1,3 +1,4 @@
 /bin
 .cache
 result
+compile_commands.json

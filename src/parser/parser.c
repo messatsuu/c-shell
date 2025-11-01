@@ -93,9 +93,11 @@ char get_quote_character(char character) {
     return 0;
 }
 
-void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, char quote_character) {
-    // skip quote
-    (*pointer)++;
+void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, char quote_character, bool remove_quotes) {
+    if (remove_quotes) {
+        // skip quote
+        (*pointer)++;
+    }
 
     // Add characters to buffer until second quote is reached
     for (; **pointer != '\0';) {
@@ -107,6 +109,10 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
 
         // Break on closing quote
         if (get_quote_character(**pointer) == quote_character) {
+            if (!remove_quotes) {
+                (*buffer)[(*index)++] = **pointer;
+                (*pointer)++;
+            }
             break;
         }
 
@@ -135,9 +141,18 @@ void mutate_original_input(char **input) {
             buffer = temp;
         }
 
+        if (*pointer == '\\' && get_quote_character(*(pointer + 1)) != 0) {
+            buffer[index++] = *pointer;
+            pointer++;
+            buffer[index++] = *pointer;
+            pointer++;
+
+            continue;
+        }
+
         char quote_character = get_quote_character(*pointer);
         if (quote_character) {
-            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character);
+            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character, false);
             continue;
         }
 
@@ -190,9 +205,15 @@ void convert_argv(char **argv) {
                 buffer = temp;
             }
 
+            if (*pointer == '\\' && get_quote_character(*(pointer + 1)) != 0) {
+                buffer[index++] = *(pointer + 1);
+                pointer += 2;
+                continue;
+            }
+
             char quote_character = get_quote_character(*pointer);
             if (quote_character) {
-                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character);
+                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character, true);
                 continue;
             }
 
