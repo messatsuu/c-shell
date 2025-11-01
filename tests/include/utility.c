@@ -18,7 +18,7 @@ void read_file_to_buffer(FILE *output, char *buffer, size_t length) {
     }
 
     if (total == 0) {
-        fprintf(stderr, "Error while reading stdout into buffer (possibly empty contents)\n");
+        fprintf(stderr, "Error while reading file into buffer (possibly empty contents)\n");
         exit(1);
     }
 }
