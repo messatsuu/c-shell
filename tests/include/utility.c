@@ -23,23 +23,6 @@ void read_file_to_buffer(FILE *output, char *buffer, size_t length) {
     }
 }
 
-FILE* write_to_mock_stdin(const char* input) {
-    FILE *temp_file = tmpfile();
-    if (!temp_file) {
-        perror("tmpfile");
-        exit(1);
-    }
-
-    // Write test input to the temporary file
-    fputs(input, temp_file);
-    rewind(temp_file);  // Reset file pointer to the beginning
-
-    // Redirect stdin to the temporary file
-    stdin = temp_file;
-
-    return temp_file;
-}
-
 FILE *get_mock_stdout_file() {
     FILE *mock_stdout_file = fopen(mock_stdout_filepath, "a+");
     if (mock_stdout_file == NULL) {

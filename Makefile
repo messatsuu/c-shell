@@ -12,7 +12,7 @@ CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L \
 		-Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
 		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
 
-CFLAGS_DEBUG = -std=c23 -g -O0 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
+CFLAGS_DEBUG = -std=c23 -Og -g -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L
 TEST_WRAPPER_FLAGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
 # TODO: provided by nix develop-shell, is this a good idea?
 LDFLAGS ?= $(shell echo $$NIX_LDFLAGS)
@@ -37,7 +37,7 @@ run:
 
 # Unit Testing Targets
 build-test:
-	$(CC) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(CFLAGS) $(TEST_WRAPPER_FLAGS) -lcshread
+	$(CC) $(SRC_TEST_FILES) -lcmocka -o ./bin/test -isystem $(INC_DIR) -isystem $(TEST_INC_DIR) $(CFLAGS_DEBUG) $(TEST_WRAPPER_FLAGS) -lcshread
 
 run-test:
 	./bin/test
