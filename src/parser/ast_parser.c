@@ -44,22 +44,10 @@ AST *convert_simple_command(const Token **tokens) {
             }
 
             Redirection *redirection = allocate(sizeof(Redirection), true);
+            redirection->redirect_filename = allocate(strlen((*tokens + 1)->text) + 1, true);
+            strcpy(redirection->redirect_filename, (*tokens + 1)->text);
+
             redirection->type = get_redir_type((*tokens)->text);
-            char *file_mode = nullptr;
-
-            // TODO: implement REDIR_IN
-            switch (redirection->type) {
-                case REDIR_OUT_APP:
-                    file_mode = (char *)"a";
-                    break;
-                case REDIR_OUT:
-                    file_mode = (char *)"w";
-                case REDIR_IN:
-                    file_mode = (char *)"r";
-            }
-
-            redirection->redirect_file = fopen((*tokens + 1)->text, file_mode);
-
             simpleCommandAst->simple.redirection = redirection;
             (*tokens) += 2;
             continue;
@@ -115,6 +103,11 @@ void debug_print_ast(AST *listAst) {
             while (simpleCommand->simple.argv[k] != nullptr) {
                 printf("\t\targ[%d]: %s\n", k, simpleCommand->simple.argv[k]);
                 k++;
+            }
+
+            if (simpleCommand->simple.redirection) {
+                printf("\t\tredirection-type: %d\n", simpleCommand->simple.redirection->type);
+                printf("\t\tredirection-filename: %s\n", simpleCommand->simple.redirection->redirect_filename);
             }
         }
     }

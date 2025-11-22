@@ -15,7 +15,7 @@ void cleanup_ast_list(AST *listAst) {
             }
 
             if (simpleCommand->simple.redirection != nullptr) {
-                fclose(simpleCommand->simple.redirection->redirect_file);
+                free(simpleCommand->simple.redirection->redirect_filename);
                 free(simpleCommand->simple.redirection);
             }
 

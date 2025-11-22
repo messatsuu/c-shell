@@ -18,7 +18,7 @@ typedef enum {
 // TODO: should this have `File` as a member?
 typedef struct Redirection {
     RedirType type;
-    FILE *redirect_file;
+    char *redirect_filename;
 } Redirection;
 
 typedef enum {

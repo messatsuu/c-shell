@@ -1,11 +1,10 @@
-#include "ast/ast.h"
 #include "command/builtins.h"
 #include "core/execvp.h"
 #include "core/process.h"
+
+#include "fcntl.h"
 #include "parser/parser.h"
-
 #include <utility.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -45,6 +44,8 @@ int run_child_process_pipeline_ast(AST *pipeline) {
 
         // CHILD PROCESS
         if (pid == 0) {
+            int redirect_fd = -1;
+
             // If a previous pipe is set to read from, duplicate it onto STDIN (and close the original)
             if (previous_pipe_file_read_end != -1) {
                 // Make previous read_end the new STDIN
@@ -60,16 +61,27 @@ int run_child_process_pipeline_ast(AST *pipeline) {
                 close(pipe_file_descriptor[1]);
             } else if (simpleCommand->simple.redirection != nullptr) {
                 Redirection *redirection = simpleCommand->simple.redirection;
+                int file_mode = 0;
+                int used_fd = -1;
 
                 switch (redirection->type) {
-                    // Duplicate the pipe_file's write-end onto STDOUT
-                    case REDIR_OUT_APP:
                     case REDIR_OUT:
-                        dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDOUT_FILENO);
+                        file_mode = O_WRONLY | O_CREAT | O_TRUNC;
+                        used_fd = STDOUT_FILENO;
+                        break;
+                    case REDIR_OUT_APP:
+                        file_mode = O_WRONLY | O_CREAT | O_APPEND;
+                        used_fd = STDOUT_FILENO;
                         break;
                     case REDIR_IN:
-                        dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDIN_FILENO);
+                        file_mode = O_RDONLY;
+                        used_fd = STDIN_FILENO;
                 }
+
+                redirect_fd = open(redirection->redirect_filename, file_mode, 0644);
+
+                // Duplicate the pipe_file's write-end onto STDOUT / STDIN
+                dup2(redirect_fd, used_fd);
             }
 
             // Builtins can run in child processes if they are piped
@@ -77,6 +89,11 @@ int run_child_process_pipeline_ast(AST *pipeline) {
                 run_builtin_command(simpleCommand->simple.argv);
             } else {
                 run_execvp(simpleCommand->simple.argv);
+            }
+
+            // TODO: does this close correctly in the child-process context?
+            if (redirect_fd != -1) {
+                close(redirect_fd);
             }
         }
 
