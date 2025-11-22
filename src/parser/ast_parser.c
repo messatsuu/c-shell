@@ -52,8 +52,10 @@ AST *convert_simple_command(const Token **tokens) {
                 case REDIR_OUT_APP:
                     file_mode = (char *)"a";
                     break;
-                default:
+                case REDIR_OUT:
                     file_mode = (char *)"w";
+                case REDIR_IN:
+                    file_mode = (char *)"r";
             }
 
             redirection->redirect_file = fopen((*tokens + 1)->text, file_mode);
@@ -118,6 +120,7 @@ void debug_print_ast(AST *listAst) {
     }
 }
 
+// Main entry-point to parsing the tokenized input
 ASTParseState *convert_tokens_to_ast(const Token **tokens) {
     parseState = allocate(sizeof(ASTParseState), true);
     parseState->errors = callocate(INITIAL_BUFSIZE, sizeof(char *), true);

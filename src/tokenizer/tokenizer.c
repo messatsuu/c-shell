@@ -19,6 +19,7 @@ static TokenType get_operand_token_type(const char *input, unsigned int operand_
 
     switch (*input) {
         case '>':
+        case '<':
             type = TOKEN_REDIRECT;
             break;
     }

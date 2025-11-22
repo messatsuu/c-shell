@@ -1,3 +1,4 @@
+#include "ast/ast.h"
 #include "command/builtins.h"
 #include "core/execvp.h"
 #include "core/process.h"
@@ -55,10 +56,20 @@ int run_child_process_pipeline_ast(AST *pipeline) {
             // Essentially making the pipe_file's write-end the new STDOUT (the execvp() writes to)
             if (!is_last_command) {
                 close(pipe_file_descriptor[0]); // Close read end
-                dup2(pipe_file_descriptor[1], STDOUT_FILENO); // Duplicate the pipe_file's write-end onto STDOUT
+                dup2(pipe_file_descriptor[1], STDOUT_FILENO); 
                 close(pipe_file_descriptor[1]);
             } else if (simpleCommand->simple.redirection != nullptr) {
-                dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDOUT_FILENO);
+                Redirection *redirection = simpleCommand->simple.redirection;
+
+                switch (redirection->type) {
+                    // Duplicate the pipe_file's write-end onto STDOUT
+                    case REDIR_OUT_APP:
+                    case REDIR_OUT:
+                        dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDOUT_FILENO);
+                        break;
+                    case REDIR_IN:
+                        dup2(fileno(simpleCommand->simple.redirection->redirect_file), STDIN_FILENO);
+                }
             }
 
             // Builtins can run in child processes if they are piped

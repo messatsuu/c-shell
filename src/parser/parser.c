@@ -93,11 +93,15 @@ char get_quote_character(char character) {
     return 0;
 }
 
-void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, char quote_character, bool remove_quotes) {
-    if (remove_quotes) {
-        // skip quote
-        (*pointer)++;
+void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, bool remove_quotes) {
+    // initial position is considered the quote-character
+    char quote_character = **pointer;
+    if (!remove_quotes) {
+        (*buffer)[(*index)++] = **pointer;
     }
+
+    // skip leading quote
+    (*pointer)++;
 
     // Add characters to buffer until second quote is reached
     for (; **pointer != '\0';) {
@@ -152,7 +156,7 @@ void mutate_original_input(char **input) {
 
         char quote_character = get_quote_character(*pointer);
         if (quote_character) {
-            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character, false);
+            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false);
             continue;
         }
 
@@ -213,7 +217,7 @@ void convert_argv(char **argv) {
 
             char quote_character = get_quote_character(*pointer);
             if (quote_character) {
-                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, quote_character, true);
+                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, true);
                 continue;
             }
 
