@@ -30,12 +30,19 @@ AST *convert_simple_command(const Token **tokens) {
     AST *simpleCommandAst = allocate(sizeof(AST), true);
     simpleCommandAst->type = NODE_SIMPLE;
 
-    simpleCommandAst->simple.argv = (char **)allocate(INITIAL_BUFSIZE * sizeof(char **), true);
+    unsigned int allocated_elements_count = INITIAL_BUFSIZE;
+    simpleCommandAst->simple.argv = (char **)callocate(allocated_elements_count, sizeof(char *), true);
     simpleCommandAst->simple.redirection = nullptr;
 
     unsigned int argc = 0;
 
     while ((*tokens)->type == TOKEN_WORD || (*tokens)->type == TOKEN_REDIRECT) {
+        // reallocate argv and double space if needed
+        if (argc >= allocated_elements_count - 1) {
+            simpleCommandAst->simple.argv = (char **)reallocate_safe(simpleCommandAst->simple.argv, allocated_elements_count * sizeof(char *), 2 * allocated_elements_count * sizeof(char *), true);
+            allocated_elements_count *= 2;
+        }
+
         if ((*tokens)->type == TOKEN_REDIRECT) {
             // Next token needs to be the redirect-file
             if ((*tokens + 1)->type != TOKEN_WORD) {
@@ -116,7 +123,7 @@ void debug_print_ast(AST *listAst) {
 // Main entry-point to parsing the tokenized input
 ASTParseState *convert_tokens_to_ast(const Token **tokens) {
     parseState = allocate(sizeof(ASTParseState), true);
-    parseState->errors = callocate(INITIAL_BUFSIZE, sizeof(char *), true);
+    parseState->errors = (char **)callocate(INITIAL_BUFSIZE, sizeof(char *), true);
     parseState->error_count = 0;
     parseState->listAst = nullptr;
 

@@ -66,7 +66,7 @@ void debug_print_tokens(Token *tokens) {
 Token *tokenize(const char *input) {
     unsigned int allocated_elements_count = INITIAL_BUFSIZE;
     unsigned int count = 0;
-    Token *tokens = allocate(allocated_elements_count * sizeof(Token), true);
+    Token *tokens = callocate(allocated_elements_count, sizeof(Token), true);
 
     for (unsigned int i = 0; input[i]; ) {
         const char current_char = input[i];
@@ -95,7 +95,7 @@ Token *tokenize(const char *input) {
 
         // Words (with quote handling)
         unsigned int j = i;
-        char buffer[INITIAL_BUFSIZE_BIG];
+        char buffer[INITIAL_BUFSIZE_BIG] = {};
         unsigned int k = 0;
 
         while (input[j] && !isspace((unsigned char)input[j]) && !is_operand_character(input[j])) {
@@ -135,7 +135,6 @@ Token *tokenize(const char *input) {
 
     // EOF token
     tokens[count++] = (Token){TOKEN_EOF, nullptr};
-
     return tokens;
 }
 
