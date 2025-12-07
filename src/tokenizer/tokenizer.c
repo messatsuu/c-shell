@@ -11,6 +11,10 @@ static bool is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
 }
 
+static bool is_subshell_character(char character) {
+    return (character == '(' || character == ')');
+}
+
 static bool is_quote_character(char character) {
     return (character == '\'' || character == '\"');
 }
@@ -18,7 +22,8 @@ static bool is_quote_character(char character) {
 // Checks if a character is considered a "special character" (characters that can be escaped)
 static bool is_special_character(char character) {
     return is_quote_character(character) ||
-        is_operand_character(character)
+        is_operand_character(character) ||
+        is_subshell_character(character)
     ;
 }
 
@@ -107,7 +112,15 @@ ParseState *tokenize(const char *input) {
 
         // Subshells
         if (is_subshell_character(current_char)) {
-
+            if (current_char == '(') {
+                if (strchr(&input[i], ')') == nullptr) {
+                    report_error(parseState, (char *)"Syntax Error: Unclosed (");
+                    goto return_parse_state;
+                }
+                tokens[count++] = (Token){TOKEN_SUBSHELL_START, strdup("(")};
+            } else if (current_char == ')') {
+                tokens[count++] = (Token){TOKEN_SUBSHELL_START, strdup("(")};
+            }
         }
 
         // Words (with quote handling)
@@ -138,7 +151,8 @@ ParseState *tokenize(const char *input) {
             } else {
                 // TODO: actually allow for PS2 and closing quotes
                 // Also, should the Tokenizer be the one to report that error?
-                report_error(parseState, (char *)"Syntax Error: Quote not closed");
+                report_error(parseState, (char *)"Syntax Error: Unclosed Quote");
+                goto return_parse_state;
             }
         }
         buffer[k] = '\0';
@@ -150,6 +164,7 @@ ParseState *tokenize(const char *input) {
         allocated_elements_count *= 2;
     }
 
+return_parse_state:
     // EOF token
     tokens[count++] = (Token){TOKEN_EOF, nullptr};
     parseState->parsable.tokens = tokens;

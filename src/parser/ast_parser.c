@@ -30,11 +30,16 @@ AST *convert_simple_command(ParseState *parseState, const Token **tokens) {
 
     unsigned int argc = 0;
 
-    while ((*tokens)->type == TOKEN_WORD || (*tokens)->type == TOKEN_REDIRECT) {
+    while ((*tokens)->type == TOKEN_WORD || (*tokens)->type == TOKEN_REDIRECT || (*tokens)->type == TOKEN_REDIRECT) {
         // reallocate argv and double space if needed
         if (argc >= allocated_elements_count - 1) {
             simpleCommandAst->simple.argv = (char **)reallocate_safe(simpleCommandAst->simple.argv, allocated_elements_count * sizeof(char *), 2 * allocated_elements_count * sizeof(char *), true);
             allocated_elements_count *= 2;
+        }
+
+        if ((*tokens)->type == TOKEN_SUBSHELL_START) {
+            report_error(parseState, (char *)"Syntax Error: unexpected (");
+            goto return_simple_command;
         }
 
         if ((*tokens)->type == TOKEN_REDIRECT) {
@@ -88,9 +93,10 @@ AST *convert_pipeline(ParseState *parseState, const Token **tokens) {
 void debug_print_ast(AST *listAst) {
     printf("AST PARSING:\n");
 
-    printf("List:\n");
     for (unsigned int i = 0; i < listAst->list.pipeline_count; i++) {
-        printf("pipeline %d:\n", i);
+        printf("List %d:\n", i);
+
+        printf("pipeline:\n");
         AST *pipeline = listAst->list.pipelines[i];
 
         printf("\tcount: %d\n", pipeline->pipeline.command_count);
@@ -142,6 +148,7 @@ ParseState *convert_tokens_to_ast(const Token **tokens) {
             (*tokens)++;
         }
 
+        listAst->list.is_subshell = (*tokens)->type == TOKEN_SUBSHELL_START;
         listAst->list.operators[listAst->list.pipeline_count] = list_type;
         listAst->list.pipelines[listAst->list.pipeline_count] = convert_pipeline(parseState, tokens);
         listAst->list.pipeline_count++;

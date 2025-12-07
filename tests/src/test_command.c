@@ -118,6 +118,19 @@ static void test_output_redirection_appending(void **state) {
     free(file_path);
 }
 
+static void test_exit_code_priority_handling(void **state) {
+    // TODO: fix this test, output doesn't redirect to stdout_mock since it isn't a child-process
+    // Setup
+    FILE *stdout_mock = get_mock_stdout_file();
+    char buffer[1024];
+
+    // Run
+    execute_input(strdup("false | true ; last_exit_code"));
+
+    // Assert
+    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    assert_string_equal(buffer, "0");
+}
 
 static int setup(void **state) {
     return 0;
@@ -137,6 +150,7 @@ unsigned int run_suite_test_command() {
         cmocka_unit_test_setup_teardown(test_argument_handling, setup, teardown),
         cmocka_unit_test_setup_teardown(test_output_redirection, setup, teardown),
         cmocka_unit_test_setup_teardown(test_output_redirection_appending, setup, teardown),
+        // cmocka_unit_test_setup_teardown(test_exit_code_priority_handling, setup, teardown),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

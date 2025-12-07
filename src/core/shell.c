@@ -1,5 +1,4 @@
 #include "ast/ast.h"
-#include "command/command.h"
 #include "core/shell.h"
 #include "cshread/history.h"
 #include "cshread/input.h"

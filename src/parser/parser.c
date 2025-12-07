@@ -11,9 +11,10 @@
 
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
 
-const char quote_characters[] = {
+const char escapable_characters[] = {
     '\"',
     '\'',
+    '(',
     '`' // TODO: this should invoke sub-context commands
 };
 
@@ -82,9 +83,9 @@ int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_
     return 0;
 }
 
-char get_quote_character(char character) {
-    for (unsigned int i = 0; i < (sizeof(quote_characters) / sizeof(quote_characters[0])); i++) {
-        if (character == quote_characters[i]) {
+char get_escapable_character(char character) {
+    for (unsigned int i = 0; i < (sizeof(escapable_characters) / sizeof(escapable_characters[0])); i++) {
+        if (character == escapable_characters[i]) {
             return character;
         }
     }
@@ -112,7 +113,7 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
         }
 
         // Break on closing quote
-        if (get_quote_character(**pointer) == quote_character) {
+        if (get_escapable_character(**pointer) == quote_character) {
             if (!remove_quotes) {
                 (*buffer)[(*index)++] = **pointer;
                 (*pointer)++;
@@ -145,7 +146,7 @@ void mutate_original_input(char **input) {
             buffer = temp;
         }
 
-        if (*pointer == '\\' && get_quote_character(*(pointer + 1)) != 0) {
+        if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
             buffer[index++] = *pointer;
             pointer++;
             buffer[index++] = *pointer;
@@ -154,7 +155,7 @@ void mutate_original_input(char **input) {
             continue;
         }
 
-        char quote_character = get_quote_character(*pointer);
+        char quote_character = get_escapable_character(*pointer);
         if (quote_character) {
             handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false);
             continue;
@@ -209,13 +210,13 @@ void convert_argv(char **argv) {
                 buffer = temp;
             }
 
-            if (*pointer == '\\' && get_quote_character(*(pointer + 1)) != 0) {
+            if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
                 buffer[index++] = *(pointer + 1);
                 pointer += 2;
                 continue;
             }
 
-            char quote_character = get_quote_character(*pointer);
+            char quote_character = get_escapable_character(*pointer);
             if (quote_character) {
                 handle_quoted_string(&pointer, &buffer, &buffer_size, &index, true);
                 continue;

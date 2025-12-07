@@ -6,7 +6,9 @@ typedef enum {
     TOKEN_OPERAND,
     TOKEN_PIPE,
     TOKEN_REDIRECT,
-    TOKEN_EOF
+    TOKEN_EOF,
+    TOKEN_SUBSHELL_START,
+    TOKEN_SUBSHELL_END
 } TokenType;
 
 typedef struct {

@@ -1,7 +1,6 @@
 #ifndef BUILTIN_H
 #define BUILTIN_H
 
-#include "command/command.h"
 #include <stdbool.h>
 #include <unistd.h>
 

@@ -45,12 +45,12 @@ typedef struct AST {
             int pipeline_count;
             ListType *operators;
             struct AST **pipelines;
+            bool is_subshell; // if TRUE, executes argvs in a seperate environment
         } list;
     };
 } AST;
 
-void cleanup_simple_command(AST *simpleCommandAst);
-
+void execute_ast_list(AST *astList);
 void cleanup_ast_list(AST *listAst);
 
 #endif
