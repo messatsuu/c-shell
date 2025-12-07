@@ -1,20 +1,9 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-typedef enum {
-    TOKEN_WORD,
-    TOKEN_OPERAND,
-    TOKEN_PIPE,
-    TOKEN_REDIRECT,
-    TOKEN_EOF
-} TokenType;
+#include "parser/parse_state.h"
 
-typedef struct {
-    TokenType type;
-    char *text;  // dynamically allocated string holding the token
-} Token;
-
-Token *tokenize(const char *input);
+ParseState *tokenize(const char *input);
 
 void cleanup_tokens(const Token *tokens);
 

@@ -175,10 +175,10 @@ void mutate_original_input(char **input) {
         pointer++;
     }
 
-    if (index >= buffer_size) {
+    if (index > buffer_size) {
         log_error("Buffer overflow detected when terminating input string.");
         free(buffer);
-        input = nullptr;
+        *input = nullptr;
         return;
     }
 

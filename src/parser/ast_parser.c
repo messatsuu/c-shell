@@ -1,16 +1,10 @@
 #include "ast/ast.h"
 #include "parser/ast_parser.h"
+#include "parser/parse_state.h"
 #include "tokenizer/tokenizer.h"
 #include "utility.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-ASTParseState *parseState = nullptr;
-
-void report_error(char *message) {
-    parseState->errors[parseState->error_count++] = strdup(message);
-}
 
 RedirType get_redir_type(char *text) {
     RedirType type = REDIR_OUT;
@@ -26,7 +20,7 @@ RedirType get_redir_type(char *text) {
     return type;
 }
 
-AST *convert_simple_command(const Token **tokens) {
+AST *convert_simple_command(ParseState *parseState, const Token **tokens) {
     AST *simpleCommandAst = allocate(sizeof(AST), true);
     simpleCommandAst->type = NODE_SIMPLE;
 
@@ -46,7 +40,7 @@ AST *convert_simple_command(const Token **tokens) {
         if ((*tokens)->type == TOKEN_REDIRECT) {
             // Next token needs to be the redirect-file
             if ((*tokens + 1)->type != TOKEN_WORD) {
-                report_error((char *)"Syntax Error: expected token");
+                report_error(parseState, (char *)"Syntax Error: expected token");
                 goto return_simple_command;
             }
 
@@ -68,18 +62,18 @@ return_simple_command:
     return simpleCommandAst;
 }
 
-AST *convert_pipeline(const Token **tokens) {
+AST *convert_pipeline(ParseState *parseState, const Token **tokens) {
     AST *pipelineAst = allocate(sizeof(AST), true);
     pipelineAst->type = NODE_PIPELINE;
-    pipelineAst->pipeline.count = 0;
+    pipelineAst->pipeline.command_count = 0;
     pipelineAst->pipeline.commands = (AST **)allocate(INITIAL_BUFSIZE * sizeof(AST *), true);
 
     while ((*tokens)->type == TOKEN_WORD) {
-        AST *simpleCommandAst = convert_simple_command(tokens);
+        AST *simpleCommandAst = convert_simple_command(parseState, tokens);
         if (simpleCommandAst == nullptr) {
             return pipelineAst;
         }
-        pipelineAst->pipeline.commands[pipelineAst->pipeline.count++] = simpleCommandAst;
+        pipelineAst->pipeline.commands[pipelineAst->pipeline.command_count++] = simpleCommandAst;
 
         if ((*tokens)->type == TOKEN_PIPE) {
             (*tokens)++;
@@ -95,14 +89,14 @@ void debug_print_ast(AST *listAst) {
     printf("AST PARSING:\n");
 
     printf("List:\n");
-    for (unsigned int i = 0; i < listAst->list.count; i++) {
+    for (unsigned int i = 0; i < listAst->list.pipeline_count; i++) {
         printf("pipeline %d:\n", i);
         AST *pipeline = listAst->list.pipelines[i];
 
-        printf("\tcount: %d\n", pipeline->pipeline.count);
+        printf("\tcount: %d\n", pipeline->pipeline.command_count);
         printf("\toperator: %d\n", listAst->list.operators[i]);
 
-        for (unsigned int j = 0; j < pipeline->pipeline.count; j++) {
+        for (unsigned int j = 0; j < pipeline->pipeline.command_count; j++) {
             printf("\tsimpleCommand %d:\n", j);
             AST *simpleCommand = pipeline->pipeline.commands[j];
 
@@ -121,17 +115,15 @@ void debug_print_ast(AST *listAst) {
 }
 
 // Main entry-point to parsing the tokenized input
-ASTParseState *convert_tokens_to_ast(const Token **tokens) {
-    parseState = allocate(sizeof(ASTParseState), true);
-    parseState->errors = (char **)callocate(INITIAL_BUFSIZE, sizeof(char *), true);
-    parseState->error_count = 0;
-    parseState->listAst = nullptr;
+ParseState *convert_tokens_to_ast(const Token **tokens) {
+    ParseState *parseState = allocate(sizeof(ParseState), true);
+    init_parse_state(parseState, TYPE_AST);
 
     AST *listAst = allocate(sizeof(AST), true);
     listAst->type = NODE_LIST;
     listAst->list.operators = allocate(INITIAL_BUFSIZE * sizeof(ListType *), true);
     listAst->list.pipelines = (AST **)allocate(INITIAL_BUFSIZE * sizeof(AST *), true);
-    listAst->list.count = 0;
+    listAst->list.pipeline_count = 0;
 
     do {
         ListType list_type = LIST_NONE;
@@ -150,25 +142,11 @@ ASTParseState *convert_tokens_to_ast(const Token **tokens) {
             (*tokens)++;
         }
 
-        listAst->list.operators[listAst->list.count] = list_type;
-        listAst->list.pipelines[listAst->list.count] = convert_pipeline(tokens);
-        listAst->list.count++;
+        listAst->list.operators[listAst->list.pipeline_count] = list_type;
+        listAst->list.pipelines[listAst->list.pipeline_count] = convert_pipeline(parseState, tokens);
+        listAst->list.pipeline_count++;
     } while ((*tokens)->type == TOKEN_OPERAND);
 
-    parseState->listAst = listAst;
+    parseState->parsable.listAst = listAst;
     return parseState;
-}
-
-void cleanup_ast_parse_state() {
-    if (parseState == nullptr) {
-        return;
-    }
-
-    cleanup_ast_list(parseState->listAst);
-
-    for (unsigned int i = 0; i < parseState->error_count; i++) {
-        free(parseState->errors[i]);
-    }
-    free(parseState->errors);
-    free(parseState);
 }

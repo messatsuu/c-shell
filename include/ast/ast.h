@@ -15,7 +15,6 @@ typedef enum {
     REDIR_IN       // <
 } RedirType;
 
-// TODO: should this have `File` as a member?
 typedef struct Redirection {
     RedirType type;
     char *redirect_filename;
@@ -33,19 +32,19 @@ typedef struct AST {
 
     union {
         struct {
-            char **argv; // e.g. {"ls", "-la", NULL}
-            struct Redirection *redirection;
+            char **argv; // null-terminated string-array
+           struct Redirection *redirection;
         } simple;
 
         struct {
-            int count; // Number of pipes
+            int command_count;
             struct AST **commands;
         } pipeline;
 
         struct {
-            int count; // Number of pipelines
-            struct AST **pipelines;
+            int pipeline_count;
             ListType *operators;
+            struct AST **pipelines;
         } list;
     };
 } AST;

@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 void cleanup_ast_list(AST *listAst) {
-    for (unsigned int i = 0; i < listAst->list.count; i++) {
+    for (unsigned int i = 0; i < listAst->list.pipeline_count; i++) {
         AST *pipeline = listAst->list.pipelines[i];
 
-        for (unsigned int j = 0; j < pipeline->pipeline.count; j++) {
+        for (unsigned int j = 0; j < pipeline->pipeline.command_count; j++) {
             AST *simpleCommand = pipeline->pipeline.commands[j];
 
             unsigned int k = 0;

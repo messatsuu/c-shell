@@ -1,4 +1,5 @@
 #include "tokenizer/tokenizer.h"
+#include "parser/parse_state.h"
 #include "utility.h"
 
 #include <ctype.h>
@@ -6,12 +7,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int is_operand_character(char character) {
+static bool is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
 }
 
-static int is_quote_character(char character) {
+static bool is_quote_character(char character) {
     return (character == '\'' || character == '\"');
+}
+
+// Checks if a character is considered a "special character" (characters that can be escaped)
+static bool is_special_character(char character) {
+    return is_quote_character(character) ||
+        is_operand_character(character)
+    ;
 }
 
 static TokenType get_operand_token_type(const char *input, unsigned int operand_length) {
@@ -63,9 +71,13 @@ void debug_print_tokens(Token *tokens) {
     printf("\n\n");
 }
 
-Token *tokenize(const char *input) {
+ParseState *tokenize(const char *input) {
     unsigned int allocated_elements_count = INITIAL_BUFSIZE;
     unsigned int count = 0;
+
+    ParseState *parseState = callocate(sizeof(ParseState), 1, true);
+    init_parse_state(parseState, TYPE_TOKEN);
+
     Token *tokens = callocate(allocated_elements_count, sizeof(Token), true);
 
     for (unsigned int i = 0; input[i]; ) {
@@ -93,39 +105,44 @@ Token *tokenize(const char *input) {
             continue;
         }
 
+        // Subshells
+        if (is_subshell_character(current_char)) {
+
+        }
+
         // Words (with quote handling)
-        unsigned int j = i;
         char buffer[INITIAL_BUFSIZE_BIG] = {};
         unsigned int k = 0;
 
-        while (input[j] && !isspace((unsigned char)input[j]) && !is_operand_character(input[j])) {
-            if (input[j] == '\\' && is_quote_character(input[j + 1])) {
-                buffer[k++] = input[j++];
-                buffer[k++] = input[j++];
-                continue;
-            }
-
-            if (!is_quote_character(input[j])) {
-                buffer[k++] = input[j++];
+        while (input[i] && !isspace((unsigned char)input[i]) && !is_operand_character(input[i])) {
+            if (!is_quote_character(input[i])) {
+                // escaped characters add one more
+                if (input[i] == '\\' && is_special_character(input[i + 1])) {
+                    buffer[k++] = input[i++];
+                }
+                buffer[k++] = input[i++];
                 continue;
             }
 
             // Quote handling; put all arguments in token and retain quotes
-            char quote_character = input[j];
-            buffer[k++] = input[j++]; // Copy the opening quote
+            char quote_character = input[i];
+            buffer[k++] = input[i++]; // Copy the opening quote
 
             // Copy until we hit the matching closing quote or end of input
-            while (input[j] && input[j] != quote_character) {
-                buffer[k++] = input[j++];
+            while (input[i] && input[i] != quote_character) {
+                buffer[k++] = input[i++];
             }
 
-            if (input[j] == quote_character) {
-                buffer[k++] = input[j++];
+            if (input[i] == quote_character) {
+                buffer[k++] = input[i++];
+            } else {
+                // TODO: actually allow for PS2 and closing quotes
+                // Also, should the Tokenizer be the one to report that error?
+                report_error(parseState, (char *)"Syntax Error: Quote not closed");
             }
         }
         buffer[k] = '\0';
         tokens[count++] = (Token){TOKEN_WORD, strdup(buffer)};
-        i = j;
     }
 
     if (count + 1 >= allocated_elements_count) {
@@ -135,7 +152,9 @@ Token *tokenize(const char *input) {
 
     // EOF token
     tokens[count++] = (Token){TOKEN_EOF, nullptr};
-    return tokens;
+    parseState->parsable.tokens = tokens;
+
+    return parseState;
 }
 
 void cleanup_tokens(const Token *tokens) {

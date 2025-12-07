@@ -11,7 +11,7 @@ int last_exit_code = 0;
 void execute_ast_list(AST *astList) {
     bool should_run = true;
 
-    for (int i = 0; i < astList->list.count; i++) {
+    for (int i = 0; i < astList->list.pipeline_count; i++) {
         switch (astList->list.operators[i]) {
             case LIST_AND:
                 should_run = (last_exit_code == 0);

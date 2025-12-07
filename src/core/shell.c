@@ -4,6 +4,7 @@
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"
+#include "parser/parse_state.h"
 #include "parser/parser.h"
 #include "tokenizer/tokenizer.h"
 
@@ -22,35 +23,47 @@ void execute_input(char *original_input) {
         exit(0);
     }
 
+    // Early initialize variable for usage in cleanup
     char *mutated_input = strdup(original_input);
     mutate_original_input(&mutated_input);
 
-    const Token *tokens = tokenize(mutated_input);
-    const Token *baseTokenPointer = tokens;
+    ParseState *tokenParseState = nullptr;
+    ParseState *astParseState = nullptr;
+    const Token *baseTokenPointer = nullptr;
 
-    // empty input, cleanup
-    if (tokens[0].type == TOKEN_EOF) {
+    // mutating input failed, cleanup
+    if (!mutated_input) {
         goto cleanup;
     }
 
-    ASTParseState *parseState = convert_tokens_to_ast(&tokens);
-    AST *listAst = parseState->listAst;
+    tokenParseState = tokenize(mutated_input);
+    baseTokenPointer = tokenParseState->parsable.tokens;
 
-    if (parseState->error_count > 0) {
-        for (unsigned int i = 0; i < parseState->error_count; i++) {
-            fprintf(stderr, "%s\n", parseState->errors[i]);
-        }
+    // empty input, cleanup
+    if (baseTokenPointer->type == TOKEN_EOF) {
+        goto cleanup;
+    }
 
+    // errors, cleanup
+    if (print_errors(tokenParseState)) {
+        goto cleanup;
+    }
+
+    astParseState = convert_tokens_to_ast(&baseTokenPointer);
+    AST *listAst = astParseState->parsable.listAst;
+
+    // errors, cleanup
+    if (print_errors(astParseState)) {
         goto cleanup;
     }
 
     execute_ast_list(listAst);
 
 cleanup:
+    cleanup_parse_state(astParseState);
+    cleanup_parse_state(tokenParseState);
     cshr_history_append(original_input);
 
-    cleanup_ast_parse_state();
-    cleanup_tokens(baseTokenPointer);
     free(original_input);
     free(mutated_input);
 }

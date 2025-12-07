@@ -12,7 +12,7 @@
 
 int run_child_process_pipeline_ast(AST *pipeline) {
     int pipe_file_descriptor[2];
-    int number_of_commands = pipeline->pipeline.count;
+    int number_of_commands = pipeline->pipeline.command_count;
     // Setting file_descriptor to impossible initial value
     int previous_pipe_file_read_end = -1;
     int *pids = callocate(number_of_commands, sizeof(int), true);
