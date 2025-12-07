@@ -17,7 +17,6 @@ int run_child_process_pipeline_ast(AST *pipeline) {
     int previous_pipe_file_read_end = -1;
     int *pids = callocate(number_of_commands, sizeof(int), true);
     int *statuses = callocate(number_of_commands, sizeof(int), true);
-    int status = 0;
 
     for (unsigned int i = 0; i < number_of_commands; i++) {
         bool is_last_command = i + 1 == number_of_commands;
@@ -110,17 +109,29 @@ int run_child_process_pipeline_ast(AST *pipeline) {
         pids[i] = pid;
     }
 
-    // Wait for all children; If any process return a non-zero exit-code, return it
+    // Wait for all children; return the exit-code of the last process.
+    int last_status = 0;
     for (int j = 0; j < number_of_commands; j++) {
         waitpid(pids[j], &statuses[j], 0);
-        status = WEXITSTATUS(statuses[j]);
-        if (status != 0) {
-            break;
+
+        int current_status = 0;
+
+        if (WIFEXITED(statuses[j])) {
+            current_status = WEXITSTATUS(statuses[j]);
+        } else if (WIFSIGNALED(statuses[j])) {
+            current_status = 128 + WTERMSIG(statuses[j]);
+        } else {
+            current_status = -1;
+        }
+
+        // Track status of last command only
+        if (j == number_of_commands - 1) {
+            last_status = current_status;
         }
     }
 
     free(statuses);
     free(pids);
 
-    return status;
+    return last_status;
 }
