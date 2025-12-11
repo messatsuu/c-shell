@@ -82,14 +82,68 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
         // Builtins can run in child processes if they are piped
         if (is_builtin_command(simpleAst->simple.argv[0])) {
             run_builtin_command(simpleAst->simple.argv);
+            _exit(last_exit_code);
         } else {
             run_execvp(simpleAst->simple.argv);
+            _exit(127); // if this line is reached, execvp failed
         }
 
         // TODO: does this close correctly in the child-process context?
         if (redirect_fd != -1) {
             close(redirect_fd);
         }
+    }
+
+    // PARENT PROCESS
+    if (*previous_pipe_file_read_end != -1) {
+        close(*previous_pipe_file_read_end);
+    }
+    // If there is a next command in the pipeline, set up the read-end for the next child to read from
+    if (!is_last_command) {
+        close(pipe_file_descriptor[1]); // Close write end
+        *previous_pipe_file_read_end = pipe_file_descriptor[0];
+    }
+
+    return pid;
+}
+
+int execute_subshell(AST *subshellAst, bool is_last_command, int *previous_pipe_file_read_end) {
+    int pipe_file_descriptor[2];
+
+    if (!is_last_command) {
+        // Setup pipe to redirect STDIN/STDOUT
+        if (pipe(pipe_file_descriptor) == -1) {
+            perror("pipe error");
+            log_error_with_exit("pipe could not be created");
+        }
+    }
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    // CHILD PROCESS
+    if (pid == 0) {
+        // If a previous pipe's read-end is set to read from, duplicate it onto STDIN (and close the original)
+        if (*previous_pipe_file_read_end != -1) {
+            // Make previous read_end the new STDIN
+            dup2(*previous_pipe_file_read_end, STDIN_FILENO);
+            close(*previous_pipe_file_read_end);
+        }
+
+        // If not the last command, duplicate the pipe_file's write-end onto STDOUT (and close original one)
+        // Essentially making the pipe_file's write-end the new STDOUT (the execvp() writes to)
+        if (!is_last_command) {
+            close(pipe_file_descriptor[0]); // Close read end
+            dup2(pipe_file_descriptor[1], STDOUT_FILENO);
+            close(pipe_file_descriptor[1]);
+        }
+        // TODO: subshells can also redirect output; implement here
+
+        execute_node_type(subshellAst->subshell.list);
+        _exit(last_exit_code);
     }
 
     // PARENT PROCESS
@@ -116,18 +170,18 @@ void execute_pipeline(AST *pipelineAst) {
         bool is_last_command = i + 1 == number_of_commands;
         AST *command = pipelineAst->pipeline.commands[i];
 
-        if (command->type == NODE_SUBSHELL) {
-            execute_node_type(command);
-            // TODO: IMPLEMENT
-            return;
-        }
+        int pid = -1;
 
-        int pid = execute_simple(command, is_last_command, &previous_pipe_file_read_end);
-        // -1 signals no fork, so we return early
-        if (pid == -1) {
-            free(statuses);
-            free(pids);
-            return;
+        if (command->type == NODE_SUBSHELL) {
+            pid = execute_subshell(command, is_last_command, &previous_pipe_file_read_end);
+        } else {
+            pid = execute_simple(command, is_last_command, &previous_pipe_file_read_end);
+            // -1 signals no fork, so we return early
+            if (pid == -1) {
+                free(statuses);
+                free(pids);
+                return;
+            }
         }
 
         pids[i] = pid;
