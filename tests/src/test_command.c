@@ -132,6 +132,19 @@ static void test_exit_code_priority_handling(void **state) {
     assert_string_equal(buffer, "0");
 }
 
+static void test_subshell_create_seperate_env(void **state) {
+    // Setup
+    FILE *stdout_mock = get_mock_stdout_file();
+    char buffer[1024];
+
+    // Run
+    execute_input(strdup("cd /tmp && (cd .. && pwd) && pwd"));
+
+    // Assert
+    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    assert_string_equal(buffer, "/\n/tmp\n");
+}
+
 static int setup(void **state) {
     return 0;
 }
@@ -151,6 +164,7 @@ unsigned int run_suite_test_command() {
         cmocka_unit_test_setup_teardown(test_output_redirection, setup, teardown),
         cmocka_unit_test_setup_teardown(test_output_redirection_appending, setup, teardown),
         // cmocka_unit_test_setup_teardown(test_exit_code_priority_handling, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_subshell_create_seperate_env, setup, teardown),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
