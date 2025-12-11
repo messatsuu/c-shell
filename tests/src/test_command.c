@@ -145,6 +145,22 @@ static void test_subshell_create_seperate_env(void **state) {
     assert_string_equal(buffer, "/\n/tmp\n");
 }
 
+static void test_subshell_retains_var_env(void **state) {
+    // Setup
+    FILE *stdout_mock = get_mock_stdout_file();
+    char buffer[1024];
+
+    // Run
+    // env vars declared in parent-process are retained in subshell-env
+    execute_input(strdup("export my_var=420 ; (echo $my_var)"));
+    // env vars declared in subshell-env aren't retained in parent-process
+    execute_input(strdup("(export another_var=420) ; echo -n $another_var"));
+
+    // Assert
+    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    assert_string_equal(buffer, "420\n");
+}
+
 static int setup(void **state) {
     return 0;
 }
@@ -165,6 +181,7 @@ unsigned int run_suite_test_command() {
         cmocka_unit_test_setup_teardown(test_output_redirection_appending, setup, teardown),
         // cmocka_unit_test_setup_teardown(test_exit_code_priority_handling, setup, teardown),
         cmocka_unit_test_setup_teardown(test_subshell_create_seperate_env, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_subshell_retains_var_env, setup, teardown),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
