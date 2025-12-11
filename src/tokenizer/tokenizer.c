@@ -1,5 +1,6 @@
 #include "tokenizer/tokenizer.h"
 #include "parser/parse_state.h"
+#include "tokenizer/token.h"
 #include "utility.h"
 
 #include <ctype.h>
@@ -112,22 +113,24 @@ ParseState *tokenize(const char *input) {
 
         // Subshells
         if (is_subshell_character(current_char)) {
-            if (current_char == '(') {
-                if (strchr(&input[i], ')') == nullptr) {
-                    report_error(parseState, (char *)"Syntax Error: Unclosed (");
-                    goto return_parse_state;
-                }
-                tokens[count++] = (Token){TOKEN_SUBSHELL_START, strdup("(")};
-            } else if (current_char == ')') {
-                tokens[count++] = (Token){TOKEN_SUBSHELL_START, strdup("(")};
+            TokenType type = TOKEN_SUBSHELL_START;
+            if (current_char == ')') {
+                type = TOKEN_SUBSHELL_END;
             }
+            char *token = malloc(2 * sizeof(char));
+            token[0] = current_char;
+            token[1] = '\0';
+            tokens[count++] = (Token){type, token};
+
+            i++;
+            continue;
         }
 
         // Words (with quote handling)
         char buffer[INITIAL_BUFSIZE_BIG] = {};
         unsigned int k = 0;
 
-        while (input[i] && !isspace((unsigned char)input[i]) && !is_operand_character(input[i])) {
+        while (input[i] && !isspace((unsigned char)input[i]) && !is_operand_character(input[i]) && !is_subshell_character(input[i])) {
             if (!is_quote_character(input[i])) {
                 // escaped characters add one more
                 if (input[i] == '\\' && is_special_character(input[i + 1])) {

@@ -22,6 +22,7 @@ typedef struct Redirection {
 
 typedef enum {
     NODE_SIMPLE,
+    NODE_SUBSHELL,
     NODE_PIPELINE,
     NODE_LIST
 } NodeType;
@@ -38,19 +39,21 @@ typedef struct AST {
 
         struct {
             int command_count;
-            struct AST **commands;
+            struct AST **commands; // Either type simple or subshell
         } pipeline;
 
         struct {
             int pipeline_count;
             ListType *operators;
             struct AST **pipelines;
-            bool is_subshell; // if TRUE, executes argvs in a seperate environment
         } list;
+
+        struct {
+            struct AST *list;
+        } subshell;
     };
 } AST;
 
-void execute_ast_list(AST *astList);
-void cleanup_ast_list(AST *listAst);
+void cleanup_node_type(AST *astNode);
 
 #endif

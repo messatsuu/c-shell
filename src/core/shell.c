@@ -1,5 +1,6 @@
 #include "ast/ast.h"
 #include "core/shell.h"
+#include "ast/ast_executor.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"
@@ -56,7 +57,7 @@ void execute_input(char *original_input) {
         goto cleanup;
     }
 
-    execute_ast_list(listAst);
+    execute_node_type(listAst);
 
 cleanup:
     cleanup_parse_state(astParseState);

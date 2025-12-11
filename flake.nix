@@ -31,6 +31,12 @@
         '';
       };
 
+      # Make output available as "c-shell" binary
+      apps.${system}.c-shell = {
+        type = "app";
+        program = "${self.packages.${system}.default}/bin/c-shell";
+      };
+
       # Default package alias
       defaultPackage.${system} = self.packages.${system}.default;
 

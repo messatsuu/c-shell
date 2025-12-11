@@ -1,4 +1,5 @@
 #include "parser/parse_state.h"
+#include "ast/ast.h"
 #include "string.h"
 #include "tokenizer/tokenizer.h"
 #include "utility.h"
@@ -31,7 +32,7 @@ void cleanup_parse_state(ParseState *parseState) {
 
     switch (parseState->type) {
         case TYPE_AST:
-            cleanup_ast_list(parseState->parsable.listAst);
+            cleanup_node_type(parseState->parsable.listAst);
             break;
         case TYPE_TOKEN:
             cleanup_tokens(parseState->parsable.tokens);
