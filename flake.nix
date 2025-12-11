@@ -27,7 +27,7 @@
 
         installPhase = ''
           mkdir -p $out/bin
-          cp bin/main $out/bin/c-shell
+          cp bin/main $out/bin/csh
         '';
       };
 
