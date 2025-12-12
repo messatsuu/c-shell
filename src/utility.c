@@ -19,7 +19,6 @@ void log_error(const char *format, ...) {
     va_start(args, format);
 
     // NOTE: Can this cause issues if the called function did not write to perror?
-    perror("");
     if (vfprintf(stderr, format, args) < 0) {
         perror("Error writing to stderr");
     }

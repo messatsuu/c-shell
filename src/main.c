@@ -6,9 +6,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <utility.h>
 #include <wait.h>
+
+extern bool continue_execution;
 
 // On SIGINT, flush terminal input and print PS1
 void handle_sigint(int signal) {
@@ -41,8 +44,27 @@ void initialize_shell() {
     setenv("SHELL", path, true);
 
     // Set secondary prompt string (displayed on e.g. unclosed quotes)
-    // TODO: implement in c-shell-read
     setenv("PS2",  " > ", true);
+
+    // Set the shell-level correctly
+    char *shell_level = getenv("SHLVL");
+    char shell_level_str[INITIAL_BUFSIZE];
+    long level = 1;
+
+    if (shell_level) {
+        // If env-var is found, add it to 1
+        level += strtol(shell_level, NULL, 10);
+    }
+
+    if (level > 1000) {
+        log_error("warning: shell level (%d) too high, resetting to 1\n", level);
+        level = 1;
+    } else if (level < 0) {
+        level = 0;
+    }
+
+    snprintf(shell_level_str, sizeof(shell_level_str), "%ld", level);
+    setenv("SHLVL", shell_level_str, 1);
 }
 
 int main() {
@@ -50,7 +72,7 @@ int main() {
     initialize_shell();
     atexit(cleanup);
 
-    while (true) {
+    while (continue_execution) {
         char *original_input = cshr_read_input(get_prompt());
         execute_input(original_input);
     }

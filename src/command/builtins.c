@@ -13,6 +13,7 @@
 #define MAX_ENV_VAR_VALUE 65536 // 64 KB
 
 extern int last_exit_code;
+bool continue_execution = true;
 
 const char *builtin_commands[] = {
     "cd",
@@ -64,14 +65,12 @@ int run_builtin_command(char **argv) {
 
         setenv("PWD", cwd, 1);
     } else if (strcmp("exit", argv[0]) == 0) {
-        // TODO: when exiting here, memory from execute_command() does not get freed
-        exit(0);
+        continue_execution = false;
     } else if (strcmp("history", argv[0]) == 0) {
         cshr_print_history();
     } else if (strcmp("last_exit_code", argv[0]) == 0) {
         printf("Last exit code: %d\n", last_exit_code);
     } else if (strcmp("export", argv[0]) == 0) {
-        // TODO: Change parser.c to work with "". Currently `export foo=";bar"` breaks
         char *equal_sign = strchr(argv[1], '=');
         if (equal_sign == NULL) {
             return 0;
