@@ -60,14 +60,22 @@ char *get_prompt() {
             case 'u': {
                 char *env = getenv("USER");
                 if (env != NULL) {
-                    strncpy(special_field, env, sizeof(special_field));
+                    strncpy(special_field, env, sizeof(special_field) -1);
+                    special_field[sizeof(special_field) - 1] = '\0';
                 }
                 break;
             }
             case 'w': {
-                char *env = getenv("PWD");
-                if (env != NULL) {
-                    strncpy(special_field, env, sizeof(special_field));
+                const char *pwd = getenv("PWD");
+                const char *home = getenv("HOME");
+
+                if (pwd) {
+                    strncpy(special_field, pwd, sizeof(special_field) - 1);
+                    special_field[sizeof(special_field) - 1] = '\0';
+
+                    if (home) {
+                        replace_first_inplace(special_field, sizeof(special_field), home, "~");
+                    }
                 }
                 break;
             }

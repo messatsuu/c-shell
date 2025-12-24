@@ -17,6 +17,7 @@
 
 extern int last_exit_code;
 
+// Main Loop of the shell
 void execute_input(char *original_input) {
     // GNU readline and c-shell-read both return NULL on EOF (CTRL+D), should this be handled differently?
     if (original_input == NULL) {

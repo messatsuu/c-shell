@@ -97,3 +97,22 @@ void cleanup() {
 ssize_t get_host_name(char *name, size_t len) {
     return gethostname(name, len);
 }
+
+void replace_first_inplace(char *string, size_t bufsize, const char *sub_string, const char *replace) {
+    char *sub_string_position = strstr(string, sub_string);
+    if (!sub_string_position) {
+        return;
+    }
+
+    unsigned int sub_string_length = strlen(sub_string);
+    unsigned int replace_length = strlen(replace);
+    unsigned int after_sub_string_length = strlen(sub_string_position + sub_string_length);
+
+    // return if we don't have enough space
+    if (replace_length > sub_string_length && strlen(string) + (replace_length - sub_string_length) + 1 > bufsize) {
+        return;
+    }
+
+    memmove(sub_string_position + replace_length, sub_string_position + sub_string_length, after_sub_string_length + 1);
+    memcpy(sub_string_position, replace, replace_length);
+}

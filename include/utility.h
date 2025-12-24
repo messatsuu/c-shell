@@ -33,4 +33,8 @@ void cleanup();
 
 ssize_t get_host_name(char *name, size_t len);
 
+// Replaces the first occurence of a substring in a (writable) heap-allocated string in-place
+// returns early if not enough space for the replace-string is considered
+void replace_first_inplace(char *string, size_t bufsize, const char *sub_string, const char *replace);
+
 #endif
