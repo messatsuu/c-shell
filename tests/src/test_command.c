@@ -49,19 +49,34 @@ static void test_chained_command_output(void **state) {
     assert_string_equal(buffer, "OR\nSEMI\n");
 }
 
-static void test_quote_handling(void **state) {
+static void test_double_quote_handling(void **state) {
     // Setup
     FILE *stdout_mock = get_mock_stdout_file();
     char buffer[1024];
 
     // Run
-    // Input: echo \" ; echo "''"
-    execute_input(strdup("echo \\\\\" ; echo \"''\""));
+    // Input: export FOO=bar && echo \" ; echo "'$FOO'"
+    execute_input(strdup("export FOO=bar && echo \\\" ; echo \"'$FOO'\""));
 
     // Assert
-    // Output: "\n''\n
+    // Output: \"\n'bar'\n
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
-    assert_string_equal(buffer, "\\\"\n''\n");
+    assert_string_equal(buffer, "\"\n'bar'\n");
+}
+
+static void test_single_quote_handling(void **state) {
+    // Setup
+    FILE *stdout_mock = get_mock_stdout_file();
+    char buffer[1024];
+
+    // Run
+    // Input: export FOO=bar && echo \' ; echo '"$FOO"'
+    execute_input(strdup("export FOO=bar && echo \\' ; echo '\"$FOO\"'"));
+
+    // Assert
+    // Output: '\n'bar'\n
+    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    assert_string_equal(buffer, "'\n\"$FOO\"\n");
 }
 
 static void test_argument_handling(void **state) {
@@ -175,7 +190,8 @@ unsigned int run_suite_test_command() {
         cmocka_unit_test_setup_teardown(test_echo_output, setup, teardown),
         cmocka_unit_test_setup_teardown(test_piped_command_output, setup, teardown),
         cmocka_unit_test_setup_teardown(test_chained_command_output, setup, teardown),
-        cmocka_unit_test_setup_teardown(test_quote_handling, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_double_quote_handling, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_single_quote_handling, setup, teardown),
         cmocka_unit_test_setup_teardown(test_argument_handling, setup, teardown),
         cmocka_unit_test_setup_teardown(test_output_redirection, setup, teardown),
         cmocka_unit_test_setup_teardown(test_output_redirection_appending, setup, teardown),

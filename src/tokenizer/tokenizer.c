@@ -20,11 +20,16 @@ static bool is_quote_character(char character) {
     return (character == '\'' || character == '\"');
 }
 
+static bool is_escape_character(char character) {
+    return character == '\\';
+}
+
 // Checks if a character is considered a "special character" (characters that can be escaped)
 static bool is_special_character(char character) {
     return is_quote_character(character) ||
         is_operand_character(character) ||
-        is_subshell_character(character)
+        is_subshell_character(character) ||
+        is_escape_character(character)
     ;
 }
 

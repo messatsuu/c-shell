@@ -24,6 +24,11 @@ void execute_input(char *original_input) {
         exit(0);
     }
 
+    if (strlen(original_input) == 0) {
+        free(original_input);
+        return;
+    }
+
     // Early initialize variable for usage in cleanup
     char *mutated_input = strdup(original_input);
     mutate_original_input(&mutated_input);

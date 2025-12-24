@@ -18,6 +18,11 @@ const char escapable_characters[] = {
     '`' // TODO: this should invoke sub-context commands
 };
 
+const char quote_characters[] = {
+    '\"',
+    '\'',
+};
+
 // Convert an env variable from input to its value and concatenate into `buffer`.
 // Return -1 on error, 0 on success
 int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
@@ -90,11 +95,20 @@ char get_escapable_character(char character) {
         }
     }
 
-    // TODO: Is returning 0 for failure really a good idea?
-    return 0;
+    return -1;
 }
 
-void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, bool remove_quotes) {
+char get_quote_character(char character) {
+    for (unsigned int i = 0; i < (sizeof(quote_characters) / sizeof(quote_characters[0])); i++) {
+        if (character == escapable_characters[i]) {
+            return character;
+        }
+    }
+
+    return -1;
+}
+
+void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, bool remove_quotes, bool handle_vars) {
     // initial position is considered the quote-character
     char quote_character = **pointer;
     if (!remove_quotes) {
@@ -110,6 +124,11 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
         if (*index > *buffer_size - 1) {
             *buffer = reallocate_safe(*buffer, *buffer_size, *buffer_size + BUF_EXPANSION_SIZE, true);
             *buffer_size += BUF_EXPANSION_SIZE;
+        }
+
+        if (handle_vars && **pointer == '$') {
+            convert_env_var(pointer, buffer, buffer_size, index);
+            continue;
         }
 
         // Break on closing quote
@@ -157,7 +176,7 @@ void mutate_original_input(char **input) {
 
         char quote_character = get_escapable_character(*pointer);
         if (quote_character) {
-            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false);
+            handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false, false);
             continue;
         }
 
@@ -210,15 +229,19 @@ void convert_argv(char **argv) {
                 buffer = temp;
             }
 
-            if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
+            if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != -1) {
                 buffer[index++] = *(pointer + 1);
                 pointer += 2;
                 continue;
             }
 
-            char quote_character = get_escapable_character(*pointer);
-            if (quote_character) {
-                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, true);
+            char quote_character = get_quote_character(*pointer);
+            if (quote_character != -1) {
+                bool handle_vars = true;
+                if (quote_character == '\'') {
+                    handle_vars = false;
+                }
+                handle_quoted_string(&pointer, &buffer, &buffer_size, &index, true, handle_vars);
                 continue;
             }
 
@@ -235,7 +258,8 @@ void convert_argv(char **argv) {
 
             if (*pointer == '$') {
                 if (convert_env_var(&pointer, &buffer, &buffer_size, &index) == -1) {
-                    free(buffer);
+                    // TODO: handle this correctly
+                    // free(buffer);
                     // return nullptr;
                 }
                 continue;
