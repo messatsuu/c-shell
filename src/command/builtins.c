@@ -87,7 +87,7 @@ int run_builtin_alias(char **argv) {
     }
 
     unsigned int argc = 1;
-    while (argc[argv] != nullptr) {
+    while (argv[argc] != nullptr) {
 
         char *equal_sign = strchr(argv[argc], '=');
         if (equal_sign == nullptr) {
@@ -103,6 +103,7 @@ int run_builtin_alias(char **argv) {
 
         strncpy(alias_name, argv[argc], equal_sign - argv[argc]);
         strncpy(command, equal_sign + 1, MAX_ALIAS_COMMAND - 1);
+
         if (add_alias(alias_name, command) != 0) {
             return 1;
         }

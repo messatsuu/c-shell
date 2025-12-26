@@ -96,7 +96,7 @@ char get_escapable_character(char character) {
         }
     }
 
-    return -1;
+    return 0;
 }
 
 char get_quote_character(char character) {
@@ -106,7 +106,7 @@ char get_quote_character(char character) {
         }
     }
 
-    return -1;
+    return 0;
 }
 
 void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, bool remove_quotes, bool handle_vars) {
@@ -195,7 +195,7 @@ void mutate_original_input(char **input) {
         }
 
         char quote_character = get_escapable_character(*pointer);
-        if (quote_character) {
+        if (quote_character != 0) {
             handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false, false);
             continue;
         }
@@ -249,14 +249,14 @@ void convert_argv(char **argv) {
                 buffer = temp;
             }
 
-            if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != -1) {
+            if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
                 buffer[index++] = *(pointer + 1);
                 pointer += 2;
                 continue;
             }
 
             char quote_character = get_quote_character(*pointer);
-            if (quote_character != -1) {
+            if (quote_character != 0) {
                 bool handle_vars = true;
                 if (quote_character == '\'') {
                     handle_vars = false;

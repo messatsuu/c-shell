@@ -38,6 +38,11 @@ int add_alias(char *name, char *command) {
         init_aliases();
     }
 
+    if (strchr(name, ' ')) {
+        log_error("Alias name \"%s\" cannot contain spaces", name);
+        return 1;
+    }
+
     AliasEntry *existingEntry = get_alias_entry(name, nullptr);
     if (existingEntry) {
         free(existingEntry->command);
