@@ -1,4 +1,5 @@
 #include "command/builtins.h"
+#include "command/alias.h"
 #include "cshread/history.h"
 #include <utility.h>
 
@@ -61,7 +62,7 @@ int run_builtin_export(char **argv) {
         return 0;
     }
 
-    size_t name_len = equal_sign - argv[1];
+    unsigned int name_len = equal_sign - argv[1];
     if (name_len >= MAX_ENV_VAR_NAME) {
         log_error("export: environment variable name too long");
         return 1;
@@ -80,11 +81,61 @@ int run_builtin_export(char **argv) {
     return 0;
 }
 
+int run_builtin_alias(char **argv) {
+    if (argv[1] == nullptr) {
+        return print_aliases();
+    }
+
+    unsigned int argc = 1;
+    while (argc[argv] != nullptr) {
+
+        char *equal_sign = strchr(argv[argc], '=');
+        if (equal_sign == nullptr) {
+            if (print_alias(argv[argc++]) != 0) {
+                return 1;
+            }
+            continue;
+        }
+
+        // equal-sign found in argv, add alias
+        char alias_name[MAX_ALIAS_NAME] = {0};
+        char command[MAX_ALIAS_COMMAND] = {0};
+
+        strncpy(alias_name, argv[argc], equal_sign - argv[argc]);
+        strncpy(command, equal_sign + 1, MAX_ALIAS_COMMAND - 1);
+        if (add_alias(alias_name, command) != 0) {
+            return 1;
+        }
+        argc++;
+    }
+
+    return 0;
+}
+
+int run_builtin_unalias(char **argv) {
+    if (argv[1] == nullptr) {
+        printf("unalias: usage: unalias [-a] name [name ...]");
+        return 1;
+    }
+    // TODO: implement -a flag
+
+    unsigned int argc = 1;
+    while (argv[argc] != nullptr) {
+        if (remove_alias(argv[argc++]) != 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 const BuiltinCommand builtin_commands[] = {
     {"cd", run_builtin_cd},
     {"history", run_builtin_history },
     {"exit", run_builtin_exit },
-    {"export", run_builtin_export }
+    {"export", run_builtin_export },
+    {"alias", run_builtin_alias},
+    {"unalias", run_builtin_unalias},
 };
 
 // bytes in struct-array divided by number of bytes of a single struct is the number of pointers

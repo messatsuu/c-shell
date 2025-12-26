@@ -26,7 +26,7 @@ void *reallocate_safe(void *pointer, unsigned int old_size, unsigned int new_siz
 void *allocate(size_t size, bool exit);
 
 // Wrapper around calloc that exits with a message to stderr when calloc fails
-void *callocate(unsigned int number_of_bytes, size_t size, bool exit);
+void *callocate(unsigned int number_of_elements, size_t size, bool exit);
 
 // Simple function that calls all other cleanup functions
 void cleanup();

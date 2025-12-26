@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "command/alias.h"
 #include "cshread/history.h"
 #include <utility.h>
 
@@ -149,6 +150,25 @@ void mutate_original_input(char **input) {
     unsigned int buffer_size = INITIAL_BUFSIZE;
     char *buffer = callocate(buffer_size, 1, true);
     unsigned long index = 0;
+
+    // replace alias in string
+    char *first_space=strchr(*input, ' ');
+    unsigned int first_word_length = first_space ? first_space - *input : strlen(*input);
+    char *first_word = calloc(1, INITIAL_BUFSIZE);
+    strncpy(first_word, *input, first_word_length);
+
+    AliasEntry *aliasEntry = get_alias_entry(first_word, nullptr, true);
+    if (aliasEntry != nullptr) {
+        unsigned int input_size = strlen(*input);
+
+        // Guarantee enough space in input for replacing alias
+        if (strlen(aliasEntry->command) > strlen(first_word)) {
+            input_size = strlen(*input) + strlen(aliasEntry->command) - strlen(first_word) + 1;
+            *input = reallocate(*input, input_size, true);
+        }
+        replace_first_inplace(*input, input_size, first_word, aliasEntry->command);
+    }
+    free(first_word);
 
     for (char *pointer = *input; *pointer != '\0';) {
         // If the buffer is full, reallocate memory

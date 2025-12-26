@@ -1,5 +1,6 @@
 // #include "input/history.h"
 #include "utility.h"
+#include "command/alias.h"
 
 #include <cshread/cshread.h>
 #include <stdarg.h>
@@ -77,8 +78,8 @@ void *allocate(size_t size, bool exit) {
     return allocation_result;
 }
 
-void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
-    void *callocation_result = calloc(number_of_bytes, size);
+void *callocate(unsigned int number_of_elements, size_t size, bool exit) {
+    void *callocation_result = calloc(number_of_elements, size);
     if (!callocation_result) {
         if (exit) {
             log_error_with_exit("Zero-Value Allocation Error");
@@ -91,6 +92,7 @@ void *callocate(unsigned int number_of_bytes, size_t size, bool exit) {
 
 void cleanup() {
     cshr_history_cleanup();
+    cleanup_aliases();
 }
 
 // Wrapper function to override in testing (statically linked glibc-functions cannot be overriden in github actions?)
