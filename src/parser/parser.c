@@ -157,7 +157,7 @@ void mutate_original_input(char **input) {
     char *first_word = calloc(1, INITIAL_BUFSIZE);
     strncpy(first_word, *input, first_word_length);
 
-    AliasEntry *aliasEntry = get_alias_entry(first_word, nullptr, true);
+    AliasEntry *aliasEntry = get_alias_entry_recursive(first_word, nullptr);
     if (aliasEntry != nullptr) {
         unsigned int input_size = strlen(*input);
 

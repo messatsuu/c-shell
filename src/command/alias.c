@@ -38,7 +38,7 @@ int add_alias(char *name, char *command) {
         init_aliases();
     }
 
-    AliasEntry *existingEntry = get_alias_entry(name, nullptr, false);
+    AliasEntry *existingEntry = get_alias_entry(name, nullptr);
     if (existingEntry) {
         free(existingEntry->command);
         existingEntry->command = strdup(command);
@@ -61,7 +61,7 @@ int add_alias(char *name, char *command) {
     return 0;
 }
 
-AliasEntry *get_alias_entry(const char *name, unsigned int *index, bool recursive) {
+AliasEntry *get_alias_entry(const char *name, unsigned int *index) {
     if (aliases == nullptr) {
         return nullptr;
     }
@@ -74,17 +74,38 @@ AliasEntry *get_alias_entry(const char *name, unsigned int *index, bool recursiv
                 *index = i;
             }
 
-            if (!recursive) {
-                return aliasEntry;
-            }
-
-            AliasEntry *recursiveEntry = get_alias_entry(aliasEntry->command, index, recursive);
-            return recursiveEntry != nullptr ? recursiveEntry : aliasEntry ;
+            return aliasEntry;
         }
     }
 
 
     return nullptr;
+}
+
+AliasEntry *get_alias_entry_recursive(const char *name, unsigned int *index) {
+    AliasEntry *finalEntry = nullptr;
+    AliasEntry *aliasEntry = nullptr;
+
+    const char **visited = callocate(INITIAL_BUFSIZE, sizeof(char *), true);
+    unsigned int visited_count = 0;
+
+    while ((aliasEntry = get_alias_entry(name, index)) != nullptr) {
+        name = aliasEntry->command;
+
+        // If we already traversed this entry, return null
+        for (unsigned int i = 0; i < visited_count; i++) {
+            if (strcmp(visited[i], name) == 0) {
+                free(visited);
+                return nullptr;
+            }
+        }
+        visited[visited_count++] = name;
+        finalEntry = aliasEntry;
+    }
+
+    free(visited);
+
+    return finalEntry;
 }
 
 int remove_alias(char *name) {
@@ -94,7 +115,7 @@ int remove_alias(char *name) {
     }
 
     unsigned int index = -1;
-    AliasEntry *aliasEntry = get_alias_entry(name, &index, false);
+    AliasEntry *aliasEntry = get_alias_entry(name, &index);
     if (aliasEntry == nullptr) {
         log_error("No alias found with name \"%s\"", name);
         return 1;
@@ -120,7 +141,7 @@ int print_alias(char *name) {
         return 1;
     }
 
-    AliasEntry *aliasEntry = get_alias_entry(name, nullptr, false);
+    AliasEntry *aliasEntry = get_alias_entry(name, nullptr);
 
     if (aliasEntry == nullptr) {
         log_error("No alias found with name \"%s\"", name);

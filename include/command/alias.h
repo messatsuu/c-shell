@@ -15,7 +15,9 @@ typedef struct {
     AliasEntry **entries;
 } Aliases;
 
-AliasEntry *get_alias_entry(const char *name, unsigned int *index, bool recursive);
+AliasEntry *get_alias_entry(const char *name, unsigned int *index);
+AliasEntry *get_alias_entry_recursive(const char *name, unsigned int *index);
+
 int add_alias(char *name, char *command);
 int remove_alias(char *name);
 
