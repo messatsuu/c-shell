@@ -75,11 +75,11 @@ int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_
     int command_length = strlen(command_from_history);
 
     if (*index + command_length >= *buffer_size - 1) {
-        // TODO: handle realloc error gracefully
+        int current_size = *buffer_size;
         while ((*buffer_size - 1) < *index + command_length) {
             *buffer_size += BUF_EXPANSION_SIZE;
         }
-        *buffer = reallocate(*buffer, *buffer_size, true);
+        *buffer = reallocate_safe(*buffer, current_size, *buffer_size, true);
     }
 
     strcat(*buffer, command_from_history);
@@ -116,6 +116,10 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
         (*buffer)[(*index)++] = **pointer;
     }
 
+    if (quote_character == '(') {
+        quote_character = ')';
+    }
+
     // skip leading quote
     (*pointer)++;
 
@@ -133,7 +137,7 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
         }
 
         // Break on closing quote
-        if (get_escapable_character(**pointer) == quote_character) {
+        if (**pointer == quote_character) {
             if (!remove_quotes) {
                 (*buffer)[(*index)++] = **pointer;
                 (*pointer)++;
@@ -151,25 +155,6 @@ void mutate_original_input(char **input) {
     char *buffer = callocate(buffer_size, 1, true);
     unsigned long index = 0;
 
-    // replace alias in string
-    char *first_space=strchr(*input, ' ');
-    unsigned int first_word_length = first_space ? first_space - *input : strlen(*input);
-    char *first_word = calloc(1, INITIAL_BUFSIZE);
-    strncpy(first_word, *input, first_word_length);
-
-    AliasEntry *aliasEntry = get_alias_entry_recursive(first_word, nullptr);
-    if (aliasEntry != nullptr) {
-        unsigned int input_size = strlen(*input);
-
-        // Guarantee enough space in input for replacing alias
-        if (strlen(aliasEntry->command) > strlen(first_word)) {
-            input_size = strlen(*input) + strlen(aliasEntry->command) - strlen(first_word) + 1;
-            *input = reallocate(*input, input_size, true);
-        }
-        replace_first_inplace(*input, input_size, first_word, aliasEntry->command);
-    }
-    free(first_word);
-
     for (char *pointer = *input; *pointer != '\0';) {
         // If the buffer is full, reallocate memory
         if (index >= buffer_size - 1) {
@@ -185,6 +170,7 @@ void mutate_original_input(char **input) {
             buffer = temp;
         }
 
+        // always add an escapable char if it is preceeded with '\'
         if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
             buffer[index++] = *pointer;
             pointer++;
@@ -194,12 +180,14 @@ void mutate_original_input(char **input) {
             continue;
         }
 
+        // Do not do additional parsing for quoted strings
         char quote_character = get_escapable_character(*pointer);
         if (quote_character != 0) {
             handle_quoted_string(&pointer, &buffer, &buffer_size, &index, false, false);
             continue;
         }
 
+        // If pointer is '!', add history-entry with given index
         if (*pointer == '!') {
             if (convert_history_command(&pointer, &buffer, &buffer_size, &index) == -1) {
                 free(buffer);

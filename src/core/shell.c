@@ -1,6 +1,7 @@
 #include "ast/ast.h"
 #include "core/shell.h"
 #include "ast/ast_executor.h"
+#include "command/alias.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"
@@ -31,6 +32,9 @@ void execute_input(char *original_input) {
 
     // Early initialize variable for usage in cleanup
     char *mutated_input = strdup(original_input);
+    if (expand_aliases(&mutated_input)) {
+        printf("%s\n", mutated_input);
+    }
     mutate_original_input(&mutated_input);
 
     ParseState *tokenParseState = nullptr;

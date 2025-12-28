@@ -1,6 +1,7 @@
 #include "command/alias.h"
 #include "string.h"
 #include "utility.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,7 +10,7 @@ Aliases *aliases = nullptr;
 void init_aliases() {
     aliases = callocate(sizeof(Aliases), 1, true);
     aliases->count = 0;
-    aliases->capacity = INITIAL_BUFSIZE;
+    aliases->capacity = INITIAL_BUFSIZE * sizeof(AliasEntry *);
     aliases->entries = callocate(INITIAL_BUFSIZE, sizeof(AliasEntry *), true);
 }
 
@@ -50,12 +51,7 @@ int add_alias(char *name, char *command) {
         return 0;
     }
 
-    // reallocate if needed
-    if (aliases->count + 1 > aliases->capacity) {
-        unsigned int new_capacity = aliases->capacity * 2;
-        aliases->entries = reallocate_safe(aliases->entries, aliases->capacity * sizeof(AliasEntry *), new_capacity * sizeof(AliasEntry *), true);
-        aliases->capacity = new_capacity;
-    }
+    ensure_capacity((void **)&aliases->entries, &aliases->capacity, aliases->count * sizeof(AliasEntry *), sizeof(AliasEntry *));
 
     AliasEntry *aliasEntry = callocate(1, sizeof(AliasEntry), true);
     aliasEntry->name = strdup(name);
@@ -170,4 +166,29 @@ int print_aliases() {
     }
 
     return 0;
+}
+
+bool expand_aliases(char **input) {
+    char *first_space=strchr(*input, ' ');
+    unsigned int first_word_length = first_space ? first_space - *input : strlen(*input);
+    char *first_word = calloc(1, INITIAL_BUFSIZE);
+    strncpy(first_word, *input, first_word_length);
+
+    AliasEntry *aliasEntry = get_alias_entry_recursive(first_word, nullptr);
+    if (aliasEntry == nullptr) {
+        free(first_word);
+        return false;
+    }
+
+    size_t input_length = strlen(*input) + 1;
+    int needed = strlen(aliasEntry->command) - strlen(first_word);
+    if (needed > 0) {
+        // Guarantee enough space in input for replacing alias
+        ensure_capacity((void **)input, &input_length, input_length, needed);
+    }
+
+    replace_first_inplace(*input, input_length, first_word, aliasEntry->command);
+    free(first_word);
+
+    return true;
 }

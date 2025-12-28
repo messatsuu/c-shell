@@ -7,7 +7,7 @@
 // Default Variables used across the platform
 #define INITIAL_BUFSIZE 20
 #define INITIAL_BUFSIZE_BIG 1024
-#define BUF_EXPANSION_SIZE 100
+#define BUF_EXPANSION_SIZE 128
 #define BUF_EXPANSION_SIZE_BIG 1024
 #define MAX_ARGUMENTS_SIZE 100
 
@@ -30,6 +30,33 @@ void *callocate(unsigned int number_of_elements, size_t size, bool exit);
 
 // Simple function that calls all other cleanup functions
 void cleanup();
+
+// static inline functions are declared in headers...
+static inline void ensure_capacity(void **buffer, size_t *capacity, unsigned int used, unsigned int needed) {
+    unsigned int required = used + needed;
+
+    if (required <= *capacity) {
+        return;
+    }
+
+    unsigned int new_capacity = *capacity ? *capacity : BUF_EXPANSION_SIZE;
+    while (new_capacity < required) {
+        if (new_capacity < INITIAL_BUFSIZE_BIG) {
+            new_capacity += BUF_EXPANSION_SIZE;
+        } else {
+            new_capacity *= 2;
+        }
+
+        // overflow check
+        if (new_capacity < *capacity) {
+            log_error_with_exit("integer overflow on reallocation");
+        }
+    }
+
+    *buffer = reallocate_safe(*buffer, *capacity, new_capacity, true);
+    *capacity = new_capacity;
+}
+
 
 ssize_t get_host_name(char *name, size_t len);
 

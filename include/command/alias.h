@@ -1,6 +1,8 @@
 #ifndef ALIAS_H
 #define ALIAS_H
 
+#include <stddef.h>
+
 #define MAX_ALIAS_NAME 255
 #define MAX_ALIAS_COMMAND 255
 
@@ -10,8 +12,8 @@ typedef struct {
 } AliasEntry;
 
 typedef struct {
-    unsigned int count;
-    unsigned int capacity;
+    unsigned int count; // number of allocated AliasEntrys
+    size_t capacity; // currently allocated size of the entries-buffer
     AliasEntry **entries;
 } Aliases;
 
@@ -25,5 +27,7 @@ void cleanup_aliases();
 
 int print_alias(char *name);
 int print_aliases();
+// replace aliases in string with minimal context-parsing
+bool expand_aliases(char **input);
 
 #endif
