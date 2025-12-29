@@ -1,6 +1,25 @@
 # C SHELL
 
 Small shell project to learn more about C. Interested in learning about POSIX standards.
+
+## Building from Source
+### On NixOS
+The project comes with a `flake.nix` that provides a dev-shell and a package-build for global installation.
+For generally running the project simply run
+```bash
+nix develop --command make build-run
+```
+The `flake.nix` should package and build the `.a`-files from the c-shell-read repository into `CPATH`, making it accessible to the Makefile (`-lcshread`).
+
+### On other Linux-Distros
+Requirements:
+Manually Clone and build the [c-shell-read](https://github.com/messatsuu/c-shell-read) library and add the resulting `.a`-file into `CPATH`.
+Note Clang needs to be installed.
+```bash
+make build-run
+```
+
+
 ## Current Architecture
 Currently the project is split into two repositories to mimic the Bash/GNU-readline relationship
 

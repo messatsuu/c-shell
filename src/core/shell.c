@@ -30,13 +30,13 @@ void execute_input(char *original_input) {
         return;
     }
 
-    // Early initialize variable for usage in cleanup
     char *mutated_input = strdup(original_input);
     if (expand_aliases(&mutated_input)) {
         printf("%s\n", mutated_input);
     }
     mutate_original_input(&mutated_input);
 
+    // Early initialize variable for usage in cleanup
     ParseState *tokenParseState = nullptr;
     ParseState *astParseState = nullptr;
     const Token *baseTokenPointer = nullptr;
