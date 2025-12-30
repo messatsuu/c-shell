@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <utility.h>
 
 #include "unistd.h"
@@ -14,16 +15,22 @@ int run_execvp(char **argv) {
     // TODO: refactor this
     // - call exec() manually 
     // - build a hash-table for lookups & caching (execvp() scans through $PATH on each call)
-    execvp(argv[0], argv);
+
+    // If first word contains a slash it's a path to a binary
+    if (strchr(argv[0], '/')) {
+        execve(argv[0], argv, nullptr);
+    } else {
+        execvp(argv[0], argv);
+    }
     switch (errno) {
         case ENOENT:
-            log_error("Command not found: %s\n", argv[0]);
+            log_error("Csh: Command not found: %s\n", argv[0]);
             exit(127);
         case EACCES:
-            log_error("Permission denied: %s\n", argv[0]);
+            log_error("Csh: Permission denied: %s\n", argv[0]);
             exit(126);
         default:
-            log_error("Error executing command: %s\n", argv[0]);
+            log_error("Csh: Error executing command: %s\n", argv[0]);
             perror("error");
             exit(1);
     }

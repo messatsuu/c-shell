@@ -1,5 +1,6 @@
 #include "command/alias.h"
 #include "string.h"
+#include "unistd.h"
 #include "utility.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -171,7 +172,7 @@ int print_aliases() {
 bool expand_aliases(char **input) {
     char *first_space=strchr(*input, ' ');
     unsigned int first_word_length = first_space ? first_space - *input : strlen(*input);
-    char *first_word = calloc(1, INITIAL_BUFSIZE);
+    char *first_word = calloc(1, first_word_length + 1);
     strncpy(first_word, *input, first_word_length);
 
     AliasEntry *aliasEntry = get_alias_entry_recursive(first_word, nullptr);
