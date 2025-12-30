@@ -73,8 +73,9 @@ graph LR
 ### C-Shell
 #### Parsing & AST-Structure
 - [x] Escaping characters correctly (`echo \'`)
+- [x] subshells (`(cd .. && pwd) && pwd`)
+- [ ] argument expansion (`echo $(echo foo)`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
-- [ ] sub-shells (`echo $(echo foo)`)
 - [ ] Implement more bash-syntax
     - [ ] variable declaration
     - [ ] for-loops
