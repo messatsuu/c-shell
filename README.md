@@ -74,6 +74,7 @@ graph LR
 #### Parsing & AST-Structure
 - [x] Escaping characters correctly (`echo \'`)
 - [x] subshells (`(cd .. && pwd) && pwd`)
+- [x] aliases (`alias ll='ls -la' ds='du -sh'`) (`unalias ll`)
 - [ ] argument expansion (`echo $(echo foo)`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
 - [ ] Implement more bash-syntax
