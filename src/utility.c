@@ -24,7 +24,10 @@ void log_error(const char *format, ...) {
         perror("Error writing to stderr");
     }
 
-    printf("\n");
+    if (fprintf(stderr, "\n") < 0) {
+        perror("Error writing to stderr");
+    }
+
     va_end(args);
 }
 

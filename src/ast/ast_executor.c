@@ -16,8 +16,32 @@ int last_exit_code = 0;
 
 void execute_node_type(AST *astNode);
 
+void redirect_to_file_descriptor(int *redirect_fd, Redirection *redirection) {
+    int file_mode = 0;
+    int used_fd = -1;
+
+    switch (redirection->type) {
+        case REDIR_OUT:
+            file_mode = O_WRONLY | O_CREAT | O_TRUNC;
+            used_fd = STDOUT_FILENO;
+            break;
+        case REDIR_OUT_APP:
+            file_mode = O_WRONLY | O_CREAT | O_APPEND;
+            used_fd = STDOUT_FILENO;
+            break;
+        case REDIR_IN:
+            file_mode = O_RDONLY;
+            used_fd = STDIN_FILENO;
+    }
+
+    *redirect_fd = open(redirection->redirect_filename, file_mode, 0644);
+    // Duplicate the redirect_fd onto STDOUT / STDIN
+    if (dup2(*redirect_fd, used_fd) < 0) perror("dup2");
+}
+
 int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file_read_end) {
     int pipe_file_descriptor[2];
+    int redirect_fd = -1;
     convert_argv(simpleAst->simple.argv);
 
     if (!is_last_command) {
@@ -27,9 +51,25 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
             log_error_with_exit("pipe could not be created");
         }
     } else if (is_builtin_command(simpleAst->simple.argv[0]) && *previous_pipe_file_read_end == -1) {
+        int saved_stdout_fd = -1;
         // If the command is a builtin and there are no pipes, we run it without forking
-        run_builtin_command(simpleAst->simple.argv);
-        return -1;
+        int exit_code = 0;
+        if (simpleAst->simple.redirection) {
+            saved_stdout_fd = dup(STDOUT_FILENO);
+            redirect_to_file_descriptor(&redirect_fd, simpleAst->simple.redirection);
+        }
+
+        exit_code = run_builtin_command(simpleAst->simple.argv);
+
+        if (saved_stdout_fd != -1) {
+            fflush(stdout);
+            close(redirect_fd);
+            // TODO: valgrind reports that STDOUT isn't closed properly since we modified it?
+            dup2(saved_stdout_fd, STDOUT_FILENO);
+            close(saved_stdout_fd);
+        }
+
+        return exit_code;
     }
 
     pid_t pid = fork();
@@ -40,8 +80,6 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
 
     // CHILD PROCESS
     if (pid == 0) {
-        int redirect_fd = -1;
-
         // If a previous pipe's read-end is set to read from, duplicate it onto STDIN (and close the original)
         if (*previous_pipe_file_read_end != -1) {
             // Make previous read_end the new STDIN
@@ -50,40 +88,19 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
         }
 
         // If not the last command, duplicate the pipe_file's write-end onto STDOUT (and close original one)
-        // Essentially making the pipe_file's write-end the new STDOUT (the execvp() writes to)
+        // Essentially making the pipe_file's write-end the new STDOUT (that execvp()/builtin writes to)
         if (!is_last_command) {
             close(pipe_file_descriptor[0]); // Close read end
             dup2(pipe_file_descriptor[1], STDOUT_FILENO); 
             close(pipe_file_descriptor[1]);
         } else if (simpleAst->simple.redirection != nullptr) {
-            Redirection *redirection = simpleAst->simple.redirection;
-            int file_mode = 0;
-            int used_fd = -1;
-
-            switch (redirection->type) {
-                case REDIR_OUT:
-                    file_mode = O_WRONLY | O_CREAT | O_TRUNC;
-                    used_fd = STDOUT_FILENO;
-                    break;
-                case REDIR_OUT_APP:
-                    file_mode = O_WRONLY | O_CREAT | O_APPEND;
-                    used_fd = STDOUT_FILENO;
-                    break;
-                case REDIR_IN:
-                    file_mode = O_RDONLY;
-                    used_fd = STDIN_FILENO;
-            }
-
-            redirect_fd = open(redirection->redirect_filename, file_mode, 0644);
-
-            // Duplicate the redirect_fd onto STDOUT / STDIN
-            dup2(redirect_fd, used_fd);
+            redirect_to_file_descriptor(&redirect_fd, simpleAst->simple.redirection);
         }
 
         // Builtins can run in child processes if they are piped
         if (is_builtin_command(simpleAst->simple.argv[0])) {
-            run_builtin_command(simpleAst->simple.argv);
-            _exit(last_exit_code);
+            unsigned int exit_code = run_builtin_command(simpleAst->simple.argv);
+            _exit(exit_code);
         } else {
             run_execvp(simpleAst->simple.argv);
             _exit(127); // if this line is reached, execvp failed

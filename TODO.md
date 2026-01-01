@@ -51,7 +51,5 @@
 - [ ] Handle Unicode input and display width
 - [ ] Support for combining characters or wide characters (e.g. Chinese?)
 
-- [ ] Look at POSIX Standards
-
 ## LINKS
 - [Build your own shell](https://github.com/tokenrove/build-your-own-shell)
