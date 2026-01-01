@@ -16,27 +16,35 @@ int last_exit_code = 0;
 
 void execute_node_type(AST *astNode);
 
-void redirect_to_file_descriptor(int *redirect_fd, Redirection *redirection) {
+void redirect_to_file_descriptor(int *redirect_fd, int *saved_target_fd, int *overriden_fd, Redirection *redirection) {
     int file_mode = 0;
-    int used_fd = -1;
+    int target_fd = -1;
 
     switch (redirection->type) {
         case REDIR_OUT:
             file_mode = O_WRONLY | O_CREAT | O_TRUNC;
-            used_fd = STDOUT_FILENO;
+            target_fd = STDOUT_FILENO;
             break;
         case REDIR_OUT_APP:
             file_mode = O_WRONLY | O_CREAT | O_APPEND;
-            used_fd = STDOUT_FILENO;
+            target_fd = STDOUT_FILENO;
             break;
         case REDIR_IN:
             file_mode = O_RDONLY;
-            used_fd = STDIN_FILENO;
+            target_fd = STDIN_FILENO;
     }
 
     *redirect_fd = open(redirection->redirect_filename, file_mode, 0644);
+
+    if (saved_target_fd != nullptr) {
+        *saved_target_fd = dup(target_fd);
+    }
+    if (overriden_fd != nullptr) {
+        *overriden_fd = target_fd;
+    }
+
     // Duplicate the redirect_fd onto STDOUT / STDIN
-    if (dup2(*redirect_fd, used_fd) < 0) perror("dup2");
+    if (dup2(*redirect_fd, target_fd) < 0) perror("dup2");
 }
 
 int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file_read_end) {
@@ -51,23 +59,23 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
             log_error_with_exit("pipe could not be created");
         }
     } else if (is_builtin_command(simpleAst->simple.argv[0]) && *previous_pipe_file_read_end == -1) {
-        int saved_stdout_fd = -1;
-        // If the command is a builtin and there are no pipes, we run it without forking
-        int exit_code = 0;
-        if (simpleAst->simple.redirection) {
-            saved_stdout_fd = dup(STDOUT_FILENO);
-            redirect_to_file_descriptor(&redirect_fd, simpleAst->simple.redirection);
+        if (!simpleAst->simple.redirection) {
+            return run_builtin_command(simpleAst->simple.argv);
         }
+
+        int saved_target_fd = -1;
+        int overriden_fd = -1;
+        int exit_code = 0;
+        // duplicate file's FD to STDOUT/STDIN
+        redirect_to_file_descriptor(&redirect_fd, &saved_target_fd, &overriden_fd, simpleAst->simple.redirection);
 
         exit_code = run_builtin_command(simpleAst->simple.argv);
+        fflush(stdout);
 
-        if (saved_stdout_fd != -1) {
-            fflush(stdout);
-            close(redirect_fd);
-            // TODO: valgrind reports that STDOUT isn't closed properly since we modified it?
-            dup2(saved_stdout_fd, STDOUT_FILENO);
-            close(saved_stdout_fd);
-        }
+        close(redirect_fd);
+        // TODO: valgrind reports that STDOUT isn't closed properly since we modified it?
+        dup2(saved_target_fd, overriden_fd);
+        close(saved_target_fd);
 
         return exit_code;
     }
@@ -94,7 +102,7 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
             dup2(pipe_file_descriptor[1], STDOUT_FILENO); 
             close(pipe_file_descriptor[1]);
         } else if (simpleAst->simple.redirection != nullptr) {
-            redirect_to_file_descriptor(&redirect_fd, simpleAst->simple.redirection);
+            redirect_to_file_descriptor(&redirect_fd, nullptr, nullptr, simpleAst->simple.redirection);
         }
 
         // Builtins can run in child processes if they are piped
