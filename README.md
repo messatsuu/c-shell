@@ -78,6 +78,7 @@ graph LR
 - [ ] argument expansion (`echo $(echo foo)`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
 - [ ] Implement more bash-syntax
+    - [ ] globbing (`ls /tmp/*swp`)
     - [ ] variable declaration
     - [ ] for-loops
     - [ ] while-loops

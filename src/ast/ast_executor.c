@@ -250,6 +250,7 @@ void execute_list(AST *astList) {
                 break;
             case LIST_OR:
                 should_run = (last_exit_code != 0);
+                break;
             default:
                 should_run = true;
         }
