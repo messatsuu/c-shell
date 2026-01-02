@@ -60,8 +60,27 @@ static void test_unalias(void **state) {
     char buffer[1024];
 
     // Run
-    execute_input(strdup("alias echo='echo works!'"));
+    execute_input(strdup("alias my_alias='echo works!'"));
     execute_input(strdup("my_alias"));
+    execute_input(strdup("unalias my_alias"));
+    execute_input(strdup("my_alias"));
+
+    // Assert
+    read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
+    assert_string_equal(buffer, "works!\n");
+}
+
+static void test_unalias_all(void **state) {
+    // Setup
+    FILE *stdout_mock = get_mock_stdout_file();
+    char buffer[1024];
+
+    // Run
+    execute_input(strdup("alias my_alias='echo works!' another_alias='echo works!'"));
+    execute_input(strdup("my_alias"));
+    execute_input(strdup("unalias -a"));
+    execute_input(strdup("my_alias"));
+    execute_input(strdup("another_alias"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
@@ -83,6 +102,7 @@ unsigned int run_suite_test_alias() {
         cmocka_unit_test_setup_teardown(test_recursive_alias_output, setup, teardown),
         cmocka_unit_test_setup_teardown(test_infinite_recursive_alias_stops_expansion, setup, teardown),
         cmocka_unit_test_setup_teardown(test_unalias, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_unalias_all, setup, teardown),
         // TODO: add more test cases when making non fork-n-exec'd output capturable
     };
 

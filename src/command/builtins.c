@@ -115,10 +115,13 @@ int run_builtin_alias(char **argv) {
 
 int run_builtin_unalias(char **argv) {
     if (argv[1] == nullptr) {
-        printf("unalias: usage: unalias [-a] name [name ...]");
+        printf("unalias: usage: unalias [-a] name [name ...]\n");
         return 1;
     }
-    // TODO: implement -a flag
+
+    if (strcmp(argv[1], "-a") == 0) {
+        return clear_aliases();
+    }
 
     unsigned int argc = 1;
     while (argv[argc] != nullptr) {

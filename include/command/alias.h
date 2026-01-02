@@ -22,6 +22,7 @@ AliasEntry *get_alias_entry_recursive(const char *name, unsigned int *index);
 
 int add_alias(char *name, char *command);
 int remove_alias(char *name);
+int clear_aliases();
 
 void cleanup_aliases();
 

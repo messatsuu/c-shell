@@ -137,6 +137,17 @@ int remove_alias(char *name) {
     return 0;
 }
 
+int clear_aliases() {
+    if (aliases == nullptr || aliases->count == 0) {
+        log_error("Alias-table is empty.");
+        return 1;
+    }
+
+    cleanup_aliases();
+    init_aliases();
+    return 0;
+}
+
 int print_alias(char *name) {
     if (aliases == nullptr) {
         log_error("Alias-table is empty.");
