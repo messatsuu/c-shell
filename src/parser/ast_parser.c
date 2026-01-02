@@ -61,18 +61,14 @@ AST *convert_simple(ParseState *parseState, const Token **tokens) {
     AST *simpleCommandAst = allocate(sizeof(AST), true);
     simpleCommandAst->type = NODE_SIMPLE;
 
-    unsigned int allocated_elements_count = INITIAL_BUFSIZE;
-    simpleCommandAst->simple.argv = (char **)callocate(allocated_elements_count, sizeof(char *), true);
+    size_t capactity = INITIAL_BUFSIZE * sizeof(char *);
+    simpleCommandAst->simple.argv = (char **)callocate(INITIAL_BUFSIZE, sizeof(char *), true);
     simpleCommandAst->simple.redirection = nullptr;
 
     unsigned int argc = 0;
 
     while ((*tokens)->type == TOKEN_WORD || (*tokens)->type == TOKEN_REDIRECT) {
-        // reallocate argv and double space if needed
-        if (argc >= allocated_elements_count - 1) {
-            simpleCommandAst->simple.argv = (char **)reallocate_safe(simpleCommandAst->simple.argv, allocated_elements_count * sizeof(char *), 2 * allocated_elements_count * sizeof(char *), true);
-            allocated_elements_count *= 2;
-        }
+        ensure_capacity((void **)&simpleCommandAst->simple.argv, &capactity, argc * sizeof(char *), sizeof(char *));
 
         if ((*tokens)->type == TOKEN_REDIRECT) {
             // Next token needs to be the redirect-file

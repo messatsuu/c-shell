@@ -46,12 +46,12 @@ static void test_infinite_recursive_alias_stops_expansion(void **state) {
 
     // Run
     execute_input(strdup("alias foo=bar bar=foo"));
-    execute_input(strdup("foo"));
+    execute_input(strdup("foo ; echo hehe"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
     // TODO: fix this once we can get output from non fork-n-exec'd child
-    assert_string_equal(buffer, "\n");
+    assert_string_equal(buffer, "hehe\n");
 }
 
 static void test_unalias(void **state) {

@@ -83,13 +83,13 @@ void debug_print_tokens(Token *tokens) {
 }
 
 ParseState *tokenize(const char *input) {
-    unsigned int allocated_elements_count = INITIAL_BUFSIZE;
+    size_t allocated_elements_capaticy = INITIAL_BUFSIZE * sizeof(Token);
     unsigned int count = 0;
 
     ParseState *parseState = callocate(sizeof(ParseState), 1, true);
     init_parse_state(parseState, TYPE_TOKEN);
 
-    Token *tokens = callocate(allocated_elements_count, sizeof(Token), true);
+    Token *tokens = callocate(INITIAL_BUFSIZE, sizeof(Token), true);
 
     for (unsigned int i = 0; input[i]; ) {
         const char current_char = input[i];
@@ -99,11 +99,9 @@ ParseState *tokenize(const char *input) {
             continue;
         }
 
+
         // Reallocate token-array if needed
-        if (count + 1 >= allocated_elements_count) {
-            tokens = reallocate_safe(tokens, allocated_elements_count * sizeof(Token), (allocated_elements_count * 2) * sizeof(Token), true);
-            allocated_elements_count *= 2;
-        }
+        ensure_capacity((void **)&tokens, &allocated_elements_capaticy, count * sizeof(Token), sizeof(Token));
 
         // Operators
         if (is_operand_character(current_char)) {
@@ -167,10 +165,8 @@ ParseState *tokenize(const char *input) {
         tokens[count++] = (Token){TOKEN_WORD, strdup(buffer)};
     }
 
-    if (count + 1 >= allocated_elements_count) {
-        tokens = reallocate_safe(tokens, allocated_elements_count * sizeof(Token), (allocated_elements_count * 2) * sizeof(Token), true);
-        allocated_elements_count *= 2;
-    }
+    // ensure we have enough capacity for the EOF-Token
+    ensure_capacity((void **)&tokens, &allocated_elements_capaticy, count * sizeof(Token), sizeof(Token));
 
 return_parse_state:
     // EOF token

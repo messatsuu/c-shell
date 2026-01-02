@@ -24,13 +24,13 @@ int run_execvp(char **argv) {
     }
     switch (errno) {
         case ENOENT:
-            log_error("Csh: Command not found: %s\n", argv[0]);
+            log_error("csh: Command not found: %s\n", argv[0]);
             exit(127);
         case EACCES:
-            log_error("Csh: Permission denied: %s\n", argv[0]);
+            log_error("csh: Permission denied: %s\n", argv[0]);
             exit(126);
         default:
-            log_error("Csh: Error executing command: %s\n", argv[0]);
+            log_error("csh: Error executing command: %s\n", argv[0]);
             perror("error");
             exit(1);
     }

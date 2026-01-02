@@ -26,7 +26,7 @@ const char quote_characters[] = {
 
 // Convert an env variable from input to its value and concatenate into `buffer`.
 // Return -1 on error, 0 on success
-int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
+int convert_env_var(char **pointer, char **buffer, size_t *buffer_size, unsigned long *index) {
     // Skip '$' character
     (*pointer)++;
 
@@ -48,14 +48,7 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
     unsigned long env_var_length = strlen(env_var_value);
 
     // If the current value + the value we want to put into the buffer is bigger than its size, reallocate memory for it
-    if (strlen(*buffer) + env_var_length + 1 > *buffer_size) {
-        *buffer_size += env_var_length + 1;
-        *buffer = reallocate(*buffer, *buffer_size, false);
-
-        if (!*buffer) {
-            return -1;
-        }
-    }
+    ensure_capacity((void **)buffer, buffer_size, strlen(*buffer), env_var_length + 1);
 
     // Add the value of the env-var to the buffer
     strncat(*buffer, env_var_value, env_var_length + 1);
@@ -64,7 +57,7 @@ int convert_env_var(char **pointer, char **buffer, unsigned int *buffer_size, un
     return 0;
 }
 
-int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index) {
+int convert_history_command(char **pointer, char **buffer, size_t *buffer_size, unsigned long *index) {
     // This also moves `pointer` to char* after the last number
     int history_index = strtoul(strchr(*pointer, '!') + 1, pointer, 0);
     char *command_from_history = cshr_history_get_entry_dup(history_index);
@@ -74,13 +67,7 @@ int convert_history_command(char **pointer, char **buffer, unsigned int *buffer_
 
     int command_length = strlen(command_from_history);
 
-    if (*index + command_length >= *buffer_size - 1) {
-        int current_size = *buffer_size;
-        while ((*buffer_size - 1) < *index + command_length) {
-            *buffer_size += BUF_EXPANSION_SIZE;
-        }
-        *buffer = reallocate_safe(*buffer, current_size, *buffer_size, true);
-    }
+    ensure_capacity((void **)buffer, buffer_size, *index, command_length);
 
     strcat(*buffer, command_from_history);
     free(command_from_history);
@@ -109,7 +96,7 @@ char get_quote_character(char character) {
     return 0;
 }
 
-void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_size, unsigned long *index, bool remove_quotes, bool handle_vars) {
+void handle_quoted_string(char **pointer, char **buffer, size_t *buffer_size, unsigned long *index, bool remove_quotes, bool handle_vars) {
     // initial position is considered the quote-character
     char quote_character = **pointer;
     if (!remove_quotes) {
@@ -126,10 +113,7 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
     // Add characters to buffer until second quote is reached
     for (; **pointer != '\0';) {
         // Reallocate
-        if (*index > *buffer_size - 1) {
-            *buffer = reallocate_safe(*buffer, *buffer_size, *buffer_size + BUF_EXPANSION_SIZE, true);
-            *buffer_size += BUF_EXPANSION_SIZE;
-        }
+        ensure_capacity((void **)buffer, buffer_size, *index, BUF_EXPANSION_SIZE);
 
         if (handle_vars && **pointer == '$') {
             convert_env_var(pointer, buffer, buffer_size, index);
@@ -151,24 +135,13 @@ void handle_quoted_string(char **pointer, char **buffer, unsigned int *buffer_si
 }
 
 void mutate_original_input(char **input) {
-    unsigned int buffer_size = INITIAL_BUFSIZE;
+    size_t buffer_size = INITIAL_BUFSIZE;
     char *buffer = callocate(buffer_size, 1, true);
     unsigned long index = 0;
 
     for (char *pointer = *input; *pointer != '\0';) {
-        // If the buffer is full, reallocate memory
-        if (index >= buffer_size - 1) {
-            char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
-            buffer_size += BUF_EXPANSION_SIZE;
-
-            if (!temp) {
-                log_error("Input buffer Reallocation Error");
-                input = nullptr;
-                return;
-            }
-
-            buffer = temp;
-        }
+        // Reallocate
+        ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE);
 
         // always add an escapable char if it is preceeded with '\'
         if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
@@ -220,22 +193,12 @@ void convert_argv(char **argv) {
     while (argv[i] != nullptr) {
         char *argument = argv[i];
 
-        unsigned int buffer_size = INITIAL_BUFSIZE;
+        size_t buffer_size = INITIAL_BUFSIZE;
         char *buffer = callocate(buffer_size, 1, true);
         unsigned long index = 0;
         for (char *pointer = argument; *pointer != '\0';) {
-            // If the buffer is full, reallocate memory
-            if (index >= buffer_size - 1) {
-                char *temp = reallocate_safe(buffer, buffer_size, buffer_size + BUF_EXPANSION_SIZE, false);
-                buffer_size += BUF_EXPANSION_SIZE;
-
-                if (!temp) {
-                    log_error("Input buffer Reallocation Error");
-                    // return nullptr;
-                }
-
-                buffer = temp;
-            }
+            // Reallocate
+            ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE);
 
             if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
                 buffer[index++] = *(pointer + 1);
