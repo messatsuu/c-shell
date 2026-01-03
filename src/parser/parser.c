@@ -45,10 +45,10 @@ int convert_env_var(char **pointer, char **buffer, size_t *buffer_size, unsigned
     if (env_var_value == NULL) {
         return 0;
     }
-    unsigned long env_var_length = strlen(env_var_value);
+    size_t env_var_length = strlen(env_var_value);
 
     // If the current value + the value we want to put into the buffer is bigger than its size, reallocate memory for it
-    ensure_capacity((void **)buffer, buffer_size, strlen(*buffer), env_var_length + 1);
+    ensure_capacity((void **)buffer, buffer_size, *index, env_var_length + 1, sizeof(char));
 
     // Add the value of the env-var to the buffer
     strncat(*buffer, env_var_value, env_var_length + 1);
@@ -65,9 +65,9 @@ int convert_history_command(char **pointer, char **buffer, size_t *buffer_size, 
         return -1;
     }
 
-    int command_length = strlen(command_from_history);
+    size_t command_length = strlen(command_from_history);
 
-    ensure_capacity((void **)buffer, buffer_size, *index, command_length);
+    ensure_capacity((void **)buffer, buffer_size, *index, command_length, sizeof(char));
 
     strcat(*buffer, command_from_history);
     free(command_from_history);
@@ -113,7 +113,7 @@ void handle_quoted_string(char **pointer, char **buffer, size_t *buffer_size, un
     // Add characters to buffer until second quote is reached
     for (; **pointer != '\0';) {
         // Reallocate
-        ensure_capacity((void **)buffer, buffer_size, *index, BUF_EXPANSION_SIZE);
+        ensure_capacity((void **)buffer, buffer_size, *index, BUF_EXPANSION_SIZE, sizeof(char));
 
         if (handle_vars && **pointer == '$') {
             convert_env_var(pointer, buffer, buffer_size, index);
@@ -141,7 +141,7 @@ void mutate_original_input(char **input) {
 
     for (char *pointer = *input; *pointer != '\0';) {
         // Reallocate
-        ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE);
+        ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE, sizeof(char));
 
         // always add an escapable char if it is preceeded with '\'
         if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
@@ -198,7 +198,7 @@ void convert_argv(char **argv) {
         unsigned long index = 0;
         for (char *pointer = argument; *pointer != '\0';) {
             // Reallocate
-            ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE);
+            ensure_capacity((void **)&buffer, &buffer_size, index, BUF_EXPANSION_SIZE, sizeof(char));
 
             if (*pointer == '\\' && get_escapable_character(*(pointer + 1)) != 0) {
                 buffer[index++] = *(pointer + 1);

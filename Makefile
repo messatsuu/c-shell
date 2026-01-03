@@ -7,7 +7,7 @@ EXECUTABLE_PATH = ./bin/main
 EXECUTABLE_DEBUG_PATH = ./bin/main-debug
 
 # FLAGS
-CFLAGS = -std=c23 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L \
+CFLAGS = -std=c23 -O3 -Wall -Werror -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L \
 		-fsanitize=address,undefined -Wpedantic -Wformat=2 -Wno-unused-parameter \
 		-Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
 		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs

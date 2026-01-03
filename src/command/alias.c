@@ -8,11 +8,13 @@
 
 Aliases *aliases = nullptr;
 
+#include <stdalign.h>
+
 void init_aliases() {
     aliases = callocate(sizeof(Aliases), 1, true);
     aliases->count = 0;
-    aliases->capacity = INITIAL_BUFSIZE * sizeof(AliasEntry *);
-    aliases->entries = callocate(INITIAL_BUFSIZE, sizeof(AliasEntry *), true);
+    aliases->capacity = INITIAL_BUFSIZE;
+    aliases->entries = callocate(aliases->capacity, sizeof(AliasEntry *), true);
 }
 
 void cleanup_alias(AliasEntry *aliasEntry) {
@@ -52,7 +54,7 @@ int add_alias(char *name, char *command) {
         return 0;
     }
 
-    ensure_capacity((void **)&aliases->entries, &aliases->capacity, aliases->count * sizeof(AliasEntry *), sizeof(AliasEntry *));
+    ensure_capacity((void **)&aliases->entries, &aliases->capacity, aliases->count, 1, sizeof(AliasEntry *));
 
     AliasEntry *aliasEntry = callocate(1, sizeof(AliasEntry), true);
     aliasEntry->name = strdup(name);
@@ -196,7 +198,7 @@ bool expand_aliases(char **input) {
     int needed = strlen(aliasEntry->command) - strlen(first_word);
     if (needed > 0) {
         // Guarantee enough space in input for replacing alias
-        ensure_capacity((void **)input, &input_length, input_length, needed);
+        ensure_capacity((void **)input, &input_length, input_length, needed, sizeof(char));
     }
 
     replace_first_inplace(*input, input_length, first_word, aliasEntry->command);

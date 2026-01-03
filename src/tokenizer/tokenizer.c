@@ -83,13 +83,13 @@ void debug_print_tokens(Token *tokens) {
 }
 
 ParseState *tokenize(const char *input) {
-    size_t allocated_elements_capaticy = INITIAL_BUFSIZE * sizeof(Token);
+    size_t capacity = INITIAL_BUFSIZE;
     unsigned int count = 0;
 
     ParseState *parseState = callocate(sizeof(ParseState), 1, true);
     init_parse_state(parseState, TYPE_TOKEN);
 
-    Token *tokens = callocate(INITIAL_BUFSIZE, sizeof(Token), true);
+    Token *tokens = callocate(capacity, sizeof(Token), true);
 
     for (unsigned int i = 0; input[i]; ) {
         const char current_char = input[i];
@@ -101,7 +101,7 @@ ParseState *tokenize(const char *input) {
 
 
         // Reallocate token-array if needed
-        ensure_capacity((void **)&tokens, &allocated_elements_capaticy, count * sizeof(Token), sizeof(Token));
+        ensure_capacity((void **)&tokens, &capacity, count, 1, sizeof(Token));
 
         // Operators
         if (is_operand_character(current_char)) {
@@ -166,7 +166,7 @@ ParseState *tokenize(const char *input) {
     }
 
     // ensure we have enough capacity for the EOF-Token
-    ensure_capacity((void **)&tokens, &allocated_elements_capaticy, count * sizeof(Token), sizeof(Token));
+    ensure_capacity((void **)&tokens, &capacity, count, 1, sizeof(Token));
 
 return_parse_state:
     // EOF token

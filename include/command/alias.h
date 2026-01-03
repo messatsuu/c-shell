@@ -12,8 +12,8 @@ typedef struct {
 } AliasEntry;
 
 typedef struct {
-    unsigned int count; // number of allocated AliasEntrys
-    size_t capacity; // currently allocated size of the entries-buffer
+    unsigned long count; // number of used AliasEntrys
+    unsigned long capacity; // number of allocated AliasEntrys
     AliasEntry **entries;
 } Aliases;
 

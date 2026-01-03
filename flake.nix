@@ -44,6 +44,7 @@
       devShells.${system}.default = pkgs.mkShell {
         nativeBuildInputs = [
           pkgs.clang-tools
+          pkgs.clang-analyzer
           pkgs.clang
           # For generating compile_commands.json
           pkgs.bear
