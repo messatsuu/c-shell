@@ -12,6 +12,7 @@
 #include <wait.h>
 
 extern bool continue_execution;
+extern int last_exit_code;
 
 // On SIGINT, flush terminal input and print PS1
 void handle_sigint(int signal) {
@@ -67,10 +68,32 @@ void initialize_shell() {
     setenv("SHLVL", shell_level_str, 1);
 }
 
-int main() {
+void handle_arguments(int argc, char **argv) {
+    if (argc < 2) {
+        return;
+    }
+
+    if (strcmp(argv[1], "--help") == 0) {
+        printf("csh: usage: csh [-c] command");
+        exit(0);
+    }
+
+    // we only accept `-c` as the first argument. If it doesn't have any
+    if (strcmp(argv[1], "-c") != 0 || argc < 3) {
+        log_error_with_exit("csh: usage: csh [-c] command");
+    }
+
+    char *original_input = strdup(argv[2]);
+    execute_input(original_input);
+    exit(last_exit_code);
+}
+
+int main(int argc, char **argv) {
     setup_signal_handlers();
     initialize_shell();
     atexit(cleanup);
+
+    handle_arguments(argc, argv);
 
     while (continue_execution) {
         char *original_input = cshr_read_input(get_prompt());

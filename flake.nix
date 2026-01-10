@@ -51,10 +51,11 @@
           # debugging
           pkgs.valgrind
           pkgs.lldb
+          # Linter
+          pkgs.checkmake
         ];
 
         buildInputs = [
-          pkgs.libcxx
           cshread
           # Unit testing
           pkgs.cmocka
