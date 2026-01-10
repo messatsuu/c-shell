@@ -22,7 +22,7 @@ extern int last_exit_code;
 void execute_input(char *original_input) {
     // GNU readline and c-shell-read both return NULL on EOF (CTRL+D), should this be handled differently?
     if (original_input == NULL) {
-        exit(0);
+        exit(EXIT_SUCCESS);
     }
 
     if (strlen(original_input) == 0) {

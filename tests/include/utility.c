@@ -8,7 +8,7 @@ const char *mock_stdout_filepath = "/tmp/mock_stdout";
 void read_file_to_buffer(FILE *output, char *buffer, size_t length) {
     if (fseek(output, 0, SEEK_SET) != 0) {
         perror("rewind failed");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     size_t total = 0;
@@ -19,7 +19,7 @@ void read_file_to_buffer(FILE *output, char *buffer, size_t length) {
 
     if (total == 0) {
         fprintf(stderr, "Error while reading file into buffer (possibly empty contents)\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 }
 

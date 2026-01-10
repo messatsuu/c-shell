@@ -6,6 +6,9 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#define EXIT_COMMAND_NOT_FOUND 127
+#define EXIT_CANNOT_EXECUTE 126
+
 // TODO: Find a way to run a command that covers the following points:
 // - The command should be capturable (pipe, FILE* redirect, etc.) for unit-testing
 // - The command should be able to run tui-commands (nvim, less) without providing a PTY
@@ -25,13 +28,13 @@ int run_execvp(char **argv) {
     switch (errno) {
         case ENOENT:
             log_error("csh: Command not found: %s\n", argv[0]);
-            exit(127);
+            exit(EXIT_COMMAND_NOT_FOUND);
         case EACCES:
             log_error("csh: Permission denied: %s\n", argv[0]);
-            exit(126);
+            exit(EXIT_CANNOT_EXECUTE);
         default:
             log_error("csh: Error executing command: %s\n", argv[0]);
             perror("error");
-            exit(1);
+            exit(EXIT_FAILURE);
     }
 }
