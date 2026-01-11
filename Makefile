@@ -49,7 +49,7 @@ build-test:
 run-test:
 	./bin/test
 
-run-bats-test:
+run-bats-test: build
 	bats tests/bats-core/*
 
 # Debug Targets
