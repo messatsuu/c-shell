@@ -59,6 +59,7 @@
           cshread
           # Unit testing
           pkgs.cmocka
+          pkgs.bats
         ];
 
         # Set CPATH environment variable

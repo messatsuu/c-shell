@@ -26,7 +26,6 @@ jobs:
                 run: |
                     nix develop --command checkmake Makefile
 
-            # TODO: fix this...
-            # -   name: Run tests with nix develop shell
-            #     run: |
-            #         nix develop --command make brt
+            -   name: Run tests with nix develop shell
+                run: |
+                    nix develop --command make test

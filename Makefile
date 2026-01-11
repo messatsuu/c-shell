@@ -33,7 +33,7 @@ SRC_TEST_FILES = $(filter-out $(SRC_DIR)/main.c, $(SRC_FILES)) $(shell find test
 all: build
 clean:
 	$(shell rm ./bin/*)
-test: build-test run-test
+test: build-test run-test run-bats-test
 
 # Main Targets
 build:
@@ -48,6 +48,9 @@ build-test:
 
 run-test:
 	./bin/test
+
+run-bats-test:
+	bats tests/bats-core/*
 
 # Debug Targets
 build-debug:
