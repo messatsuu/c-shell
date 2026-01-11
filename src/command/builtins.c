@@ -1,5 +1,6 @@
 #include "command/builtins.h"
 #include "command/alias.h"
+#include "core/shell.h"
 #include "cshread/history.h"
 #include <utility.h>
 
@@ -133,6 +134,11 @@ int run_builtin_unalias(char **argv) {
     return 0;
 }
 
+int run_builtin_eval(char **argv) {
+    execute_input(strdup(argv[1]));
+    return last_exit_code;
+}
+
 const BuiltinCommand builtin_commands[] = {
     {"cd", run_builtin_cd},
     {"history", run_builtin_history },
@@ -140,6 +146,7 @@ const BuiltinCommand builtin_commands[] = {
     {"export", run_builtin_export },
     {"alias", run_builtin_alias},
     {"unalias", run_builtin_unalias},
+    {"eval", run_builtin_eval},
 };
 
 // bytes in struct-array divided by number of bytes of a single struct is the number of pointers
