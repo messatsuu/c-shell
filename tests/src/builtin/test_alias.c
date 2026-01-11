@@ -18,11 +18,11 @@ static void test_alias_output(void **state) {
 
     // Run
     execute_input(strdup("alias my_alias='echo works!'"));
-    execute_input(strdup("my_alias"));
+    execute_input(strdup("(my_alias && my_alias) && my_alias && false || my_alias ; my_alias again"));
 
     // Assert
     read_file_to_buffer(stdout_mock, buffer, sizeof(buffer));
-    assert_string_equal(buffer, "works!\n");
+    assert_string_equal(buffer, "works!\nworks!\nworks!\nworks!\nworks! again\n");
 }
 
 static void test_recursive_alias_output(void **state) {

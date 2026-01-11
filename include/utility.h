@@ -63,4 +63,6 @@ ssize_t get_host_name(char *name, size_t len);
 // returns early if not enough space for the replace-string is considered
 void replace_first_inplace(char *string, size_t bufsize, const char *sub_string, const char *replace);
 
+void replace_part_of_string(char *string, size_t bufsize, char *sub_string, size_t sub_len, const char *replace);
+
 #endif

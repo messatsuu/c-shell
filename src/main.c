@@ -73,16 +73,16 @@ void handle_arguments(int argc, char **argv) {
         return;
     }
 
-    const char help_text[] = "csh: usage: csh [--help] [-c] command";
+    const char usage_text[] = "csh: usage: csh [--help] [-c] command";
 
     if (strcmp(argv[1], "--help") == 0) {
-        printf(help_text);
+        printf(usage_text);
         exit(EXIT_SUCCESS);
     }
 
     // we only accept `-c` as the first argument. If it doesn't have any arguments afterwards, log error
     if (strcmp(argv[1], "-c") != 0 || argc < 3) {
-        log_error_with_exit(help_text);
+        log_error_with_exit(usage_text);
     }
 
     char *original_input = strdup(argv[2]);

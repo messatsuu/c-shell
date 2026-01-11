@@ -29,6 +29,6 @@ void cleanup_aliases();
 int print_alias(char *name);
 int print_aliases();
 // replace aliases in string with minimal context-parsing
-bool expand_aliases(char **input);
+void expand_aliases(char **input);
 
 #endif

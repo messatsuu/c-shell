@@ -121,3 +121,16 @@ void replace_first_inplace(char *string, size_t bufsize, const char *sub_string,
     memmove(sub_string_position + replace_length, sub_string_position + sub_string_length, after_sub_string_length + 1);
     memcpy(sub_string_position, replace, replace_length);
 }
+
+void replace_part_of_string(char *string, size_t bufsize, char *sub_string, size_t sub_len, const char *replace) {
+    size_t replace_len = strlen(replace);
+    size_t tail_len = strlen(sub_string + sub_len);
+
+    // buffer overflow check
+    if (replace_len > sub_len && strlen(string) + (replace_len - sub_len) + 1 > bufsize) {
+        return;
+    }
+
+    memmove(sub_string + replace_len, sub_string + sub_len, tail_len + 1);
+    memcpy(sub_string, replace, replace_len);
+}

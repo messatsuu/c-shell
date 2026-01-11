@@ -134,7 +134,7 @@ int remove_alias(char *name) {
 
     aliases->count--;
     // clearing dangling pointer
-    aliases->entries[aliases->count] = NULL;
+    aliases->entries[aliases->count] = nullptr;
 
     return 0;
 }
@@ -182,27 +182,76 @@ int print_aliases() {
     return 0;
 }
 
-bool expand_aliases(char **input) {
-    char *first_space=strchr(*input, ' ');
-    unsigned int first_word_length = first_space ? first_space - *input : strlen(*input);
-    char *first_word = calloc(1, first_word_length + 1);
-    strncpy(first_word, *input, first_word_length);
+void expand_aliases(char **string) {
+    int beginning_chars[] = {'(', '&', '|', ';'};
+    int beginning_chars_length = sizeof(beginning_chars) / sizeof(beginning_chars[0]);
 
-    AliasEntry *aliasEntry = get_alias_entry_recursive(first_word, nullptr);
-    if (aliasEntry == nullptr) {
-        free(first_word);
-        return false;
+    int end_chars[] = {' ', ')', '&', '|', ';'};
+    int end_chars_length = sizeof(end_chars) / sizeof(end_chars[0]);
+
+    char *pointer = *string;
+    while (*pointer) {
+        bool is_beginnig = false;
+
+        // Find beginning char
+        for (unsigned int i = 0; i < beginning_chars_length; i++) {
+            if (*pointer == beginning_chars[i]) {
+                is_beginnig = true;
+                break;
+            }
+        }
+
+        if (is_beginnig || *pointer == ' ') {
+            pointer++;
+            continue;
+        }
+
+        // Find next end-char
+        char *next_end_char = nullptr;
+        for (unsigned int i = 0; i < end_chars_length; i++) {
+            char *current = strchr(pointer, end_chars[i]);
+            if (current && (next_end_char == nullptr || current < next_end_char)) {
+                next_end_char = current;
+            }
+        }
+
+        unsigned int word_length = next_end_char ? next_end_char - pointer : strlen(pointer);
+
+        char *word = calloc(1, word_length + 1);
+        strncpy(word, pointer, word_length);
+
+        // Replace alias
+        AliasEntry *aliasEntry = get_alias_entry_recursive(word, nullptr);
+        if (aliasEntry) {
+            size_t input_length = strlen(*string) + 1;
+            int needed = strlen(aliasEntry->command) - strlen(word);
+            if (needed > 0) {
+                size_t pointer_offset = pointer - *string;
+                // Guarantee enough space in input for replacing alias
+                ensure_capacity((void **)string, &input_length, input_length, needed, sizeof(char));
+                pointer = *string + pointer_offset;
+            }
+
+            // TODO: this still doesn't trigger sometimes somehow (usually when alias-name is bigger than command?)
+            replace_part_of_string(*string, input_length, pointer, word_length, aliasEntry->command);
+        }
+
+        free(word);
+        pointer += word_length;
+
+        // Find next beginning-char
+        char *next_beginning_char = nullptr;
+        for (unsigned int i = 0; i < beginning_chars_length; i++) {
+            char *current = strchr(pointer, beginning_chars[i]);
+            if (current && (next_beginning_char == nullptr || current < next_beginning_char)) {
+                next_beginning_char = current;
+            }
+        }
+
+        if (!next_beginning_char) {
+            break;
+        }
+
+        pointer = next_beginning_char;
     }
-
-    size_t input_length = strlen(*input) + 1;
-    int needed = strlen(aliasEntry->command) - strlen(first_word);
-    if (needed > 0) {
-        // Guarantee enough space in input for replacing alias
-        ensure_capacity((void **)input, &input_length, input_length, needed, sizeof(char));
-    }
-
-    replace_first_inplace(*input, input_length, first_word, aliasEntry->command);
-    free(first_word);
-
-    return true;
 }
