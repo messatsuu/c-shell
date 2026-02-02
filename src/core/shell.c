@@ -1,7 +1,7 @@
 #include "ast/ast.h"
-#include "core/shell.h"
 #include "ast/ast_executor.h"
 #include "command/alias.h"
+#include "core/shell.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"

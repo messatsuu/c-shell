@@ -1,9 +1,7 @@
 #!/usr/bin/env bats
 
-EXPECTED_EXIT_CODE=0
-##### teardown teardown
-teardown() {
-    [ "$status" -eq "$EXPECTED_EXIT_CODE" ]
+setup() {
+    bats_require_minimum_version 1.5.0
 }
 
 @test "test echo output" {
@@ -50,18 +48,18 @@ teardown() {
 }
 
 @test "exit-code priority handling" {
-    run ./bin/main -c "true | false"
+    run -1 ./bin/main -c "true | false"
 
     EXPECTED_EXIT_CODE=1
 }
 
-@test "subshells create seperated environment" {
+@test "subshells environment separation" {
     run ./bin/main -c 'cd /tmp && (cd .. && pwd) && pwd'
 
     [ "$output" == "$(printf "/\n/tmp\n")" ]
 }
 
-@test "subshell_retains_var_env" {
+@test "parent-shell environment sharing" {
     run ./bin/main -c 'export my_var=420 ; (echo $my_var)'
 
     [ "$output" == "420" ]

@@ -59,7 +59,8 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
         }
     } else if (is_builtin_command(simpleAst->simple.argv[0]) && *previous_pipe_file_read_end == -1) {
         if (!simpleAst->simple.redirection) {
-            return run_builtin_command(simpleAst->simple.argv);
+            last_exit_code = run_builtin_command(simpleAst->simple.argv);
+            return -1;
         }
 
         int saved_target_fd = -1;
@@ -76,7 +77,8 @@ int execute_simple(AST *simpleAst, bool is_last_command, int *previous_pipe_file
         dup2(saved_target_fd, overriden_fd);
         close(saved_target_fd);
 
-        return exit_code;
+        last_exit_code = exit_code;
+        return -1;
     }
 
     pid_t pid = fork();

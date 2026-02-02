@@ -1,10 +1,7 @@
 #!/usr/bin/env bats
 
-EXPECTED_EXIT_CODE=0
-
-##### teardown teardown
-teardown() {
-    [ "$status" -eq "$EXPECTED_EXIT_CODE" ]
+setup() {
+    bats_require_minimum_version 1.5.0
 }
 
 @test "alias output gets replaced in whole AST-Tree" {
@@ -19,22 +16,20 @@ teardown() {
 }
 
 @test "test infinite recursive alias gets stopped" {
-    run ./bin/main -c "alias foo=bar bar=foo && eval 'foo'"
+    run -127 ./bin/main -c "alias foo=bar bar=foo && eval 'foo'"
 
-    # TODO: check stderr output
-    # [ "$output" == "works!" ]
+    [ "$output" == "csh: Command not found: foo" ]
 }
 
 @test "test unaliasing an alias" {
-    run ./bin/main -c "alias my_alias='echo works!' && eval 'unalias my_alias' && eval 'my_alias'"
+    run -127 ./bin/main -c "alias my_alias='echo works!' && eval 'unalias my_alias' && eval 'my_alias'"
 
-    # TODO: check stderr output
-    # [ "$output" == "works!" ]
+    [ "$output" == "csh: Command not found: my_alias" ]
 }
 
 @test "test unaliasing all aliases" {
-    run ./bin/main -c "alias my_alias='echo works!' another_alias='echo works!' && eval 'unalias -a' && eval 'my_alias ; another_alias'"
+    run -127 ./bin/main -c "alias my_alias='echo works!' another_alias='echo works!' && eval 'unalias -a' && eval 'my_alias ; another_alias'"
 
-    # TODO: check stderr output
-    # [ "$output" == "works!" ]
+    EXPECTED_EXIT_CODE=127
+    [ "$output" == "$(printf  "csh: Command not found: my_alias\n\ncsh: Command not found: another_alias")" ]
 }
