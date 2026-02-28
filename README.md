@@ -75,6 +75,8 @@ graph LR
 - [x] Escaping characters correctly (`echo \'`)
 - [x] subshells (`(cd .. && pwd) && pwd`)
 - [x] aliases (`alias ll='ls -la' ds='du -sh'`) (`unalias ll`)
+- [x] simple file-parising (`source my-file`)
+- [x] simple init-file parsing (~/.cshrc)
 - [ ] argument expansion (`echo $(echo foo)`)
 - [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
 - [ ] Implement more bash-syntax
