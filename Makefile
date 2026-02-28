@@ -13,7 +13,7 @@ CFLAGS = -std=c23 -O3 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L \
 		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
 
 CFLAGS_DEBUG = -std=c23 -Og -g -I $(INC_DIR) -D_POSIX_C_SOURCE=200809L
-TEST_WRAPPER_FLAGS = -Wl,--wrap=run_execvp,--wrap=get_host_name
+TEST_WRAPPER_FLAGS = -Wl,--wrap=get_host_name
 # TODO: $NIX_LDFLAGS provided by nix develop-shell, is this a good idea?
 LDFLAGS ?= $(shell echo $$NIX_LDFLAGS) -lcshread
 
@@ -54,7 +54,7 @@ run-bats-test: build
 
 # Debug Targets
 build-debug:
-	$(CC) $(SRC_FILES) $(CFLAGS_DEBUG) $(LDFLAGS) -o $(EXECUTABLE_DEBUG_PATH)
+	$(CC) $(SRC_FILES) $(CFLAGS_DEBUG) $(LDFLAGS) -o $(EXECUTABLE_DEBUG_PATH) -DDEBUG
 
 build-test-debug:
 	$(CC) $(SRC_TEST_FILES) $(CFLAGS_DEBUG) $(TEST_WRAPPER_FLAGS) -I$(INC_DIR) -I$(TEST_INC_DIR) -lcshread -lcmocka -o ./bin/test-debug

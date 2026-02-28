@@ -53,6 +53,9 @@
           pkgs.lldb
           # Linter
           pkgs.checkmake
+          # man pages
+          pkgs.glibcInfo
+          pkgs.man-pages
         ];
 
         buildInputs = [

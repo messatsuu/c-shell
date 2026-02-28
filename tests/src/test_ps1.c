@@ -10,9 +10,9 @@
 
 static void test_ps1_output(void **state) {
     // Setup
-    setenv("USER", "test-user", 1);
-    setenv("PWD", "/usr/bin/c-shell-implementation", 1);
-    setenv("PS1", "[\\u@\\w on \\h] $", 1);
+    set_environment_var("USER", "test-user", true);
+    set_environment_var("PWD", "/usr/bin/c-shell-implementation", true);
+    set_environment_var("PS1", "[\\u@\\w on \\h] $", true);
 
     // Run
     get_prompt();

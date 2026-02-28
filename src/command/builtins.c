@@ -18,7 +18,9 @@ extern int last_exit_code;
 bool continue_execution = true;
 
 int run_builtin_cd(char **argv) {
-    char *path = argv[1];
+    // special case, cd can be evoked with argv[0] just being the path
+    char *path = is_directory(argv[0]) ? argv[0] : argv[1];
+
     if (path == NULL) {
         path = getenv("HOME");
 
@@ -43,7 +45,7 @@ int run_builtin_cd(char **argv) {
         return 1;
     }
 
-    setenv("PWD", cwd, 1);
+    set_environment_var("PWD", cwd, 1);
 
     return 0;
 }
@@ -77,7 +79,7 @@ int run_builtin_export(char **argv) {
     strncpy(env_var_value, equal_sign + 1, MAX_ENV_VAR_VALUE - 1);
     env_var_value[MAX_ENV_VAR_VALUE - 1] = '\0';
 
-    setenv(env_var_name, env_var_value, 1);
+    set_environment_var(env_var_name, env_var_value, 1);
 
     return 0;
 }
@@ -153,8 +155,15 @@ const BuiltinCommand builtin_commands[] = {
 const unsigned int number_of_builtin_commands = sizeof(builtin_commands) / sizeof(builtin_commands[0]);
 
 const BuiltinCommand *get_builtin_command(const char *command) {
+    const char *builtin_command_name = command;
+
+    // special case, if the argv[0] is a dir, we evoke cd
+    if (is_directory(command)) {
+        builtin_command_name = "cd";
+    }
+
     for (size_t i = 0; i < number_of_builtin_commands; i++) {
-        if (strcmp(command, builtin_commands[i].name) == 0) {
+        if (strcmp(builtin_command_name, builtin_commands[i].name) == 0) {
             return &builtin_commands[i];
         }
     }

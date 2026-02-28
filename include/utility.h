@@ -65,4 +65,8 @@ void replace_first_inplace(char *string, size_t bufsize, const char *sub_string,
 
 void replace_part_of_string(char *string, size_t bufsize, char *sub_string, size_t sub_len, const char *replace);
 
+int is_directory(const char *path);
+
+void set_environment_var(const char *name, const char *value, bool replace);
+
 #endif

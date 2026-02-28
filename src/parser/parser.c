@@ -136,7 +136,7 @@ void handle_quoted_string(char **pointer, char **buffer, size_t *buffer_size, un
 
 void mutate_original_input(char **input) {
     size_t buffer_size = INITIAL_BUFSIZE;
-    char *buffer = callocate(buffer_size, 1, true);
+    char *buffer = callocate(1, buffer_size, true);
     unsigned long index = 0;
 
     for (char *pointer = *input; *pointer != '\0';) {
@@ -194,7 +194,7 @@ void convert_argv(char **argv) {
         char *argument = argv[i];
 
         size_t buffer_size = INITIAL_BUFSIZE;
-        char *buffer = callocate(buffer_size, 1, true);
+        char *buffer = callocate(1, buffer_size, true);
         unsigned long index = 0;
         for (char *pointer = argument; *pointer != '\0';) {
             // Reallocate

@@ -1,6 +1,7 @@
 // #include "input/history.h"
 #include "utility.h"
 #include "command/alias.h"
+#include "core/settings.h"
 
 #include <cshread/cshread.h>
 #include <stdarg.h>
@@ -10,6 +11,7 @@
 #include <stdnoreturn.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 // Tell the compiler to ignore [-Wformat-nonliteral] on vfprintf-call (disable literal-checking)
 // 1 = position of the format-string parameter
@@ -96,6 +98,7 @@ void *callocate(unsigned int number_of_elements, size_t size, bool exit) {
 void cleanup() {
     cshr_history_cleanup();
     cleanup_aliases();
+    cleanup_settings();
 }
 
 // Wrapper function to override in testing (statically linked glibc-functions cannot be overriden in github actions?)
@@ -133,4 +136,20 @@ void replace_part_of_string(char *string, size_t bufsize, char *sub_string, size
 
     memmove(sub_string + replace_len, sub_string + sub_len, tail_len + 1);
     memcpy(sub_string, replace, replace_len);
+}
+
+int is_directory(const char *path) {
+    struct stat stat_buffer;
+    if (stat(path, &stat_buffer) != 0) {
+        return 0;
+    }
+
+    return S_ISDIR(stat_buffer.st_mode);
+}
+
+void set_environment_var(const char *name, const char *value, bool replace) {
+    if (setenv(name, value, replace) != 0) {
+        log_error("setting env-var \"%s\" failed:", name);
+        perror("");
+    }
 }

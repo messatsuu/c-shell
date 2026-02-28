@@ -34,7 +34,7 @@ void execute_input(char *original_input) {
     mutate_original_input(&mutated_input);
     expand_aliases(&mutated_input);
 
-    // Early initialize variable for usage in cleanup
+    // Early initialize variables for usage in cleanup
     ParseState *tokenParseState = nullptr;
     ParseState *astParseState = nullptr;
     const Token *baseTokenPointer = nullptr;
@@ -47,13 +47,8 @@ void execute_input(char *original_input) {
     tokenParseState = tokenize(mutated_input);
     baseTokenPointer = tokenParseState->parsable.tokens;
 
-    // empty input, cleanup
-    if (baseTokenPointer->type == TOKEN_EOF) {
-        goto cleanup;
-    }
-
-    // errors, cleanup
-    if (print_errors(tokenParseState)) {
+    // errors or empty input, cleanup
+    if (baseTokenPointer->type == TOKEN_EOF || print_errors(tokenParseState)) {
         goto cleanup;
     }
 

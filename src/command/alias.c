@@ -11,7 +11,7 @@ Aliases *aliases = nullptr;
 #include <stdalign.h>
 
 void init_aliases() {
-    aliases = callocate(sizeof(Aliases), 1, true);
+    aliases = callocate(1, sizeof(Aliases), true);
     aliases->count = 0;
     aliases->capacity = INITIAL_BUFSIZE;
     aliases->entries = callocate(aliases->capacity, sizeof(AliasEntry *), true);

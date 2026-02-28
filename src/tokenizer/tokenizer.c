@@ -1,4 +1,5 @@
 #include "tokenizer/tokenizer.h"
+#include "core/settings.h"
 #include "parser/parse_state.h"
 #include "tokenizer/token.h"
 #include "utility.h"
@@ -7,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+extern Settings *settings;
 
 static bool is_operand_character(char character) {
     return (character == '|' || character == '&' || character == ';' || character == '<' || character == '>');
@@ -86,7 +89,7 @@ ParseState *tokenize(const char *input) {
     size_t capacity = INITIAL_BUFSIZE;
     unsigned int count = 0;
 
-    ParseState *parseState = callocate(sizeof(ParseState), 1, true);
+    ParseState *parseState = callocate(1, sizeof(ParseState), true);
     init_parse_state(parseState, TYPE_TOKEN);
 
     Token *tokens = callocate(capacity, sizeof(Token), true);
@@ -173,6 +176,9 @@ return_parse_state:
     tokens[count++] = (Token){TOKEN_EOF, nullptr};
     parseState->parsable.tokens = tokens;
 
+    if (settings->debug_mode) {
+        debug_print_tokens(tokens);
+    }
     return parseState;
 }
 

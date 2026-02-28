@@ -1,13 +1,16 @@
 #include "ast/ast.h"
+#include "core/settings.h"
 #include "parser/ast_parser.h"
 #include "parser/parse_state.h"
 #include "tokenizer/token.h"
 #include "utility.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
 AST *convert_node_type(NodeType nodeType, ParseState *parseState, const Token **tokens);
+extern Settings *settings;
 
 void debug_print_ast(AST *listAst) {
     printf("AST PARSING:\n");
@@ -37,7 +40,8 @@ void debug_print_ast(AST *listAst) {
                     printf("\t\tredirection-filename: %s\n", command->simple.redirection->redirect_filename);
                 }
             } else {
-                printf("SUBSHELL\n");
+                // TODO: finish printing here
+                printf("subshell\n");
             }
         }
     }
@@ -199,7 +203,10 @@ ParseState *convert_tokens_to_ast(const Token **tokens) {
     init_parse_state(parseState, TYPE_AST);
 
     AST *listAst = convert_node_type(NODE_LIST, parseState, tokens);
-
     parseState->parsable.listAst = listAst;
+    
+    if (settings->debug_mode) {
+        debug_print_ast(listAst);
+    }
     return parseState;
 }

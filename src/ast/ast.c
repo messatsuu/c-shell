@@ -8,10 +8,10 @@
 void cleanup_node_type(AST *astNode);
 
 void cleanup_simple(AST *simpleAst) {
-    unsigned int k = 0;
-    while (simpleAst->simple.argv[k] != nullptr) {
-        free(simpleAst->simple.argv[k]);
-        k++;
+    unsigned int i = 0;
+    while (simpleAst->simple.argv[i] != nullptr) {
+        free(simpleAst->simple.argv[i]);
+        i++;
     }
 
     if (simpleAst->simple.redirection != nullptr) {
@@ -29,8 +29,8 @@ void cleanup_subshell(AST *subshellAst) {
 }
 
 void cleanup_pipeline(AST *pipelineAst) {
-    for (unsigned int j = 0; j < pipelineAst->pipeline.command_count; j++) {
-        cleanup_node_type(pipelineAst->pipeline.commands[j]);
+    for (unsigned int i = 0; i < pipelineAst->pipeline.command_count; i++) {
+        cleanup_node_type(pipelineAst->pipeline.commands[i]);
     }
 
     free(pipelineAst->pipeline.commands);
