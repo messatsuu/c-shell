@@ -1,5 +1,7 @@
 #include "parser/parser.h"
 #include "command/alias.h"
+#include "core/settings.h"
+#include "core/shell.h"
 #include "cshread/history.h"
 #include <utility.h>
 
@@ -11,6 +13,8 @@
 #include <termios.h>
 
 #define MAX_ENV_VAR_NAME_BUFSIZE 128
+
+extern Settings *settings;
 
 const char escapable_characters[] = {
     '\"',
@@ -245,4 +249,34 @@ void convert_argv(char **argv) {
         buffer[index] = '\0';
         argv[i++] = buffer;
     }
+}
+
+int parse_interpretable_file(char *path) {
+    if (!is_interpretable_file(path)) {
+        return -1;
+    }
+
+    FILE *file = fopen(path, "r");
+    char line[INITIAL_BUFSIZE_BIG] = {};
+
+    // TODO: this feels a bit hacky...
+    bool initial_track_history = settings->track_history;
+    settings->track_history = false;
+
+    while (fgets(line, sizeof(line), file)) {
+        // remove trailing newline
+        size_t newline_position = strcspn(line, "\n");
+        if (line[newline_position] == '\n') {
+            line[newline_position] = '\0';
+        }
+
+        execute_input(strdup(line));
+    }
+    settings->track_history = initial_track_history;
+
+    if (fclose(file) != 0) {
+        perror("error while sourcing file");
+    }
+
+    return 0;
 }

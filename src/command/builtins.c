@@ -2,6 +2,8 @@
 #include "command/alias.h"
 #include "core/shell.h"
 #include "cshread/history.h"
+#include "parser/parser.h"
+#include <math.h>
 #include <utility.h>
 
 #include <stdbool.h>
@@ -48,6 +50,15 @@ int run_builtin_cd(char **argv) {
     set_environment_var("PWD", cwd, 1);
 
     return 0;
+}
+
+int run_builtin_source(char **argv) {
+    if (!is_interpretable_file(argv[1])) {
+        log_error("\"%s\": not an interpretable file", argv[1]);
+        return -1;
+    }
+
+    return parse_interpretable_file(argv[1]);
 }
 
 int run_builtin_history(char **argv) {
@@ -143,6 +154,7 @@ int run_builtin_eval(char **argv) {
 
 const BuiltinCommand builtin_commands[] = {
     {"cd", run_builtin_cd},
+    {"source", run_builtin_source},
     {"history", run_builtin_history },
     {"exit", run_builtin_exit },
     {"export", run_builtin_export },

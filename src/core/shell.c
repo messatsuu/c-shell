@@ -2,6 +2,7 @@
 #include "ast/ast_executor.h"
 #include "command/alias.h"
 #include "core/shell.h"
+#include "core/settings.h"
 #include "cshread/history.h"
 #include "cshread/input.h"
 #include "parser/ast_parser.h"
@@ -17,8 +18,10 @@
 #include <termios.h>
 
 extern int last_exit_code;
+extern Settings *settings;
 
-// Main Loop of the shell
+// Main Loop of the shell.
+// Expects `original_input` to be dynamically allocated string
 void execute_input(char *original_input) {
     // GNU readline and c-shell-read both return NULL on EOF (CTRL+D), should this be handled differently?
     if (original_input == NULL) {
@@ -47,7 +50,7 @@ void execute_input(char *original_input) {
     tokenParseState = tokenize(mutated_input);
     baseTokenPointer = tokenParseState->parsable.tokens;
 
-    // errors or empty input, cleanup
+    // empty input or errors, cleanup
     if (baseTokenPointer->type == TOKEN_EOF || print_errors(tokenParseState)) {
         goto cleanup;
     }
@@ -65,7 +68,10 @@ void execute_input(char *original_input) {
 cleanup:
     cleanup_parse_state(astParseState);
     cleanup_parse_state(tokenParseState);
-    cshr_history_append(original_input);
+
+    if (settings->track_history) {
+        cshr_history_append(original_input);
+    }
 
     free(original_input);
     free(mutated_input);

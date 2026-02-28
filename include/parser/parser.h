@@ -9,4 +9,6 @@ void mutate_original_input(char **input);
 // Convert raw input from the user
 void convert_argv(char **argv);
 
+int parse_interpretable_file(char *path);
+
 #endif

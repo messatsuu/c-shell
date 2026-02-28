@@ -138,14 +138,32 @@ void replace_part_of_string(char *string, size_t bufsize, char *sub_string, size
     memcpy(sub_string, replace, replace_len);
 }
 
-int is_directory(const char *path) {
+bool is_directory(const char *path) {
     struct stat stat_buffer;
     if (stat(path, &stat_buffer) != 0) {
-        return 0;
+        return false;
     }
 
     return S_ISDIR(stat_buffer.st_mode);
 }
+
+bool is_interpretable_file(const char *path) {
+    struct stat stat_buffer;
+
+    // file does not exist
+    if (stat(path, &stat_buffer) != 0) {
+        return false;
+    }
+
+    // native executable, return false
+    if (stat_buffer.st_mode & S_IXUSR) {
+        return false;
+    }
+
+    // return true if regular file
+    return S_ISREG(stat_buffer.st_mode);
+}
+
 
 void set_environment_var(const char *name, const char *value, bool replace) {
     if (setenv(name, value, replace) != 0) {

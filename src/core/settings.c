@@ -14,6 +14,7 @@ Settings *settings = nullptr;
 
 void init_settings() {
     settings = callocate(1, sizeof(Settings), true);
+    settings->track_history = true;
     settings->history_count = DEFAULT_HISTORY_SIZE;
     settings->debug_mode = DEBUG_MODE;
     settings->no_file_override_on_redirect = false;

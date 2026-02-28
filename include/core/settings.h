@@ -2,7 +2,8 @@
 #define SETTINGS_H
 
 typedef struct {
-    unsigned int history_count;          // Number of elements saved in the history
+    bool track_history;                 // whether to track the history
+    unsigned int history_count;         // Number of elements saved in the history
     bool debug_mode;                    // Show debug info about parsed tokens and AST-tree
     bool no_file_override_on_redirect;  // If we redirect output to an existing file, do not override and throw warning
     bool exit_on_error;                 // If any command fails, exit immediately

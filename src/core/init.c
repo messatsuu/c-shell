@@ -1,10 +1,15 @@
 #include "core/init.h"
 #include "core/shell.h"
 #include "core/settings.h"
+#include "parser/parser.h"
 #include "utility.h"
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+extern Settings *settings;
 
 // On SIGINT, flush terminal input and print PS1
 void handle_sigint(int signal) {
@@ -25,6 +30,15 @@ void setup_sigint_handler() {
 }
 
 void set_general_env_vars() {
+    // set init-file path env-var
+    const char *home = getenv("HOME");
+    size_t len = strlen(home) + strlen("/.cshrc") + 1;
+    char *init_file_path = allocate(len, true);
+
+    snprintf(init_file_path, len, "%s/.cshrc", home);
+    set_environment_var("CSHELL_INIT_PATH", init_file_path, true);
+    free(init_file_path);
+
     // set the SHELL env-var to the path of the current executable
     char path[INITIAL_BUFSIZE_BIG];
     signed long length = readlink("/proc/self/exe", path, INITIAL_BUFSIZE_BIG);
@@ -58,6 +72,23 @@ void set_general_env_vars() {
     set_environment_var("SHLVL", shell_level_str, true);
 }
 
+void parse_init_file() {
+    char *init_file_path = getenv("CSHELL_INIT_PATH");
+    if (!init_file_path) {
+        return;
+    }
+
+    if (settings->debug_mode) {
+        printf("Trying to source init file at %s\n", init_file_path);
+    }
+
+    int result = parse_interpretable_file(init_file_path);
+
+    if (settings->debug_mode) {
+        result == 0 ? printf("successfully parsed init-file.\n") : printf("Unable to parse init-file\n");
+    }
+}
+
 // General function to do things before the shell is started
 void initialize_shell() {
     init_settings();
@@ -67,4 +98,5 @@ void initialize_shell() {
     }
 
     set_general_env_vars();
+    parse_init_file();
 }
