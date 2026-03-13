@@ -85,7 +85,8 @@ void parse_init_file() {
     int result = parse_interpretable_file(init_file_path);
 
     if (settings->debug_mode) {
-        result == 0 ? printf("successfully parsed init-file.\n") : printf("Unable to parse init-file\n");
+        // casting to `(void)` since both branches of  aternary-operator need to return the same type
+        result == 0 ? (void)printf("successfully parsed init-file.\n") : log_error("Unable to parse init-file\n");
     }
 }
 

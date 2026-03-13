@@ -31,8 +31,8 @@ void handle_arguments(int argc, char **argv) {
         log_error_with_exit(usage_text);
     }
 
-    char *original_input = strdup(argv[2]);
-    execute_input(original_input);
+    char *user_input = strdup(argv[2]);
+    execute_input(user_input);
     exit(last_exit_code);
 }
 
@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
     handle_arguments(argc, argv);
 
     while (continue_execution) {
-        char *original_input = cshr_read_input(get_prompt());
-        execute_input(original_input);
+        char *user_input = get_user_input();
+        execute_input(user_input);
     }
 
     return 0;
