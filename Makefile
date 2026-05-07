@@ -12,10 +12,10 @@ CFLAGS = -std=c23 -O3 -I$(INC_DIR) -D_POSIX_C_SOURCE=200809L \
 		-Wall -Werror -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
 		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
 
-CFLAGS_DEBUG = -std=c23 -Og -g -I $(INC_DIR) -D_POSIX_C_SOURCE=200809L
+CFLAGS_DEBUG = -std=c23 -Og -g -I $(INC_DIR) -D_POSIX_C_SOURCE=200809L -fdebug-prefix-map=$(PWD)=.
 TEST_WRAPPER_FLAGS = -Wl,--wrap=get_host_name
 # TODO: $NIX_LDFLAGS provided by nix develop-shell, is this a good idea?
-LDFLAGS ?= $(shell echo $$NIX_LDFLAGS) -lcshread
+CSHREAD_LIB = -lcshread
 
 # DIRS
 SRC_DIR = ./src
@@ -37,7 +37,7 @@ test: build-test run-test run-bats-test
 
 # Main Targets
 build:
-	$(CC) $(SRC_FILES) $(CFLAGS) $(LDFLAGS) -o $(EXECUTABLE_PATH)
+	$(CC) $(SRC_FILES) $(CFLAGS) -o $(EXECUTABLE_PATH) $(CSHREAD_LIB)
 
 run:
 	$(EXECUTABLE_PATH)
@@ -53,8 +53,9 @@ run-bats-test: build
 	bats tests/bats-core/*
 
 # Debug Targets
+build-debug: CSHREAD_LIB = -lcshread_debug # override library variable
 build-debug:
-	$(CC) $(SRC_FILES) $(CFLAGS_DEBUG) $(LDFLAGS) -o $(EXECUTABLE_DEBUG_PATH) -DDEBUG
+	$(CC) $(SRC_FILES) $(CFLAGS_DEBUG) $(CSHREAD_LIB) -o $(EXECUTABLE_DEBUG_PATH) -DDEBUG
 
 build-test-debug:
 	$(CC) $(SRC_TEST_FILES) $(CFLAGS_DEBUG) $(TEST_WRAPPER_FLAGS) -I$(INC_DIR) -I$(TEST_INC_DIR) -lcshread -lcmocka -o ./bin/test-debug
