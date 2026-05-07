@@ -13,8 +13,6 @@
 
 int last_exit_code = 0;
 
-void execute_node_type(AST *astNode);
-
 void redirect_to_file_descriptor(int *redirect_fd, int *saved_target_fd, int *overriden_fd, Redirection *redirection) {
     int file_mode = 0;
     int target_fd = -1;

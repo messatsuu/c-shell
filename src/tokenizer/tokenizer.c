@@ -123,7 +123,7 @@ ParseState *tokenize(const char *input) {
             if (current_char == ')') {
                 type = TOKEN_SUBSHELL_END;
             }
-            char *token = malloc(2 * sizeof(char));
+            char *token = allocate(2 * sizeof(char), true);
             token[0] = current_char;
             token[1] = '\0';
             tokens[count++] = (Token){type, token};

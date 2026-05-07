@@ -217,7 +217,7 @@ void expand_aliases(char **string) {
 
         unsigned int word_length = next_end_char ? next_end_char - pointer : strlen(pointer);
 
-        char *word = calloc(1, word_length + 1);
+        char *word = callocate(1, word_length + 1, true);
         strncpy(word, pointer, word_length);
 
         // Replace alias

@@ -5,8 +5,6 @@
 #include <unistd.h>
 #include <utility.h>
 
-void cleanup_node_type(AST *astNode);
-
 void cleanup_simple(AST *simpleAst) {
     unsigned int i = 0;
     while (simpleAst->simple.argv[i] != nullptr) {

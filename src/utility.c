@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 // Tell the compiler to ignore [-Wformat-nonliteral] on vfprintf-call (disable literal-checking)
 // 1 = position of the format-string parameter

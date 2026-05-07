@@ -24,8 +24,8 @@ extern Settings *settings;
 
 char *get_user_input() {
     char *original_input = cshr_read_input(get_prompt());
-    if (!original_input) {
-        return nullptr;
+    if (!original_input || strlen(original_input) == 0) {
+        return original_input;
     }
 
     // handle multiline-input with backslash
@@ -46,7 +46,6 @@ char *get_user_input() {
 
     return original_input;
 }
-
 // Main Loop of the shell.
 // Expects `original_input` to be a dynamically allocated string
 void execute_input(char *original_input) {

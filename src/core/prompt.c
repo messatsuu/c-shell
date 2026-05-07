@@ -90,9 +90,8 @@ char *get_prompt() {
         }
 
         // Concat the contents of `special_field` to prompt and move index forward
-        unsigned int special_field_length = strlen(special_field);
-        strncat(prompt, special_field, special_field_length);
-        index += special_field_length;
+        strcat(prompt, special_field);
+        index += strlen(special_field);
     }
 
     return prompt;
