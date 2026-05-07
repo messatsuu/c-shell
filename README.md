@@ -73,17 +73,21 @@ graph LR
 ### C-Shell
 #### Parsing & AST-Structure
 - [x] Escaping characters correctly (`echo \'`)
-- [x] subshells (`(cd .. && pwd) && pwd`)
-- [x] aliases (`alias ll='ls -la' ds='du -sh'`) (`unalias ll`)
-- [x] simple file-parising (`source my-file`)
-- [x] simple init-file parsing (~/.cshrc)
-- [ ] argument expansion (`echo $(echo foo)`)
-- [ ] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
+- [x] Subshells (`(cd .. && pwd) && pwd`)
+- [x] Aliases (`alias ll='ls -la' ds='du -sh'`) (`unalias ll`)
+- [x] Simple file-parising (`source my-file`)
+- [x] Simple init-file parsing (~/.cshrc)
+- [ ] Argument expansion (`echo $(echo foo)`)
+- [x] Handling incomplete or multiline user-input over PS2 (`echo foo \`)
 - [ ] Implement more bash-syntax
-    - [ ] globbing (`ls /tmp/*swp`)
-    - [ ] variable declaration
-    - [ ] for-loops
-    - [ ] while-loops
+    - [ ] Basic globbing (`rm ./*`)
+        - [ ] Globstar (`ls /tmp/*`)
+        - [ ] Recursive globstar (`ls /tmp/**`)
+        - [ ] "Partial match" globstar (`ls /tmp/*.txt`)
+        - [ ] Recursive "partial match" globstar (`ls /tmp/*.txt`)
+    - [ ] Variable declaration
+    - [ ] For-loops
+    - [ ] While-loops
 
 #### C-Shell-Read
 - [x] Make autocomplete finish to nearest non-ambiguous term
