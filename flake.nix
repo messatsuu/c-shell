@@ -19,7 +19,11 @@
         version = "0.1.0";
         src = ./.;
 
-        buildInputs = [ pkgs.clang cshread ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        buildInputs = [ cshread pkgs.clang ];
+        makeFlags = [
+          "CC=clang"
+        ];
 
         buildPhase = ''
           make
@@ -31,18 +35,13 @@
         '';
       };
 
-      # Make output available as "c-shell" binary
       apps.${system}.c-shell = {
         type = "app";
-        program = "${self.packages.${system}.default}/bin/c-shell";
+        program = "${self.packages.${system}.default}/bin/csh";
       };
 
-      # Default package alias
-      defaultPackage.${system} = self.packages.${system}.default;
-
-      # DevShell definition
       devShells.${system}.default = pkgs.mkShell {
-        nativeBuildInputs = [
+        packages = [
           pkgs.clang-tools
           pkgs.clang-analyzer
           pkgs.clang
@@ -56,23 +55,16 @@
           # man pages
           pkgs.glibcInfo
           pkgs.man-pages
-        ];
-
-        buildInputs = [
           cshread
           # Unit testing
           pkgs.cmocka
           pkgs.bats
         ];
 
-        # Set CPATH environment variable
         shellHook = ''
-          # env-vars
-          export CPATH=${pkgs.lib.makeSearchPathOutput "dev" "include" [ pkgs.libcxx ]}:${pkgs.lib.makeSearchPath "resource-root/include" [ pkgs.clang ]}:${cshread}/include:$CPATH
-          export LIBRARY_PATH=${cshread}/lib:$LIBRARY_PATH
+          echo "C shell dev environment loaded. Rebuilding libs."
 
-          # aliases
-          alias valgrind-debug="make bd && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./bin/main-debug"
+          alias valgrind-debug="make bd && valgrind --leak-check=full ./bin/main-debug"
           alias vd="valgrind-debug"
         '';
       };
